@@ -27,9 +27,10 @@ generic items do not exist in Qt 4
 #define IOINFOLIST_H
 
 #include "IOInfo.h"
-#include <q3ptrcollection.h>
-#include <q3ptrlist.h>
+// #include <q3ptrcollection.h>
+// #include <q3ptrlist.h>
 // class IOInfo;
+#include <QList>
 
 /**
  * @class IOInfoList

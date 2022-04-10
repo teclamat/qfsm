@@ -16,10 +16,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <QMessageBox>
+#include <QRegularExpression>
 #include <fstream>
 #include <iostream>
-#include <qmessagebox.h>
-#include <qregexp.h>
 
 #include "ExportRagel.h"
 #include "Machine.h"
@@ -32,18 +32,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // using namespace std;
 
-ExportRagel::ExportRagel(Options *opt) : Export(opt) {
+ExportRagel::ExportRagel(Options* opt)
+  : Export(opt)
+{
   create_action = false;
   lang_action = 0;
 }
 
-bool ExportRagel::validateMachine(Machine *m) {
-  QMutableListIterator<GState *> is(m->getSList());
+bool ExportRagel::validateMachine(Machine* m)
+{
+  QMutableListIterator<GState*> is(m->getSList());
   bool result = true;
-  QString msg = tr("The state name \'%1\' is invalid as it is has a special "
-                   "meaning for the Ragel state machine compiler.");
-  QString msg2 =
-      tr("The name of state \'%1\' begins with an invalid character.");
+  QString msg =
+      tr("The state name \'%1\' is invalid as it is has a special "
+         "meaning for the Ragel state machine compiler.");
+  QString msg2 = tr("The name of state \'%1\' begins with an invalid character.");
 
   for (; is.hasNext();) {
     // verify if there is no state called 'start' or 'final'
@@ -60,8 +63,8 @@ bool ExportRagel::validateMachine(Machine *m) {
     }
     QString firstletter;
     firstletter = n[0];
-    QRegExp regexp("[a-zA-Z_]");
-    if (!regexp.exactMatch(firstletter)) {
+    QRegularExpression regexp("[a-zA-Z_]");
+    if (!regexp.match(firstletter).hasMatch()) {
       result = false;
       if (Error::warningOkCancel(msg2.arg(n)) == QMessageBox::Cancel)
         return false;
@@ -71,9 +74,8 @@ bool ExportRagel::validateMachine(Machine *m) {
 }
 
 /// Writes all the relevant data into the tdf file.
-void ExportRagel::doExport() {
-  using namespace std;
-
+void ExportRagel::doExport()
+{
   create_action = options->getRagelCreateAction();
   lang_action = options->getRagelLangAction();
   if (options->getRagelDefaultTransitions()) {
@@ -83,61 +85,60 @@ void ExportRagel::doExport() {
 
   writeHeader("#");
 
-  *out << endl << "%%{" << endl;
+  *out << std::endl << "%%{" << std::endl;
 
   writeName();
   writeMain();
 
-  *out << endl << "}%%" << endl;
+  *out << std::endl << "}%%" << std::endl;
 
   // remove the added default transitions (using the undo buffer)
   if (options->getRagelDefaultTransitions()) {
-    UndoBuffer *u = machine->getProject()->getUndoBuffer();
+    UndoBuffer* u = machine->getProject()->getUndoBuffer();
     for (int i = 0; i < machine->getNumStates(); i++)
       u->undo();
     machine->updateDefaultTransitions();
   }
 }
 
-QString ExportRagel::fileFilter() { return "Ragel (*.rl)"; }
-QString ExportRagel::defaultExtension() { return "rl"; }
+QString ExportRagel::fileFilter()
+{
+  return "Ragel (*.rl)";
+}
+QString ExportRagel::defaultExtension()
+{
+  return "rl";
+}
 
 /// Writes the SUBDESIGN line to the output stream
-void ExportRagel::writeName() {
-  using namespace std;
+void ExportRagel::writeName()
+{
+  const std::string machineName = machine->getName().replace(QRegularExpression("\\s"), "_").toStdString();
 
-  QString n;
-
-  n = machine->getName();
-
-  n = n.replace(QRegExp("\\s"), "_");
-
-  *out << "machine " << n.latin1() << ";" << endl << endl;
+  *out << "machine " << machineName << ";" << std::endl << std::endl;
 }
 
 /// Writes the definition of the subdesign (from BEGIN to END) to the output
 /// stream
-void ExportRagel::writeMain() {
-  using namespace std;
-
-  *out << "main :=" << endl;
+void ExportRagel::writeMain()
+{
+  *out << "main :=" << std::endl;
 
   writeTransitions();
 
-  *out << ";" << endl;
+  *out << ";" << std::endl;
 }
 
 /// Writes the CASE part to the output stream
-void ExportRagel::writeTransitions() {
-  using namespace std;
-
-  GState *s;
-  State *stmp;
-  GTransition *t;
+void ExportRagel::writeTransitions()
+{
+  GState* s;
+  State* stmp;
+  GTransition* t;
   QString tinfoi, tinfoo, sn;
-  TransitionInfo *tinfo;
+  TransitionInfo* tinfo;
   QString iosingle;
-  IOInfo *tioinfo;
+  IOInfo* tioinfo;
   //  Convert conv;
   bool first;
   bool sfirst = true;
@@ -145,29 +146,28 @@ void ExportRagel::writeTransitions() {
 
   //*out << "\tCASE fsm IS" << endl;
 
-  QMutableListIterator<GState *> is(machine->getSList());
+  QMutableListIterator<GState*> is(machine->getSList());
 
   for (; is.hasNext();) {
-
     s = is.next();
     if (s->isDeleted())
       continue;
 
     sn = s->getStateName();
-    sn.replace(QRegExp(" "), "_");
+    sn.replace(QRegularExpression(" "), "_");
     // if (s->countTransitions()>0)
     {
       if (!sfirst)
-        *out << "," << endl;
+        *out << "," << std::endl;
       if (machine->getInitialState() == s)
-        *out << "start:" << endl;
-      *out << sn.latin1() << ": (" << endl;
+        *out << "start:" << std::endl;
+      *out << sn.toStdString() << ": (" << std::endl;
     }
     if (s->countTransitions() == 0) {
       *out << "  \"\" @not_accept -> final"; // << sn;
     }
 
-    QMutableListIterator<GTransition *> it(s->tlist);
+    QMutableListIterator<GTransition*> it(s->tlist);
     tfirst = true;
 
     for (; it.hasNext();) {
@@ -182,7 +182,7 @@ void ExportRagel::writeTransitions() {
         QStringList::iterator ioit;
 
         if (!tfirst)
-          *out << " | " << endl;
+          *out << " | " << std::endl;
 
         *out << "  "; // indent
         if (strlist.count() > 1)
@@ -193,24 +193,10 @@ void ExportRagel::writeTransitions() {
           iosingle = *ioit;
 
           if (!first) {
-            if (tioinfo->isInverted())
-              *out << " & ";
-            else
-              *out << " | ";
+            *out << tioinfo->isInverted() ? " & " : " | ";
           }
 
-          /*
-          if (iosingle[0]!='^' && iosingle[0]!='[')
-            *out << "(";
-            */
-
-          //      *out << iosingle;
-          *out << iosingle.latin1();
-
-          /*
-          if (iosingle[0]!='^' && iosingle[0]!='[')
-            *out << ")";
-            */
+          *out << iosingle.toStdString();
 
           first = false;
         }
@@ -222,14 +208,11 @@ void ExportRagel::writeTransitions() {
         stmp = t->getEnd();
         if (stmp) {
           sn = stmp->getStateName();
-          sn.replace(QRegExp(" "), "_");
+          sn.replace(QRegularExpression(" "), "_");
         }
-        // if (stmp!=s)
-        if (stmp->isFinalState())
-          *out << " @accept ";
-        else
-          *out << " @not_accept ";
-        *out << " -> " << sn.latin1();
+
+        *out << stmp->isFinalState() ? " @accept " : " @not_accept ";
+        *out << " -> " << sn.toStdString();
 
         tfirst = false;
       }
@@ -242,106 +225,103 @@ void ExportRagel::writeTransitions() {
   }
 }
 
-int ExportRagel::writeActionFile(const char *filename, const char *ragelfile) {
-  using namespace std;
-
-  ofstream aout(filename);
+int ExportRagel::writeActionFile(const char* filename, const char* ragelfile)
+{
+  std::ofstream aout{ filename };
 
   if (!aout)
     return -1;
 
-  QString n;
-  n = machine->getName();
-  n = n.replace(QRegExp("\\s"), "_");
+  const std::string machineName = machine->getName().replace(QRegularExpression("\\s"), "_").toStdString();
 
   if (lang_action == 1) // Java
   {
-    aout << "public class FSM_" << n.latin1() << endl;
-    aout << "{" << endl;
-    aout << endl;
+    aout << "public class FSM_" << machineName << std::endl;
+    aout << "{" << std::endl;
+    aout << std::endl;
   }
 
-  aout << "%%{" << endl << endl;
-  aout << "machine " << n.latin1() << ";" << endl << endl;
-  aout << "action accept { res = 1; }" << endl;
-  aout << "action not_accept { res = 0; }" << endl << endl;
-  aout << "include \"" << ragelfile << "\";" << endl << endl;
-  aout << "}%%" << endl << endl << endl;
+  aout << "%%{" << std::endl << std::endl;
+  aout << "machine " << machineName << ";" << std::endl << std::endl;
+  aout << "action accept { res = 1; }" << std::endl;
+  aout << "action not_accept { res = 0; }" << std::endl << std::endl;
+  aout << "include \"" << ragelfile << "\";" << std::endl << std::endl;
+  aout << "}%%" << std::endl << std::endl << std::endl;
 
   if (lang_action == 0) // C/C++
   {
-    aout << "#include <stdio.h>" << endl;
-    aout << "#include <string.h>" << endl;
-    aout << endl;
+    aout << "#include <stdio.h>" << std::endl;
+    aout << "#include <string.h>" << std::endl;
+    aout << std::endl;
   }
-  aout << "%% write data;" << endl;
-  aout << endl;
+  aout << "%% write data;" << std::endl;
+  aout << std::endl;
 
   switch (lang_action) {
-  case 0: // C/C++
-    aout << "int parse(char* string)" << endl;
-    break;
-  case 1: // Java
-    aout << "public int parse(String string)" << endl;
-    break;
-  case 2:
-    aout << "def parse( data )" << endl;
-    break;
-  }
-
-  switch (lang_action) {
-  case 0:
-  case 1:
-    aout << "{" << endl;
-    aout << "  int cs;" << endl;
-    aout << "  int res=0;" << endl;
-    break;
-  case 2:
-    aout << "  cs=0;" << endl;
-    aout << "  res=0;" << endl;
-    break;
+    case 0: // C/C++
+      aout << "int parse(char* string)" << std::endl;
+      break;
+    case 1: // Java
+      aout << "public int parse(String string)" << std::endl;
+      break;
+    case 2:
+      aout << "def parse( data )" << std::endl;
+      break;
   }
 
   switch (lang_action) {
-  case 0:
-    aout << "  char *p, *pe;" << endl;
-    aout << endl;
-    aout << "  p = string;" << endl;
-    aout << "  pe = p + strlen(string);" << endl;
-    break;
-  case 1:
-    aout << "  int p, pe;" << endl;
-    aout << endl;
-    aout << "  p = 0;" << endl;
-    aout << "  pe = string.length();" << endl;
-    aout << endl;
-    aout << "  char data[] = new char[pe];" << endl;
-    aout << "  for(int i=0; i<pe; i++)" << endl;
-    aout << "    data[i] = string.charAt(i);" << endl;
-    break;
-  case 2:
-    aout << "  p = 0;" << endl;
-    aout << "  pe = data.length();" << endl;
+    case 0:
+    case 1:
+      aout << "{" << std::endl;
+      aout << "  int cs;" << std::endl;
+      aout << "  int res=0;" << std::endl;
+      break;
+    case 2:
+      aout << "  cs=0;" << std::endl;
+      aout << "  res=0;" << std::endl;
+      break;
   }
 
-  aout << endl;
-  aout << "  %% write init;" << endl;
-  aout << "  %% write exec;" << endl;
-  aout << endl;
-  aout << "  return res;" << endl;
+  switch (lang_action) {
+    case 0:
+      aout << "  char *p, *pe;" << std::endl;
+      aout << std::endl;
+      aout << "  p = string;" << std::endl;
+      aout << "  pe = p + strlen(string);" << std::endl;
+      break;
+    case 1:
+      aout << "  int p, pe;" << std::endl;
+      aout << std::endl;
+      aout << "  p = 0;" << std::endl;
+      aout << "  pe = string.length();" << std::endl;
+      aout << std::endl;
+      aout << "  char data[] = new char[pe];" << std::endl;
+      aout << "  for(int i=0; i<pe; i++)" << std::endl;
+      aout << "    data[i] = string.charAt(i);" << std::endl;
+      break;
+    case 2:
+      aout << "  p = 0;" << std::endl;
+      aout << "  pe = data.length();" << std::endl;
+  }
+
+  aout << std::endl;
+  aout << "  %% write init;" << std::endl;
+  aout << "  %% write exec;" << std::endl;
+  aout << std::endl;
+  aout << "  return res;" << std::endl;
 
   switch (lang_action) {
-  case 0: // C/C++
-  case 1:
-    aout << "}" << endl << endl;
-    break;
-  case 2:
-    aout << "end" << endl << endl;
-    break;
+    case 0: // C/C++
+    case 1:
+      aout << "}" << std::endl << std::endl;
+      break;
+    case 2:
+      aout << "end" << std::endl << std::endl;
+      break;
   }
 
   if (lang_action == 1)  // Java
-    aout << "}" << endl; // end of class definition
+    aout << "}" << std::endl; // end of class definition
 
   return 0;
 }

@@ -31,8 +31,8 @@ removed setAutoDelete calls in constructor of class Undo
 #include "GITransition.h"
 #include "GState.h"
 #include "GTransition.h"
-#include <q3ptrlist.h>
-#include <qstringlist.h>
+// #include <q3ptrlist.h>
+#include <QStringList>
 
 class Project;
 

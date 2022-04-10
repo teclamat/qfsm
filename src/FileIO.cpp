@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <QFileDialog>
-#include <q3textstream.h>
+#include <QTextStream>
 #include <qcolor.h>
 #include <qdom.h>
 #include <qmap.h>
@@ -54,19 +54,19 @@ FileIO::FileIO(QWidget *parent) : QObject(parent) {
                             "Finite State Machine (*.fsm)");
   filedlg->setFileMode(QFileDialog::AnyFile);
   filedlg->setAcceptMode(QFileDialog::AcceptSave);
-  filedlg->setConfirmOverwrite(false);
+  filedlg->setOption(QFileDialog::DontConfirmOverwrite);
 
   importdlg = new QFileDialog(parent, "", act_dir.dirName(), "");
   importdlg->setFileMode(QFileDialog::AnyFile);
   importdlg->setAcceptMode(QFileDialog::AcceptSave);
-  importdlg->setConfirmOverwrite(false);
+  importdlg->setOption(QFileDialog::DontConfirmOverwrite);
 
   //  exportdlg = new Q3FileDialog(act_dir.dirName(), QString::null, parent,
   //  "exportdlg", true); exportdlg->setMode(Q3FileDialog::AnyFile);
   exportdlg = new QFileDialog(parent, "", act_dir.dirName(), "");
   exportdlg->setFileMode(QFileDialog::AnyFile);
   exportdlg->setAcceptMode(QFileDialog::AcceptSave);
-  exportdlg->setConfirmOverwrite(false);
+  exportdlg->setOption(QFileDialog::DontConfirmOverwrite);
 
   mb_statecode = new QMessageBox(
       "qfsm",
@@ -78,9 +78,9 @@ FileIO::FileIO(QWidget *parent) : QObject(parent) {
   mb_statecode->setButtonText(QMessageBox::No, tr("No"));
   mb_statecode->setButtonText(QMessageBox::Cancel, tr("Cancel"));
 
-  act_file = QString::null;
-  act_exportfile = QString::null;
-  act_export_dir = QString::null;
+  act_file = QString{};
+  act_exportfile = QString{};
+  act_export_dir = QString{};
   main = (MainWindow *)parent;
 }
 
@@ -345,10 +345,10 @@ Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
 
   if (mrufile.isNull()) {
     if (!filedlg->exec()) {
-      act_file = QString::null;
+      act_file = QString{};
       return p;
     }
-    act_file = filedlg->selectedFile();
+    act_file = filedlg->selectedFiles().first();
   } else {
     if (!QFile::exists(mrufile))
       return NULL;
@@ -358,17 +358,18 @@ Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
 
   emit sbMessage(tr("File loading..."));
   QFile file(act_file);
-  //  if (!file.open(IO_ReadOnly))
-  //    return NULL;
+   if (!file.open(QFile::ReadOnly))
+     return NULL;
 
   p = new Project(main);
   XMLHandler handler(p);
-  QXmlInputSource source(file);
-  QXmlSimpleReader reader;
+  handler.setDevice(&file);
+  // QXmlInputSource source(file);
+  // QXmlSimpleReader reader;
 
-  reader.setContentHandler(&handler);
+  // reader.setContentHandler(&handler);
   emit setWaitCursor();
-  if (reader.parse(source)) {
+  if (handler.parse()) {
     file.close();
     emit setPreviousCursor();
     return p;
@@ -586,12 +587,12 @@ bool FileIO::saveFileAs(Project *p) {
   //  filedlg->setMode(Q3FileDialog::AnyFile);
   filedlg->setAcceptMode(QFileDialog::AcceptSave);
   filedlg->setFileMode(QFileDialog::AnyFile);
-  if (act_file != QString::null)
+  if (!act_file.isEmpty())
     //    filedlg->setSelection(act_file);
     filedlg->selectFile(act_file);
 
   if (filedlg->exec()) {
-    act_file = filedlg->selectedFile();
+    act_file = filedlg->selectedFiles().first();
 
     QString name =
         act_file.right(act_file.length() - act_file.lastIndexOf("/"));
@@ -628,7 +629,7 @@ bool FileIO::saveFile(Project *p) {
       return false;
     }
   }
-  if (act_file == QString::null)
+  if (act_file.isEmpty())
     return saveFileAs(p);
   else
     return doSaveXML(p);
@@ -638,7 +639,9 @@ bool FileIO::saveFile(Project *p) {
  * Performs the actual saving of project @a p.
  */
 bool FileIO::doSave(Project *p) {
-  Machine *m = p->machine;
+  using Info = qfsm::AppInfo;
+
+  Machine* m = p->machine;
   if (!m)
     return false;
 
@@ -654,11 +657,11 @@ bool FileIO::doSave(Project *p) {
     qDebug("file cannot be opened for writing");
     return false;
   }
-  Q3TextStream s(&file);
+  QTextStream s(&file);
 
   list = m->getSList();
   QMutableListIterator<GState *> i(list);
-  AppInfo info(main);
+
   double xpos, ypos;
   double c1x, c1y, c2x, c2y;
   double endx, endy;
@@ -666,89 +669,89 @@ bool FileIO::doSave(Project *p) {
   //    int canvasw, canvash;
   QString transio;
 
-  s << info.getVersionMajor() << " ";
-  s << info.getVersionMinor() << endl;
-  s << m->getName() << endl;
-  s << m->getVersion() << endl;
-  s << m->getAuthor() << endl;
-  s << m->getDescription() << endl;
+  s << Info::getVersionMajor() << " ";
+  s << Info::getVersionMinor() << Qt::endl;
+  s << m->getName() << Qt::endl;
+  s << m->getVersion() << Qt::endl;
+  s << m->getAuthor() << Qt::endl;
+  s << m->getDescription() << Qt::endl;
   s << m->getType() << " ";
   s << m->getNumMooreOutputs() << " ";
   s << m->getNumInputs() << " ";
-  s << m->getNumOutputs() << endl;
-  s << m->getMooreOutputNames() << endl;
-  s << m->getMealyInputNames() << endl;
-  s << m->getMealyOutputNames() << endl;
-  s << m->countStates() << endl;
+  s << m->getNumOutputs() << Qt::endl;
+  s << m->getMooreOutputNames() << Qt::endl;
+  s << m->getMealyInputNames() << Qt::endl;
+  s << m->getMealyOutputNames() << Qt::endl;
+  s << m->countStates() << Qt::endl;
   state = m->getInitialState();
   if (state)
     initial = state->getEncoding();
   else
     initial = -1;
 
-  s << initial << endl;
+  s << initial << Qt::endl;
   //    m->getCanvasSize(canvasw, canvash);
   //    s << canvasw << " " << canvash << endl;
-  s << m->getSFont().family() << endl << m->getSFont().pointSize() << endl;
-  s << m->getTFont().family() << endl << m->getTFont().pointSize() << endl;
-  s << m->getArrowType() << endl;
-  s << endl;
+  s << m->getSFont().family() << Qt::endl << m->getSFont().pointSize() << Qt::endl;
+  s << m->getTFont().family() << Qt::endl << m->getTFont().pointSize() << Qt::endl;
+  s << m->getArrowType() << Qt::endl;
+  s << Qt::endl;
 
   for (; i.hasNext();) {
 
     state = i.next();
     state->getPos(xpos, ypos);
 
-    s.setf(Q3TextStream::bin);
-    s << state->getEncoding() << endl;
-    s << state->getMooreOutputsStr() << endl;
-    s.setf(Q3TextStream::dec);
+    s << Qt::bin;
+    s << state->getEncoding() << Qt::endl;
+    s << state->getMooreOutputsStr() << Qt::endl;
+    s << Qt::dec;
 
-    s << state->getStateName() << endl;
-    s << state->getDescription() << endl;
-    s << xpos << " " << ypos << " " << state->getRadius() << endl;
-    s << state->getPen().color().rgb() << " " << state->getLineWidth() << endl;
-    s << state->getBrush().color().rgb() << endl;
-    s << state->isFinalState() << endl;
-    s << endl;
+    s << state->getStateName() << Qt::endl;
+    s << state->getDescription() << Qt::endl;
+    s << xpos << " " << ypos << " " << state->getRadius() << Qt::endl;
+    s << state->getPen().color().rgb() << " " << state->getLineWidth() << Qt::endl;
+    s << state->getBrush().color().rgb() << Qt::endl;
+    s << state->isFinalState() << Qt::endl;
+    s << Qt::endl;
   }
-  s << endl;
+  s << Qt::endl;
 
   i.toFront();
 
   for (; i.hasNext();) {
     state = i.next();
 
-    s.setf(Q3TextStream::bin);
-    s << state->getEncoding() << endl;
-    s.setf(Q3TextStream::dec);
+    s << Qt::bin;
+    s << state->getEncoding() << Qt::endl;
+    s << Qt::dec;
 
     tlist = state->tlist;
     QMutableListIterator<GTransition *> j(tlist);
 
-    s << state->countTransitions() << endl;
+    s << state->countTransitions() << Qt::endl;
 
     for (; j.hasNext();) {
       t = j.next();
 
       dest_state = t->getEnd();
 
-      s.setf(Q3TextStream::bin);
+      s << Qt::bin;
       if (dest_state)
-        s << dest_state->getEncoding() << endl;
+        s << dest_state->getEncoding() << Qt::endl;
       else
-        s << -1 << endl;
-      s.setf(Q3TextStream::dec);
+        s << -1 << Qt::endl;
+      s << Qt::dec;
 
-      s << t->getInfo()->getType() << endl;
-      s << t->getDescription() << endl;
+      s << t->getInfo()->getType() << Qt::endl;
+      s << t->getDescription() << Qt::endl;
       //	if (t->getInfo()->getType()==Binary)
       {
         s << t->getInfo()->getInputsStr(NULL) << " ";
         transio = t->getInfo()->getOutputsStr(NULL);
         if (transio.isEmpty())
           transio = "<noout>";
-        s << transio << endl;
+        s << transio << Qt::endl;
       }
 
       t->getPos(xpos, ypos);
@@ -759,11 +762,11 @@ bool FileIO::doSave(Project *p) {
       s << xpos << " " << ypos << " ";
       s << c1x << " " << c1y << " " << c2x << " " << c2y << " ";
       s << endx << " " << endy << " ";
-      s << (int)t->isStraight() << endl;
+      s << (int)t->isStraight() << Qt::endl;
 
-      s << endl;
+      s << Qt::endl;
     }
-    s << endl;
+    s << Qt::endl;
   }
 
   // phantom state
@@ -772,29 +775,29 @@ bool FileIO::doSave(Project *p) {
   tlist = state->tlist;
   QMutableListIterator<GTransition *> ph(tlist);
 
-  s << state->countTransitions() << endl;
+  s << state->countTransitions() << Qt::endl;
 
   for (; ph.hasNext();) {
     t = ph.next();
 
     dest_state = t->getEnd();
 
-    s.setf(Q3TextStream::bin);
+    s << Qt::bin;
     if (dest_state)
-      s << dest_state->getEncoding() << endl;
+      s << dest_state->getEncoding() << Qt::endl;
     else
-      s << -1 << endl;
-    s.setf(Q3TextStream::dec);
+      s << -1 << Qt::endl;
+    s << Qt::dec;
 
-    s << t->getInfo()->getType() << endl;
-    s << t->getDescription() << endl;
+    s << t->getInfo()->getType() << Qt::endl;
+    s << t->getDescription() << Qt::endl;
     //      if (t->getInfo()->getType()==Binary)
     {
       s << t->getInfo()->getInputsStr(NULL) << " ";
       transio = t->getInfo()->getOutputsStr(NULL);
       if (transio.isEmpty())
         transio = "<noout>";
-      s << transio << endl;
+      s << transio << Qt::endl;
     }
     t->getPos(xpos, ypos);
     t->getEndPos(endx, endy);
@@ -804,9 +807,9 @@ bool FileIO::doSave(Project *p) {
     s << xpos << " " << ypos << " ";
     s << c1x << " " << c1y << " " << c2x << " " << c2y << " ";
     s << endx << " " << endy << " ";
-    s << (int)t->isStraight() << endl;
+    s << (int)t->isStraight() << Qt::endl;
 
-    s << endl;
+    s << Qt::endl;
   }
 
   file.close();
@@ -1241,121 +1244,113 @@ int FileIO::saveOptions(Options *opt) {
 
   QDir qfsmdir = createQfsmDir();
 
-  QFile file(qfsmdir.absPath() + "/qfsmrc");
+  QFile file(qfsmdir.absolutePath() + "/qfsmrc");
   if (!file.open(QIODevice::WriteOnly)) {
     qDebug("options not saved");
     return 1;
   }
 
-  Q3TextStream fout(&file);
+  QTextStream fout(&file);
 
-  fout << "view_stateenc " << (int)opt->getViewStateEncoding() << endl;
-  fout << "view_moore " << (int)opt->getViewMoore() << endl;
-  fout << "view_mealyin " << (int)opt->getViewMealyIn() << endl;
-  fout << "view_mealyout " << (int)opt->getViewMealyOut() << endl;
-  fout << "view_grid " << (int)opt->getViewGrid() << endl;
-  fout << "view_ioview " << (int)opt->getViewIOView() << endl;
+  fout << "view_stateenc " << (int)opt->getViewStateEncoding() << Qt::endl;
+  fout << "view_moore " << (int)opt->getViewMoore() << Qt::endl;
+  fout << "view_mealyin " << (int)opt->getViewMealyIn() << Qt::endl;
+  fout << "view_mealyout " << (int)opt->getViewMealyOut() << Qt::endl;
+  fout << "view_grid " << (int)opt->getViewGrid() << Qt::endl;
+  fout << "view_ioview " << (int)opt->getViewIOView() << Qt::endl;
 
-  fout << "state_shadows " << (int)opt->getStateShadows() << endl;
-  fout << "state_shadow_color "
-       << (unsigned int)opt->getStateShadowColor().rgb() << endl;
+  fout << "state_shadows " << (int)opt->getStateShadows() << Qt::endl;
+  fout << "state_shadow_color " << (unsigned int)opt->getStateShadowColor().rgb() << Qt::endl;
 
-  fout << "grid_size " << opt->getGridSize() << endl;
-  fout << "grid_color " << (unsigned int)opt->getGridColor().rgb() << endl;
+  fout << "grid_size " << opt->getGridSize() << Qt::endl;
+  fout << "grid_color " << (unsigned int)opt->getGridColor().rgb() << Qt::endl;
 
-  fout << "tooltips " << (int)opt->getToolTips() << endl;
-  fout << "iomark " << (int)opt->getIOMark() << endl;
-  fout << "ionames " << (int)opt->getDisplayIONames() << endl;
-  fout << "drawbox " << (int)opt->getDrawBox() << endl;
+  fout << "tooltips " << (int)opt->getToolTips() << Qt::endl;
+  fout << "iomark " << (int)opt->getIOMark() << Qt::endl;
+  fout << "ionames " << (int)opt->getDisplayIONames() << Qt::endl;
+  fout << "drawbox " << (int)opt->getDrawBox() << Qt::endl;
 
-  stmp = opt->getInitialDescriptor().stripWhiteSpace();
+  stmp = opt->getInitialDescriptor().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "initial_descriptor " << stmp << endl;
-  stmp = opt->getInversionDescriptor().stripWhiteSpace();
+  fout << "initial_descriptor " << stmp << Qt::endl;
+  stmp = opt->getInversionDescriptor().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "inversion_descriptor " << stmp << endl;
-  stmp = opt->getAnyInputDescriptor().stripWhiteSpace();
+  fout << "inversion_descriptor " << stmp << Qt::endl;
+  stmp = opt->getAnyInputDescriptor().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "any_input_descriptor " << stmp << endl;
-  stmp = opt->getDefaultTransitionDescriptor().stripWhiteSpace();
+  fout << "any_input_descriptor " << stmp << Qt::endl;
+  stmp = opt->getDefaultTransitionDescriptor().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "default_descriptor " << stmp << endl;
+  fout << "default_descriptor " << stmp << Qt::endl;
 
-  fout << "ahdl_sync_reset " << (int)opt->getAHDLSyncReset() << endl;
-  fout << "ahdl_use_moore " << (int)opt->getAHDLUseMoore() << endl;
+  fout << "ahdl_sync_reset " << (int)opt->getAHDLSyncReset() << Qt::endl;
+  fout << "ahdl_use_moore " << (int)opt->getAHDLUseMoore() << Qt::endl;
 
-  fout << "vhdl_symbolic_states " << (int)opt->getVHDLSymbolicStates() << endl;
-  fout << "vhdl_debug_state " << (int)opt->getVHDLDebugState() << endl;
-  fout << "vhdl_sync_reset " << (int)opt->getVHDLSyncReset() << endl;
-  fout << "vhdl_sync_enable " << (int)opt->getVHDLSyncEnable() << endl;
-  fout << "vhdl_stdlogic " << (int)opt->getVHDLStdLogic() << endl;
-  fout << "vhdl_io_names " << (int)opt->getVHDLInOutNames() << endl;
-  fout << "vhdl_neg_reset " << (int)opt->getVHDLNegReset() << endl;
-  fout << "vhdl_io_header " << (int)opt->getVHDLIOheader() << endl;
-  fout << "vhdl_alliance " << (int)opt->getVHDLAlliance() << endl;
-  fout << "vhdl_cond_notation " << (int)opt->getVHDLCondNotation() << endl;
-  fout << "vhdl_state_code " << (int)opt->getVHDLStateCode() << endl;
-  fout << "vhdl_sync_look_ahead " << (int)opt->getVHDLSyncLookAhead() << endl;
-  fout << "vhdl_sep_files " << (int)opt->getVHDLSepFiles() << endl;
-  stmp = opt->getVHDLArchitectureName().stripWhiteSpace();
+  fout << "vhdl_symbolic_states " << (int)opt->getVHDLSymbolicStates() << Qt::endl;
+  fout << "vhdl_debug_state " << (int)opt->getVHDLDebugState() << Qt::endl;
+  fout << "vhdl_sync_reset " << (int)opt->getVHDLSyncReset() << Qt::endl;
+  fout << "vhdl_sync_enable " << (int)opt->getVHDLSyncEnable() << Qt::endl;
+  fout << "vhdl_stdlogic " << (int)opt->getVHDLStdLogic() << Qt::endl;
+  fout << "vhdl_io_names " << (int)opt->getVHDLInOutNames() << Qt::endl;
+  fout << "vhdl_neg_reset " << (int)opt->getVHDLNegReset() << Qt::endl;
+  fout << "vhdl_io_header " << (int)opt->getVHDLIOheader() << Qt::endl;
+  fout << "vhdl_alliance " << (int)opt->getVHDLAlliance() << Qt::endl;
+  fout << "vhdl_cond_notation " << (int)opt->getVHDLCondNotation() << Qt::endl;
+  fout << "vhdl_state_code " << (int)opt->getVHDLStateCode() << Qt::endl;
+  fout << "vhdl_sync_look_ahead " << (int)opt->getVHDLSyncLookAhead() << Qt::endl;
+  fout << "vhdl_sep_files " << (int)opt->getVHDLSepFiles() << Qt::endl;
+  stmp = opt->getVHDLArchitectureName().trimmed();
   if (stmp.isEmpty())
     stmp = "behave";
-  fout << "vhdl_architecture_name " << stmp << endl;
+  fout << "vhdl_architecture_name " << stmp << Qt::endl;
 
-  fout << "testbench_stdlogic " << (int)opt->getTestbenchStdLogic() << endl;
-  fout << "testbench_sync_reset " << (int)opt->getTestbenchSynchronousReset()
-       << endl;
-  fout << "testbench_sync_enable " << (int)opt->getTestbenchSynchronousEnable()
-       << endl;
-  fout << "testbench_negated_reset " << (int)opt->getTestbenchNegatedReset()
-       << endl;
-  fout << "testbench_io_header " << (int)opt->getTestbenchIOHeader() << endl;
-  fout << "testbench_io_names " << (int)opt->getTestbenchIONames() << endl;
-  stmp = opt->getTestbenchVHDLPath().stripWhiteSpace();
+  fout << "testbench_stdlogic " << (int)opt->getTestbenchStdLogic() << Qt::endl;
+  fout << "testbench_sync_reset " << (int)opt->getTestbenchSynchronousReset() << Qt::endl;
+  fout << "testbench_sync_enable " << (int)opt->getTestbenchSynchronousEnable() << Qt::endl;
+  fout << "testbench_negated_reset " << (int)opt->getTestbenchNegatedReset() << Qt::endl;
+  fout << "testbench_io_header " << (int)opt->getTestbenchIOHeader() << Qt::endl;
+  fout << "testbench_io_names " << (int)opt->getTestbenchIONames() << Qt::endl;
+  stmp = opt->getTestbenchVHDLPath().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "testbench_vhdl_path " << stmp << endl;
-  stmp = opt->getTestvectorASCIIPath().stripWhiteSpace();
+  fout << "testbench_vhdl_path " << stmp << Qt::endl;
+  stmp = opt->getTestvectorASCIIPath().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "testvector_ascii_path " << stmp << endl;
-  stmp = opt->getTestpackageVHDLPath().stripWhiteSpace();
+  fout << "testvector_ascii_path " << stmp << Qt::endl;
+  stmp = opt->getTestpackageVHDLPath().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "testpackage_vhdl_path " << stmp << endl;
-  stmp = opt->getTestbenchLogfilePath().stripWhiteSpace();
+  fout << "testpackage_vhdl_path " << stmp << Qt::endl;
+  stmp = opt->getTestbenchLogfilePath().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "testbench_logfile_path " << stmp << endl;
-  stmp = opt->getTestbenchBaseDirectory().stripWhiteSpace();
+  fout << "testbench_logfile_path " << stmp << Qt::endl;
+  stmp = opt->getTestbenchBaseDirectory().trimmed();
   if (stmp.isEmpty())
     stmp = getEmptyFieldString();
-  fout << "testbench_base_directory " << stmp << endl;
+  fout << "testbench_base_directory " << stmp << Qt::endl;
 
-  fout << "ver_sync_reset " << (int)opt->getVerilogSyncReset() << endl;
+  fout << "ver_sync_reset " << (int)opt->getVerilogSyncReset() << Qt::endl;
   // fout << "ver_register_out " << (int)opt->getVerilogRegisterOut() << endl;
 
-  fout << "statetable_includeout " << (int)opt->getStateTableIncludeOut()
-       << endl;
-  fout << "statetable_resolve_inverted "
-       << (int)opt->getStateTableResolveInverted() << endl;
-  fout << "statetable_orientation " << (int)opt->getStateTableOrientation()
-       << endl;
+  fout << "statetable_includeout " << (int)opt->getStateTableIncludeOut() << Qt::endl;
+  fout << "statetable_resolve_inverted " << (int)opt->getStateTableResolveInverted() << Qt::endl;
+  fout << "statetable_orientation " << (int)opt->getStateTableOrientation() << Qt::endl;
 
-  fout << "ragel_create_action " << (int)opt->getRagelCreateAction() << endl;
-  fout << "ragel_lang_action " << (int)opt->getRagelLangAction() << endl;
-  fout << "ragel_default_transitions " << (int)opt->getRagelDefaultTransitions()
-       << endl;
-  fout << "vvvv_reset " << (int)opt->getVVVVReset() << endl;
-  fout << "vvvv_reset_event " << opt->getVVVVResetEvent() << endl;
-  fout << "vvvv_reset_action " << opt->getVVVVResetAction() << endl;
-  fout << "print_header " << (int)opt->getPrintHeader() << endl;
+  fout << "ragel_create_action " << (int)opt->getRagelCreateAction() << Qt::endl;
+  fout << "ragel_lang_action " << (int)opt->getRagelLangAction() << Qt::endl;
+  fout << "ragel_default_transitions " << (int)opt->getRagelDefaultTransitions() << Qt::endl;
+  fout << "vvvv_reset " << (int)opt->getVVVVReset() << Qt::endl;
+  fout << "vvvv_reset_event " << opt->getVVVVResetEvent() << Qt::endl;
+  fout << "vvvv_reset_action " << opt->getVVVVResetAction() << Qt::endl;
+  fout << "print_header " << (int)opt->getPrintHeader() << Qt::endl;
 
-  fout << endl;
+  fout << Qt::endl;
 
   file.close();
 
@@ -1372,10 +1367,10 @@ int FileIO::loadOptions(Options *opt) {
   QMap<QString, QString> _map;
   QString key, value;
 
-#ifdef WIN32
-  QFile file(dir.absPath() + "/Application Data/qfsm/qfsmrc");
+#ifdef Q_OS_WIN
+  QFile file(dir.absolutePath() + "/Application Data/qfsm/qfsmrc");
 #else
-  QFile file(dir.absPath() + "/.qfsm/qfsmrc");
+  QFile file(dir.absolutePath() + "/.qfsm/qfsmrc");
 #endif
 
   if (!file.open(QIODevice::ReadOnly)) {
@@ -1383,11 +1378,11 @@ int FileIO::loadOptions(Options *opt) {
     return 1;
   }
 
-  Q3TextStream fin(&file);
+  QTextStream fin(&file);
 
   fin >> key >> value;
 
-  while (!fin.eof()) {
+  while (!fin.atEnd()) {
     _map.insert(key, value);
     fin >> key >> value;
     if (value == getEmptyFieldString())
@@ -1412,7 +1407,7 @@ void FileIO::setOptions(QMap<QString, QString> *_map, Options *opt) {
 
   for (it = _map->begin(); it != _map->end(); ++it) {
     key = it.key();
-    data = it.data();
+    data = it.value();
     if (data == getEmptyFieldString())
       data = "";
     idata = data.toInt();
@@ -1569,13 +1564,13 @@ Project *FileIO::importFile(Import *imp, ScrollView *sv /*=NULL*/) {
   Project *p = NULL;
   importdlg->setAcceptMode(QFileDialog::AcceptOpen);
   importdlg->setFileMode(QFileDialog::ExistingFile);
-  importdlg->setFilter(imp->fileFilter() + ";;All Files (*)");
+  importdlg->setNameFilters({ imp->fileFilter(), "All Files (*)" });
 
   if (!importdlg->exec()) {
-    act_importfile = QString::null;
+    act_importfile = QString{};
     return p;
   }
-  act_importfile = importdlg->selectedFile();
+  act_importfile = importdlg->selectedFiles().first();
   act_import_dir = importdlg->directory().absolutePath();
 
   QString name = act_importfile.right(act_importfile.length() -
@@ -1586,7 +1581,7 @@ Project *FileIO::importFile(Import *imp, ScrollView *sv /*=NULL*/) {
 
   // p = new Project(main);
 
-  ifstream fin(act_importfile);
+  ifstream fin(act_importfile.toStdString());
 
   if (!fin)
     return NULL;
@@ -1618,16 +1613,16 @@ bool FileIO::exportFile(Project *p, Export *exp, ScrollView *sv /*=NULL*/) {
 
   //  exportdlg->setMode(Q3FileDialog::AnyFile);
   exportdlg->setFileMode(QFileDialog::AnyFile);
-  if (act_exportfile != QString::null)
+  if (!act_exportfile.isEmpty())
     //    exportdlg->setSelection(act_exportfile);
     exportdlg->selectFile(act_exportfile);
   else
     exportdlg->selectFile(p->machine->getName());
 
-  exportdlg->setFilter(exp->fileFilter() + ";;All Files (*)");
+  exportdlg->setNameFilters({exp->fileFilter(),"All Files (*)"});
 
   if (exportdlg->exec()) {
-    act_exportfile = exportdlg->selectedFile();
+    act_exportfile = exportdlg->selectedFiles().first();
     //    act_export_dir = exportdlg->dirPath();
     act_export_dir = exportdlg->directory().absolutePath();
 
@@ -1644,7 +1639,7 @@ bool FileIO::exportFile(Project *p, Export *exp, ScrollView *sv /*=NULL*/) {
         return false;
     }
 
-    ofstream fout(act_exportfile);
+    ofstream fout(act_exportfile.toStdString());
 
     if (!fout)
       return false;
@@ -1667,18 +1662,18 @@ bool FileIO::saveMRU(QStringList list) {
 
   QDir qfsmdir = createQfsmDir();
 
-  QFile file(qfsmdir.absPath() + "/mru_files");
+  QFile file(qfsmdir.absolutePath() + "/mru_files");
   if (!file.open(QIODevice::WriteOnly)) {
     qDebug("mru_files not saved");
     return false;
   }
 
-  Q3TextStream fout(&file);
+  QTextStream fout(&file);
 
   QStringList::Iterator it;
 
   for (it = list.begin(); it != list.end(); ++it) {
-    fout << (*it) << endl;
+    fout << (*it) << Qt::endl;
   }
   file.close();
 
@@ -1695,17 +1690,17 @@ bool FileIO::loadMRU(QStringList &_list) {
 
   QDir qfsmdir = createQfsmDir();
 
-  QFile file(qfsmdir.absPath() + "/mru_files");
+  QFile file(qfsmdir.absolutePath() + "/mru_files");
   if (!file.open(QIODevice::ReadOnly)) {
     qDebug("mru_files not opened");
     return false;
   }
 
-  Q3TextStream fin(&file);
+  QTextStream fin(&file);
 
   do {
     entry = fin.readLine();
-    entry = entry.stripWhiteSpace();
+    entry = entry.trimmed();
 
     if (!entry.isEmpty()) {
       _list.append(entry);
@@ -1719,10 +1714,10 @@ bool FileIO::loadMRU(QStringList &_list) {
 
 QDir FileIO::createQfsmDir() {
   QDir dir = QDir::home();
-#ifdef WIN32
-  QDir qfsmdir(dir.absPath() + "/Application Data/qfsm");
+#ifdef Q_OS_WIN
+  QDir qfsmdir(dir.absolutePath() + "/Application Data/qfsm");
   if (!qfsmdir.exists()) {
-    QDir appdir(dir.absPath() + "/Application Data");
+    QDir appdir(dir.absolutePath() + "/Application Data");
     if (!appdir.exists()) {
       if (!dir.mkdir("Application Data"))
         qDebug("Application Data not created");
@@ -1732,7 +1727,7 @@ QDir FileIO::createQfsmDir() {
   }
   return qfsmdir;
 #else
-  QDir qfsmdir(dir.absPath() + "/.qfsm");
+  QDir qfsmdir(dir.absolutePath() + "/.qfsm");
   if (!qfsmdir.exists()) {
     if (!dir.mkdir(".qfsm"))
       qDebug(".qfsm not created");

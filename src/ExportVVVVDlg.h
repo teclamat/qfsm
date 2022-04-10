@@ -21,16 +21,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ui_ExportVVVVDlg.h"
 
+#include <QRegularExpression>
+
 class Options;
 class Machine;
 
 class ExportVVVVDlgImpl : public QDialog {
   Q_OBJECT
-  Ui::ExportVVVVDlg exportVVVVDlg;
+  Ui::ExportVVVVDlg ui;
 
 public:
   ExportVVVVDlgImpl(QWidget *parent = 0, const char *name = 0,
-                    bool modal = false, Qt::WFlags fl = 0);
+                    bool modal = false, Qt::WindowFlags fl = {});
   ~ExportVVVVDlgImpl();
 
   void init(Options *opt, Machine *m);
@@ -41,14 +43,14 @@ public:
   void setVVVVReset(bool vr) { vvvv_reset = vr; };
   /// Returns the vvvv reset event name
   QString getVVVVResetEvent() {
-    reset_event.replace(QRegExp(" "), "_");
+    reset_event.replace(QRegularExpression(" "), "_");
     return reset_event;
   }
   /// Sets the vvvv reset event name
   void setVVVVResetEvent(QString re) { reset_event = re; }
   /// Returns the vvvv reset action name
   QString getVVVVResetAction() {
-    reset_action.replace(QRegExp(" "), "_");
+    reset_action.replace(QRegularExpression(" "), "_");
     return reset_action;
   }
   /// Sets the vvvv reset action name

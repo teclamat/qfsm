@@ -37,7 +37,7 @@ public:
   QString fileFilter();
   QString defaultExtension();
   void init(std::ofstream *, std::ofstream *, Machine *,
-            QString fn = QString::null, ScrollView *sv = NULL);
+            QString fn = {}, ScrollView *sv = nullptr);
 
 private:
   /// Output stream for vhdl testbench file

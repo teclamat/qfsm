@@ -1,68 +1,29 @@
-#ifndef OPTPRINTINGDLG_H
-#define OPTPRINTINGDLG_H
+#ifndef OPTPRINTINGDLGIMPL_H
+#define OPTPRINTINGDLGIMPL_H
+#include "ui_OptPrintingDlg.h"
 
-#include <qvariant.h>
+#include "Options.h"
 
-#include <Qt3Support/Q3MimeSourceFactory>
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialog>
-#include <QtGui/QHBoxLayout>
-
-class Ui_OptPrintingDlg {
-public:
-  QHBoxLayout *hboxLayout;
-  QCheckBox *cb_print_header;
-
-  void setupUi(QDialog *OptPrintingDlg) {
-    if (OptPrintingDlg->objectName().isEmpty())
-      OptPrintingDlg->setObjectName(QString::fromUtf8("OptPrintingDlg"));
-    OptPrintingDlg->resize(405, 282);
-    hboxLayout = new QHBoxLayout(OptPrintingDlg);
-    hboxLayout->setSpacing(6);
-    hboxLayout->setMargin(11);
-    hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-    cb_print_header = new QCheckBox(OptPrintingDlg);
-    cb_print_header->setObjectName(QString::fromUtf8("cb_print_header"));
-
-    hboxLayout->addWidget(cb_print_header);
-
-    retranslateUi(OptPrintingDlg);
-    QObject::connect(cb_print_header, SIGNAL(clicked()), OptPrintingDlg,
-                     SLOT(printHeaderClicked()));
-
-    QMetaObject::connectSlotsByName(OptPrintingDlg);
-  } // setupUi
-
-  void retranslateUi(QDialog *OptPrintingDlg) {
-    OptPrintingDlg->setWindowTitle(QApplication::translate(
-        "OptPrintingDlg", "Printing", 0, QApplication::UnicodeUTF8));
-    cb_print_header->setText(QApplication::translate(
-        "OptPrintingDlg", "Print header", 0, QApplication::UnicodeUTF8));
-    Q_UNUSED(OptPrintingDlg);
-  } // retranslateUi
-};
-
-namespace Ui {
-class OptPrintingDlg : public Ui_OptPrintingDlg {};
-} // namespace Ui
-
-class OptPrintingDlg : public QDialog, public Ui::OptPrintingDlg {
+class OptPrintingDlgImpl : public QDialog {
   Q_OBJECT
 
+  Ui::OptPrintingDlg ui;
+
 public:
-  OptPrintingDlg(QWidget *parent = 0, const char *name = 0, bool modal = false,
-                 Qt::WindowFlags fl = 0);
-  ~OptPrintingDlg();
+  OptPrintingDlgImpl(QWidget *parent = 0, const char *name = 0,
+                     bool modal = false, Qt::WindowFlags fl = {});
+  ~OptPrintingDlgImpl();
+
+  bool getPrintHeader() { return print_header; };
+  void setPrintHeader(bool ph) { print_header = ph; };
+
+  void init(Options *opt);
 
 public slots:
-  virtual void printHeaderClicked();
+  void printHeaderClicked();
 
-protected slots:
-  virtual void languageChange();
+private:
+  bool print_header;
 };
 
-#endif // OPTPRINTINGDLG_H
+#endif // OPTPRINTINGDLGIMPL_H

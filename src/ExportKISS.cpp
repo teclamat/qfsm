@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "ExportKISS.h"
 #include "Machine.h"
@@ -77,7 +77,7 @@ void ExportKISS::writeName() {
 
   *out << "SUBDESIGN " << n << endl;
   */
-  *out << "# " << n.latin1() << endl << endl;
+  *out << "# " << n.toLatin1() << endl << endl;
 }
 
 /// Writes the inputs/outputs to the output stream
@@ -87,11 +87,11 @@ void ExportKISS::writeIO() {
   QString on;
   *out << ".i " << machine->getNumInputs() << endl;
   *out << ".o " << machine->getNumOutputs() << endl;
-  *out << ".ilb " << machine->getMealyInputNames(" ").latin1() << endl;
+  *out << ".ilb " << machine->getMealyInputNames(" ").toLatin1() << endl;
 
   on = machine->getMealyOutputNames(" ");
   if (!on.isEmpty())
-    *out << ".ob " << on.latin1() << endl;
+    *out << ".ob " << on.toLatin1() << endl;
 
   *out << endl;
 }
@@ -159,7 +159,7 @@ void ExportKISS::writeMain() {
 
   reset = machine->getInitialState();
   if (reset)
-    *out << ".r " << reset->getStateName().latin1() << endl << endl;
+    *out << ".r " << reset->getStateName().toLatin1() << endl << endl;
 
   writeTransitions();
 }
@@ -184,7 +184,7 @@ void ExportKISS::writeTransitions() {
       continue;
 
     sn1 = s->getStateName();
-    sn1.replace(QRegExp(" "), "_");
+    sn1.replace(QRegularExpression(" "), "_");
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -214,20 +214,20 @@ void ExportKISS::writeTransitions() {
             for (int k = slen; k < numin; k++)
               *out << "0";
 
-            tinfoi.replace(QRegExp("x"), "-");
-            *out << tinfoi.latin1() << " "; // << "\" ";
+            tinfoi.replace(QRegularExpression("x"), "-");
+            *out << tinfoi.toLatin1() << " "; // << "\" ";
 
             sn2 = stmp->getStateName();
-            sn2.replace(QRegExp(" "), "_");
+            sn2.replace(QRegularExpression(" "), "_");
 
-            *out << sn1.latin1() << " " << sn2.latin1() << " ";
+            *out << sn1.toLatin1() << " " << sn2.toLatin1() << " ";
 
             slen = tinfoo.length();
             int numout = machine->getNumOutputs();
             for (int l = slen; l < numout; l++)
               *out << "0";
 
-            *out << tinfoo.latin1() << endl;
+            *out << tinfoo.toLatin1() << endl;
           }
         }
       }

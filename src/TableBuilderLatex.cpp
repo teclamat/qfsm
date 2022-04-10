@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "GState.h"
 #include "IOInfo.h"
@@ -88,8 +88,8 @@ QString TableBuilderLatex::getHead() {
     }
   }
 
-  shead.replace(QRegExp("\\\\"), "$\\backslash$");
-  shead.replace(QRegExp("_"), "\\_");
+  shead.replace(QRegularExpression("\\\\"), "$\\backslash$");
+  shead.replace(QRegularExpression("_"), "\\_");
 
   shead = sheadhead + shead;
   shead += " \\\\\n";
@@ -145,13 +145,13 @@ QString TableBuilderLatex::getRow(GState *s) {
       } else
         srow_out += " ";
     }
-    srow_out.replace(QRegExp("\\\\"), "$\\backslash$");
+    srow_out.replace(QRegularExpression("\\\\"), "$\\backslash$");
     // srow_out.replace(QRegExp("_"), "\_");
   }
 
   srow += srow_out + " \\\\\n";
   srow += "\\hline \n";
-  srow.replace(QRegExp("_"), "\\_");
+  srow.replace(QRegularExpression("_"), "\\_");
   return srow;
 }
 
@@ -186,7 +186,7 @@ QString TableBuilderLatex::getRow(IOInfo *io) {
       first = false;
     }
   }
-  srow.replace(QRegExp("\\\\"), "$\\backslash$");
+  srow.replace(QRegularExpression("\\\\"), "$\\backslash$");
 
   if (options->getStateTableIncludeOut()) {
     srow += " \\\\\n";
@@ -203,12 +203,12 @@ QString TableBuilderLatex::getRow(IOInfo *io) {
           srow_out += " ";
       }
     }
-    srow_out.replace(QRegExp("\\\\"), "$\\backslash$");
+    srow_out.replace(QRegularExpression("\\\\"), "$\\backslash$");
     // srow_out.replace(QRegExp("_"), "\_");
   }
 
   srow += srow_out + " \\\\\n";
   srow += "\\hline \n";
-  srow.replace(QRegExp("_"), "\\_");
+  srow.replace(QRegularExpression("_"), "\\_");
   return srow;
 }

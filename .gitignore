@@ -1,4 +1,6 @@
 # Ignore auto-generated files
+build
+.vscode
 moc*
 
 CMakeFiles/*

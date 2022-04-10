@@ -41,8 +41,8 @@ public:
   Import(Options *opt);
   virtual ~Import();
 
-  void init(std::istream *, MainWindow *main, QString fn = QString::null,
-            ScrollView *sv = NULL);
+  void init(std::istream *, MainWindow *main, QString fn = {},
+            ScrollView *sv = nullptr);
   /// Does the actual exporting
   virtual Project *doImport() = 0;
   /// Returns the appropriate filter string for the file dialog.

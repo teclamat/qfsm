@@ -31,7 +31,7 @@ ExportStateTable::ExportStateTable(Options *opt, TableBuilder *tb)
 
 /// Writes all the relevant data into the tdf file.
 void ExportStateTable::doExport() {
-  if (tablebuilder->fileFilter().find(".txt") == -1) // no header for text files
+  if (tablebuilder->fileFilter().indexOf(".txt") == -1) // no header for text files
     writeHeader(tablebuilder->getCommentStart(), tablebuilder->getCommentEnd());
   writeMain();
 }
@@ -49,5 +49,5 @@ void ExportStateTable::writeMain() {
   body = tablebuilder->getBody();
   footer = tablebuilder->getFoot();
 
-  *out << header.latin1() << body.latin1() << footer.latin1();
+  *out << header.toLatin1() << body.toLatin1() << footer.toLatin1();
 }

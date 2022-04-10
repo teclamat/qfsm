@@ -1,47 +1,78 @@
+// #include <q3buttongroup.h>
 #include "ExportRagelDlg.h"
 
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qvariant.h>
+#include <QCheckBox>
+#include <QRadioButton>
+
+#include "Options.h"
 
 /*
- *  Constructs a ExportRagelDlg as a child of 'parent', with the
- *  name 'name' and widget flags set to 'f'.
+ *  Constructs a ExportRagelDlgImpl which is a child of 'parent', with the
+ *  name 'name' and widget flags set to 'f'
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-ExportRagelDlg::ExportRagelDlg(QWidget *parent, const char *name, bool modal,
-                               Qt::WindowFlags fl)
-    : QDialog(parent, name, modal, fl) {
-  setupUi(this);
+ExportRagelDlgImpl::ExportRagelDlgImpl(QWidget *parent, const char *name,
+                                       bool modal, Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
+  setModal(modal);
+  ui.setupUi(this);
+  connect(ui.pb_export, &QPushButton::clicked, this, &ExportRagelDlgImpl::accept);
+  connect(ui.pb_cancel, &QPushButton::clicked, this, &ExportRagelDlgImpl::reject);
+  connect(ui.cb_actionfile, &QPushButton::clicked, this, &ExportRagelDlgImpl::createActionClicked);
+  connect(ui.cb_adddefault, &QPushButton::clicked, this, &ExportRagelDlgImpl::addDefaultTransClicked);
+  connect(ui.rb_java, &QRadioButton::clicked, this, &ExportRagelDlgImpl::langJavaClicked);
+  connect(ui.rb_ruby, &QRadioButton::clicked, this, &ExportRagelDlgImpl::langRubyClicked);
+  connect(ui.rb_C, &QRadioButton::clicked, this, &ExportRagelDlgImpl::langCClicked);
 }
 
 /*
  *  Destroys the object and frees any allocated resources
  */
-ExportRagelDlg::~ExportRagelDlg() {
+ExportRagelDlgImpl::~ExportRagelDlgImpl() {
   // no need to delete child widgets, Qt does it all for us
 }
 
 /*
- *  Sets the strings of the subwidgets using the current
- *  language.
+ * public slot
  */
-void ExportRagelDlg::languageChange() { retranslateUi(this); }
-
-void ExportRagelDlg::createActionClicked() {
-  qWarning("ExportRagelDlg::createActionClicked(): Not implemented yet");
+void ExportRagelDlgImpl::createActionClicked() {
+  create_action = ui.cb_actionfile->isChecked();
+  ui.bg_lang->setEnabled(create_action);
 }
 
-void ExportRagelDlg::langCClicked() {
-  qWarning("ExportRagelDlg::langCClicked(): Not implemented yet");
+/*
+ * public slot
+ */
+void ExportRagelDlgImpl::langCClicked() { lang_action = 0; }
+
+/*
+ * public slot
+ */
+void ExportRagelDlgImpl::langJavaClicked() { lang_action = 1; }
+
+/*
+ * public slot
+ */
+void ExportRagelDlgImpl::langRubyClicked() { lang_action = 2; }
+
+void ExportRagelDlgImpl::init(Options *opt) {
+  create_action = false; // opt->getRagelCreateAction();
+  ui.cb_actionfile->setChecked(create_action);
+  lang_action = opt->getRagelLangAction();
+  ui.bg_lang->setEnabled(create_action);
+  add_default_transitions = opt->getRagelDefaultTransitions();
+  ui.cb_adddefault->setChecked(add_default_transitions);
+
+  //  bg_lang->setButton(lang_action);
+  /*
+  bg_lang->setButton(0);
+  rb_java->setEnabled(false);
+  rb_ruby->setEnabled(false);
+  */
 }
 
-void ExportRagelDlg::langJavaClicked() {
-  qWarning("ExportRagelDlg::langJavaClicked(): Not implemented yet");
-}
-
-void ExportRagelDlg::langRubyClicked() {
-  qWarning("ExportRagelDlg::langRubyClicked(): Not implemented yet");
+void ExportRagelDlgImpl::addDefaultTransClicked() {
+  add_default_transitions = ui.cb_adddefault->isChecked();
 }

@@ -577,10 +577,8 @@ void UndoBuffer::undoAddTransition(Undo *u) {
   //  if (t->isSelected())
   //    t->select(false);
 
-  if (to)
-    to->reflist.remove(t);
-  if (from)
-    from->tlist.remove(t);
+  if (to) to->reflist.removeOne(t);
+  if (from) from->tlist.removeOne(t);
 }
 
 /// Undo changing a state.

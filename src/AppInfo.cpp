@@ -16,57 +16,48 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <QIcon>
-#include <qmessagebox.h>
-
 #include "AppInfo.h"
 
-/**
- * Constructor.
- * Initialises the AppInfo object by setting version und author.
- * @param par parent widget.
- */
-AppInfo::AppInfo(QWidget *par) : QObject(par) {
-  parent_widget = par;
-  version_major = 0;
+#include <QIcon>
+#include <QMessageBox>
+#include <QObject>
+#include <QTextStream>
 
-  version_minor = 56;
-  date = "2020-01-01";
-  author = "Stefan Duffner, Rainer Strobel, Aaron Erhardt";
+namespace qfsm {
+
+int AppInfo::s_versionMajor = QFSM_VERSION_MAJOR;
+int AppInfo::s_versionMinor = QFSM_VERSION_MINOR;
+QString AppInfo::s_author = QStringLiteral("Stefan Duffner, Rainer Strobel, Aaron Erhardt");
+QString AppInfo::s_buildDate = QStringLiteral(QFSM_BUILD_DATE);
+
+double AppInfo::getVersionDouble()
+{
+  double version = static_cast<double>(s_versionMinor);
+  while (version > 1.0) {
+    version /= 10.0;
+  }
+  return version + static_cast<double>(s_versionMajor);
 }
 
-double AppInfo::getVersionDouble() {
-  double dec;
-  double res;
+void AppInfo::about(QWidget* a_targetWidget)
+{
+  if (a_targetWidget == nullptr) {
+    return;
+  }
 
-  dec = version_minor;
-  while (dec > 1)
-    dec /= 10;
+  QString text{};
+  QTextStream stream{ &text };
+  stream << QObject::tr("Qfsm - A graphical tool for designing and simulating finite state machines") << Qt::endl;
+  stream << QObject::tr("Version ") << getVersion() << Qt::endl;
+  stream << QObject::tr("Development version ") << s_buildDate << Qt::endl;
+  stream << QObject::tr("Copyright 2000-2020 by ") << s_author << Qt::endl;
+  stream << QObject::tr("email: qfsm@duffner-net.de");
 
-  res = dec + version_major;
-
-  return res;
+  QMessageBox messageBox{ a_targetWidget };
+  messageBox.setIconPixmap(a_targetWidget->windowIcon().pixmap(64, 64));
+  messageBox.setWindowTitle(QObject::tr("About Qfsm"));
+  messageBox.setText(text);
+  messageBox.exec();
 }
 
-/**
- * Display about-dialogbox.
- */
-void AppInfo::about() {
-  QString text;
-  text = tr("Qfsm - A graphical tool for designing and simulating "
-            "finite state machines") +
-         "\n";
-  text += tr("Version %1.%2").arg(version_major).arg(version_minor) + "\n";
-  text += tr("Development version %1").arg(date) + "\n";
-  text += tr("Copyright 2000-2020 by ") + author + "\n";
-  text += tr("email: qfsm@duffner-net.de");
-
-  // QMessageBox::about(parent_widget, tr("Qfsm"), text);
-
-  QMessageBox mbox(parent_widget);
-
-  mbox.setIconPixmap(parent_widget->windowIcon().pixmap(64.64));
-  mbox.setCaption(tr("About Qfsm"));
-  mbox.setText(text);
-  mbox.exec();
-}
+} // namespace qfsm

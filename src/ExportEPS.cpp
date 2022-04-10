@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <qfile.h>
 #include <qpainter.h>
 #include <qprinter.h>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "ExportEPS.h"
 #include "Machine.h"
@@ -56,9 +56,7 @@ void ExportEPS::doExport() {
   QPrinter *printer;
 
   printer = new QPrinter(QPrinter::ScreenResolution);
-
-  printer->setOutputToFile(true);
-  printer->setOutputFormat(QPrinter::PostScriptFormat);
+  printer->setOutputFormat(QPrinter::PdfFormat);
   printer->setOutputFileName(fileName);
   printer->setColorMode(QPrinter::Color);
   printer->setFontEmbeddingEnabled(true);
@@ -118,47 +116,47 @@ bool ExportEPS::fixEPS(const QString &fileName, QRect rect) const {
 
   // now open the file and make a correct eps out of it
   QFile epsfile(fileName);
-  if (!epsfile.open(IO_ReadOnly)) {
+  if (!epsfile.open(QFile::ReadOnly)) {
     return false;
   }
   // read
   QTextStream ts(&epsfile);
-  QString fileContent = ts.read();
+  QString fileContent = ts.readAll();
   epsfile.close();
 
   // read information
-  QRegExp rx("%%BoundingBox:\\s*(-?[\\d\\.:]+)\\s*(-?[\\d\\.:]+)\\s*(-?[\\d\\.:"
-             "]+)\\s*(-?[\\d\\.:]+)");
-  const int pos = rx.search(fileContent);
+  QRegularExpression rx(
+      "%%BoundingBox:\\s*(-?[\\d\\.:]+)\\s*(-?[\\d\\.:]+)\\s*(-?[\\d\\.:"
+      "]+)\\s*(-?[\\d\\.:]+)");
+  QRegularExpressionMatch match{};
+  const qsizetype pos = fileContent.indexOf(rx, 0, &match);
   if (pos < 0) {
-    cerr << "ExportEPS::fixEPS(" << fileName.latin1()
+    cerr << "ExportEPS::fixEPS(" << fileName.toLatin1()
          << "): cannot find %%BoundingBox" << endl;
     return false;
   }
 
   // write new content to file
-  if (!epsfile.open(IO_WriteOnly | IO_Truncate)) {
-    cerr << "ExportEPS::fixEPS(" << fileName.latin1()
+  if (!epsfile.open(QFile::WriteOnly | QFile::Truncate)) {
+    cerr << "ExportEPS::fixEPS(" << fileName.toLatin1()
          << "): cannot open file for writing" << endl;
     return false;
   }
 
   // be careful when rounding (ceil/floor) the BB, these roundings
   // were mainly obtained experimentally...
-  const double epsleft = rx.cap(1).toFloat();
-  const double epstop = rx.cap(4).toFloat();
+  const double epsleft = match.captured(1).toFloat();
+  const double epstop  = match.captured(4).toFloat();
   const int left = int(floor(epsleft));
   const int right = int(ceil(epsleft)) + rect.width();
   const int top = int(ceil(epstop)) + 1;
   const int bottom = int(floor(epstop)) - rect.height() + 1;
 
   // modify content
-  fileContent.replace(pos, rx.cap(0).length(),
-                      QString("%%BoundingBox: %1 %2 %3 %4")
-                          .arg(left)
-                          .arg(bottom)
-                          .arg(right)
-                          .arg(top));
+  fileContent.replace(
+      pos,
+      match.captured(0).length(),
+      QString("%%BoundingBox: %1 %2 %3 %4").arg(left).arg(bottom).arg(right).arg(top));
 
   ts << fileContent;
   epsfile.close();

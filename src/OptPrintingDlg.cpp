@@ -1,35 +1,36 @@
 #include "OptPrintingDlg.h"
 
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qvariant.h>
+#include <QCheckBox>
 
 /*
- *  Constructs a OptPrintingDlg as a child of 'parent', with the
- *  name 'name' and widget flags set to 'f'.
+ *  Constructs a OptPrintingDlgImpl which is a child of 'parent', with the
+ *  name 'name' and widget flags set to 'f'
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-OptPrintingDlg::OptPrintingDlg(QWidget *parent, const char *name, bool modal,
-                               Qt::WindowFlags fl)
-    : QDialog(parent, name, modal, fl) {
-  setupUi(this);
+OptPrintingDlgImpl::OptPrintingDlgImpl(QWidget *parent, const char *name,
+                                       bool modal, Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
+  ui.setupUi(this);
+  connect(ui.cb_print_header, &QCheckBox::clicked, this, &OptPrintingDlgImpl::printHeaderClicked);
 }
 
 /*
  *  Destroys the object and frees any allocated resources
  */
-OptPrintingDlg::~OptPrintingDlg() {
+OptPrintingDlgImpl::~OptPrintingDlgImpl() {
   // no need to delete child widgets, Qt does it all for us
 }
 
-/*
- *  Sets the strings of the subwidgets using the current
- *  language.
- */
-void OptPrintingDlg::languageChange() { retranslateUi(this); }
-
-void OptPrintingDlg::printHeaderClicked() {
-  qWarning("OptPrintingDlg::printHeaderClicked(): Not implemented yet");
+void OptPrintingDlgImpl::init(Options *opt) {
+  print_header = opt->getPrintHeader();
+  //  cb_print_header->setChecked(print_header);
 }
+
+/// Called when the 'Print header' checkbox is clicked
+void OptPrintingDlgImpl::printHeaderClicked() {
+  print_header = ui.cb_print_header->isChecked();
+}
+
+/// Called when the 'Draw Box' checkbox is clicked

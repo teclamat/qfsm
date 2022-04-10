@@ -39,11 +39,11 @@
    <property name="spacing">
     <number>6</number>
    </property>
-   <property name="margin">
+   <property name="margin" stdset="0">
     <number>11</number>
    </property>
    <item>
-    <widget class="Q3GroupBox" name="GroupBox3">
+    <widget class="QGroupBox" name="GroupBox3">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -57,14 +57,14 @@
       <property name="spacing">
        <number>6</number>
       </property>
-      <property name="margin">
+      <property name="margin" stdset="0">
        <number>8</number>
       </property>
       <item>
        <widget class="QLineEdit" name="le_inputs"/>
       </item>
       <item>
-       <widget class="Q3ButtonGroup" name="ButtonGroup1">
+       <widget class="QGroupBox" name="ButtonGroup1">
         <property name="maximumSize">
          <size>
           <width>32767</width>
@@ -74,14 +74,11 @@
         <property name="title">
          <string/>
         </property>
-        <property name="frameShape">
-         <enum>Q3GroupBox::NoFrame</enum>
-        </property>
         <layout class="QHBoxLayout">
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin">
+         <property name="margin" stdset="0">
           <number>0</number>
          </property>
          <item>
@@ -89,7 +86,7 @@
            <property name="spacing">
             <number>6</number>
            </property>
-           <property name="margin">
+           <property name="margin" stdset="0">
             <number>0</number>
            </property>
            <item>
@@ -123,7 +120,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="margin">
+        <property name="margin" stdset="0">
          <number>0</number>
         </property>
         <item>
@@ -388,7 +385,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Q3GroupBox" name="GroupBox4">
+    <widget class="QGroupBox" name="GroupBox4">
      <property name="title">
       <string>Outputs</string>
      </property>
@@ -396,7 +393,7 @@
       <property name="spacing">
        <number>6</number>
       </property>
-      <property name="margin">
+      <property name="margin" stdset="0">
        <number>8</number>
       </property>
       <item>
@@ -416,7 +413,7 @@
        </widget>
       </item>
       <item>
-       <widget class="Q3ButtonGroup" name="ButtonGroup2">
+       <widget class="QGroupBox" name="ButtonGroup2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -438,14 +435,11 @@
         <property name="title">
          <string/>
         </property>
-        <property name="frameShape">
-         <enum>Q3GroupBox::NoFrame</enum>
-        </property>
         <layout class="QHBoxLayout">
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin">
+         <property name="margin" stdset="0">
           <number>0</number>
          </property>
          <item>
@@ -453,7 +447,7 @@
            <property name="spacing">
             <number>6</number>
            </property>
-           <property name="margin">
+           <property name="margin" stdset="0">
             <number>0</number>
            </property>
            <item>
@@ -490,7 +484,7 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <property name="margin">
+     <property name="margin" stdset="0">
       <number>0</number>
      </property>
      <item>
@@ -584,7 +578,7 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <property name="margin">
+     <property name="margin" stdset="0">
       <number>0</number>
      </property>
      <item>
@@ -629,7 +623,7 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <property name="margin">
+     <property name="margin" stdset="0">
       <number>0</number>
      </property>
      <item>
@@ -691,7 +685,7 @@
      <property name="spacing">
       <number>5</number>
      </property>
-     <property name="margin">
+     <property name="margin" stdset="0">
       <number>0</number>
      </property>
      <item>
@@ -759,18 +753,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>Q3GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>Qt3Support/Q3GroupBox</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3ButtonGroup</class>
-   <extends>Q3GroupBox</extends>
-   <header>Qt3Support/Q3ButtonGroup</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>WSpinBox</class>
    <extends>QWidget</extends>
    <header>WSpinBox.h</header>
@@ -805,454 +787,5 @@
   <include location="local">WSpinBox.h</include>
  </includes>
  <resources/>
- <connections>
-  <connection>
-   <sender>pb_clock</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>clockPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>32</x>
-     <y>326</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>le_inputs</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>inputsChanged(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>55</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_ibin</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>iBinPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_ihex</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>iHexPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>176</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_iascii</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>iASCIIPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>305</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_obin</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>oBinPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>214</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_ohex</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>oHexPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>176</x>
-     <y>214</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_oascii</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>oASCIIPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>305</x>
-     <y>214</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_send</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>send()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>32</x>
-     <y>361</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_reset</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>reset()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>260</x>
-     <y>361</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_cancel</sender>
-   <signal>pressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>closeSim()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>350</x>
-     <y>361</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin0</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button0Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>406</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin1</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button1Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>382</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin10</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button10Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>168</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin11</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button11Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>144</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin12</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button12Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>120</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin13</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button13Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin14</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button14Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>72</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin15</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button15Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin2</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button2Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>358</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin3</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button3Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>334</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin4</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button4Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>310</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin5</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button5Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>287</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin6</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button6Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>263</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin7</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button7Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>239</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin8</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button8Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>215</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_bin9</sender>
-   <signal>released()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>button9Pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>191</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>le_inputs</sender>
-   <signal>returnPressed()</signal>
-   <receiver>SimulatorDlg</receiver>
-   <slot>returnPressedInputs()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>55</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

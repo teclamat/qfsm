@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <qregexp.h>
+// #include <QRegularExpression>
 
 #include "GState.h"
 #include "IOInfo.h"
@@ -105,7 +105,7 @@ QString TableBuilderASCII::getRow(GState *s) {
     } else
       srow += ";\"-\"";
   }
-  //  srow.replace(QRegExp("_"), "\\_");
+  //  srow.replace(QRegularExpression("_"), "\\_");
   srow += "\n";
   return srow;
 }
@@ -139,7 +139,7 @@ QString TableBuilderASCII::getRow(IOInfo *io) {
         srow += ";\"-\"";
     }
   }
-  //  srow.replace(QRegExp("_"), "\\_");
+  //  srow.replace(QRegularExpression("_"), "\\_");
   srow += "\n";
   return srow;
 }

@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ExportStateTableDlg</class>
- <widget class="QDialog" name="ExportStateTableDlg" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ExportStateTableDlg">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,23 +10,23 @@
     <height>203</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>State Table Export Options</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <layout class="QVBoxLayout" >
+    <layout class="QVBoxLayout">
      <item>
-      <layout class="QHBoxLayout" >
+      <layout class="QHBoxLayout">
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>16</width>
            <height>20</height>
@@ -34,40 +35,37 @@
         </spacer>
        </item>
        <item>
-        <layout class="QVBoxLayout" >
+        <layout class="QVBoxLayout">
          <item>
-          <widget class="QCheckBox" name="cb_includeout" >
-           <property name="text" >
+          <widget class="QCheckBox" name="cb_includeout">
+           <property name="text">
             <string>Include asyncronous output</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cb_resolve_invert" >
-           <property name="text" >
+          <widget class="QCheckBox" name="cb_resolve_invert">
+           <property name="text">
             <string>Resolve inverted conditions</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="Q3ButtonGroup" name="bg_orientation" >
-           <property name="title" >
-            <string>Orientation</string>
-           </property>
-           <layout class="QVBoxLayout" >
+          <widget class="QGroupBox" name="bg_orientation">
+           <layout class="QVBoxLayout">
             <item>
-             <widget class="QRadioButton" name="rb_orientation0" >
-              <property name="text" >
+             <widget class="QRadioButton" name="rb_orientation0">
+              <property name="text">
                <string>Rows: States / Columns: Events</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rb_orientation1" >
-              <property name="text" >
+             <widget class="QRadioButton" name="rb_orientation1">
+              <property name="text">
                <string>Rows: Events / Columns: States</string>
               </property>
              </widget>
@@ -79,13 +77,13 @@
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>44</width>
            <height>20</height>
@@ -97,13 +95,13 @@
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Expanding</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
          <height>20</height>
@@ -112,16 +110,16 @@
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" >
+      <layout class="QHBoxLayout">
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -130,24 +128,24 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pb_export" >
-         <property name="text" >
+        <widget class="QPushButton" name="pb_export">
+         <property name="text">
           <string>Export</string>
          </property>
-         <property name="default" >
+         <property name="default">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>16</height>
@@ -156,21 +154,21 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pb_cancel" >
-         <property name="text" >
+        <widget class="QPushButton" name="pb_cancel">
+         <property name="text">
           <string>Cancel</string>
          </property>
         </widget>
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -184,16 +182,7 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
- <customwidgets>
-  <customwidget>
-   <class>Q3ButtonGroup</class>
-   <extends>Q3GroupBox</extends>
-   <header>Qt3Support/Q3ButtonGroup</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
+ <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>cb_includeout</tabstop>
   <tabstop>rb_orientation0</tabstop>
@@ -202,86 +191,5 @@
   <tabstop>pb_cancel</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>cb_includeout</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportStateTableDlg</receiver>
-   <slot>includeOutputsClicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_export</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportStateTableDlg</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_cancel</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportStateTableDlg</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>bg_orientation</sender>
-   <signal>clicked(int)</signal>
-   <receiver>ExportStateTableDlg</receiver>
-   <slot>orientationClicked(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_resolve_invert</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportStateTableDlg</receiver>
-   <slot>resolveInvertedClicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

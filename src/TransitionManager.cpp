@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "Const.h"
 #include "Convert.h"
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionManager.h"
 #include "UndoBuffer.h"
 //#include "dialogs/DTransitionProperties.h"
-#include "TransitionPropertiesDlgImpl.h"
+#include "TransitionPropertiesDlg.h"
 
 /// Constructor
 TransitionManager::TransitionManager(MainWindow *m) {
@@ -61,7 +61,7 @@ bool TransitionManager::addTransition(GState *from, GState *to, int numin,
                                       int numout, double sx, double sy,
                                       double ex, double ey, double c1x,
                                       double c1y, double c2x, double c2y) {
-  Machine *m = main->project->machine;
+  Machine *m = main->project()->machine;
   int mtype;
 
   mtype = m->getType();
@@ -107,8 +107,8 @@ bool TransitionManager::addTransition(GState *from, GState *to, int numin,
     description = trans_props->getDescription();
 
     if (trans_props->getType() == Binary) {
-      sin.replace(QRegExp(" "), "");
-      sout.replace(QRegExp(" "), "");
+      sin.replace(QRegularExpression(" "), "");
+      sout.replace(QRegularExpression(" "), "");
 
       //      in = conv.binStrToX10(numin, sin, IO_MealyIn);
       //      out = conv.binStrToX10(numout, sout, IO_MealyOut);
@@ -121,8 +121,8 @@ bool TransitionManager::addTransition(GState *from, GState *to, int numin,
       info = new TransitionInfoBin(/*numin,*/ in /*, numout*/, out);
 
     } else if (trans_props->getType() == Ascii) {
-      sin.replace(QRegExp(" "), "");
-      sout.replace(QRegExp(" "), "");
+      sin.replace(QRegularExpression(" "), "");
+      sout.replace(QRegularExpression(" "), "");
 
       info = new TransitionInfoASCII(sin, sout);
     } else {
@@ -133,7 +133,7 @@ bool TransitionManager::addTransition(GState *from, GState *to, int numin,
     ininfo->setAnyInput(trans_props->getAnyInput());
     ininfo->setDefault(trans_props->getDefaultTransition());
 
-    from->addTransition(main->project, to, info, sx, sy, ex, ey, c1x, c1y, c2x,
+    from->addTransition(main->project(), to, info, sx, sy, ex, ey, c1x, c1y, c2x,
                         c2y, description);
 
     return true;
@@ -150,7 +150,7 @@ void TransitionManager::straightenSelection(QList<GTransition *> *l) {
   GTransition *t;
 
   if (ti.hasNext())
-    main->project->getUndoBuffer()->changeTransitions(l);
+    main->project()->getUndoBuffer()->changeTransitions(l);
 
   for (; ti.hasNext();) {
     t = ti.next();
@@ -214,15 +214,15 @@ void TransitionManager::editTransition(Machine *m, GTransition *t) {
   trans_props->setType(type); // once more to properly enable/disable fields
 
   if (trans_props->exec()) {
-    main->project->getUndoBuffer()->changeTransition(t);
+    main->project()->getUndoBuffer()->changeTransition(t);
 
     sin = trans_props->getInputs();
     sout = trans_props->getOutputs();
     type = trans_props->getType();
     description = trans_props->getDescription();
 
-    sin.replace(QRegExp(" "), "");
-    sout.replace(QRegExp(" "), "");
+    sin.replace(QRegularExpression(" "), "");
+    sout.replace(QRegularExpression(" "), "");
 
     delete info;
     if (type == Binary)
@@ -241,7 +241,7 @@ void TransitionManager::editTransition(Machine *m, GTransition *t) {
     ininfo->setAnyInput(trans_props->getAnyInput());
     ininfo->setDefault(trans_props->getDefaultTransition());
 
-    main->project->setChanged();
+    main->project()->setChanged();
     main->updateAll();
     main->repaintViewport();
   }

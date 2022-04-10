@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -256,7 +256,7 @@
           </layout>
          </item>
          <item>
-          <widget class="Q3ButtonGroup" name="bg_cond_notation">
+          <widget class="QGroupBox" name="bg_cond_notation">
            <property name="title">
             <string>Transiton Conditions</string>
            </property>
@@ -391,58 +391,10 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
- <customwidgets>
-  <customwidget>
-   <class>Q3GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>Qt3Support/Q3GroupBox</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3ButtonGroup</class>
-   <extends>Q3GroupBox</extends>
-   <header>Qt3Support/Q3ButtonGroup</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>pb_export</tabstop>
   <tabstop>pb_cancel</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>pb_export</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportVHDLDlg</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_cancel</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportVHDLDlg</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>189</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

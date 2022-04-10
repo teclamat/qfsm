@@ -18,11 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <math.h>
 
-#include <q3ptrlist.h>
+// #include <q3ptrlist.h>
 #include <qbrush.h>
 #include <qcolor.h>
 #include <qpen.h>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "Const.h"
 #include "Convert.h"
@@ -220,8 +220,8 @@ void GState::debugTransitions(/*int numin, int numout*/) {
     qDebug("Adresse:     %p", t);
     qDebug("Start:       %p", t->getStart());
     qDebug("Ende:        %p", t->getEnd());
-    qDebug("Inputs:      %s", info->getInputsStrBin(/*numin*/).latin1());
-    qDebug("Outputs:     %s", info->getOutputsStrBin(/*numout*/).latin1());
+    qDebug("Inputs:      %s", info->getInputsStrBin(/*numin*/).toLatin1());
+    qDebug("Outputs:     %s", info->getOutputsStrBin(/*numout*/).toLatin1());
     qDebug(" ");
   }
 
@@ -238,8 +238,8 @@ void GState::debugTransitions(/*int numin, int numout*/) {
     qDebug("Adresse:     %p", t);
     qDebug("Start:       %p", t->getStart());
     qDebug("Ende:        %p", t->getEnd());
-    qDebug("Inputs:      %s", info->getInputsStrBin(/*numin*/).latin1());
-    qDebug("Outputs:     %s", info->getOutputsStrBin(/*numout*/).latin1());
+    qDebug("Inputs:      %s", info->getInputsStrBin(/*numin*/).toLatin1());
+    qDebug("Outputs:     %s", info->getOutputsStrBin(/*numout*/).toLatin1());
     qDebug(" ");
   }
 }
@@ -665,7 +665,7 @@ QString GState::getToolTipInfo(Machine * /*m=NULL*/, Options * /*opt=NULL*/) {
 
   result = dname + padding.fill(' ', valuepos - dname.length()) + sname + "\n";
   if (!desc.isEmpty()) {
-    desc.replace(QRegExp("\n"), "\n" + padding.fill(' ', valuepos));
+    desc.replace(QRegularExpression("\n"), "\n" + padding.fill(' ', valuepos));
     result +=
         ddesc + padding.fill(' ', valuepos - ddesc.length()) + desc + "\n";
   }

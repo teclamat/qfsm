@@ -24,9 +24,9 @@ replaced Qt 3 iterators by Qt 4 iterators
 #ifndef SELECTION_H
 #define SELECTION_H
 
-#include <q3ptrlist.h>
-#include <qobject.h>
-
+// #include <q3ptrlist.h>
+#include <QObject>
+#include <QList>
 //#include "ScrollView.h"
 #include "Machine.h"
 

@@ -1,170 +1,159 @@
-#ifndef EXPORTVHDLDLG_H
-#define EXPORTVHDLDLG_H
+/*
+Copyright (C) Stefan Duffner
 
-#include <qvariant.h>
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or any later version.
 
-#include <Qt3Support/Q3MimeSourceFactory>
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QVBoxLayout>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-class Ui_ExportVHDLDlg {
-public:
-  QVBoxLayout *vboxLayout;
-  QHBoxLayout *hboxLayout;
-  QSpacerItem *spacerItem;
-  QVBoxLayout *vboxLayout1;
-  QCheckBox *cb_symbolicstates;
-  QCheckBox *cb_synchreset;
-  QCheckBox *cb_stdlogic;
-  QSpacerItem *spacerItem1;
-  QSpacerItem *spacerItem2;
-  QHBoxLayout *hboxLayout1;
-  QSpacerItem *spacerItem3;
-  QPushButton *pb_export;
-  QSpacerItem *spacerItem4;
-  QPushButton *pb_cancel;
-  QSpacerItem *spacerItem5;
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
 
-  void setupUi(QDialog *ExportVHDLDlg) {
-    if (ExportVHDLDlg->objectName().isEmpty())
-      ExportVHDLDlg->setObjectName(QString::fromUtf8("ExportVHDLDlg"));
-    ExportVHDLDlg->resize(301, 165);
-    vboxLayout = new QVBoxLayout(ExportVHDLDlg);
-    vboxLayout->setSpacing(6);
-    vboxLayout->setMargin(11);
-    vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
-    hboxLayout = new QHBoxLayout();
-    hboxLayout->setSpacing(6);
-    hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-    spacerItem =
-        new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+#ifndef EXPORTVHDLDLGIMPL_H
+#define EXPORTVHDLDLGIMPL_H
+#include "ui_ExportVHDLDlg.h"
 
-    hboxLayout->addItem(spacerItem);
+class Options;
+class Machine;
 
-    vboxLayout1 = new QVBoxLayout();
-    vboxLayout1->setSpacing(6);
-    vboxLayout1->setObjectName(QString::fromUtf8("vboxLayout1"));
-    cb_symbolicstates = new QCheckBox(ExportVHDLDlg);
-    cb_symbolicstates->setObjectName(QString::fromUtf8("cb_symbolicstates"));
-
-    vboxLayout1->addWidget(cb_symbolicstates);
-
-    cb_synchreset = new QCheckBox(ExportVHDLDlg);
-    cb_synchreset->setObjectName(QString::fromUtf8("cb_synchreset"));
-
-    vboxLayout1->addWidget(cb_synchreset);
-
-    cb_stdlogic = new QCheckBox(ExportVHDLDlg);
-    cb_stdlogic->setObjectName(QString::fromUtf8("cb_stdlogic"));
-
-    vboxLayout1->addWidget(cb_stdlogic);
-
-    hboxLayout->addLayout(vboxLayout1);
-
-    spacerItem1 =
-        new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    hboxLayout->addItem(spacerItem1);
-
-    vboxLayout->addLayout(hboxLayout);
-
-    spacerItem2 =
-        new QSpacerItem(20, 16, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-    vboxLayout->addItem(spacerItem2);
-
-    hboxLayout1 = new QHBoxLayout();
-    hboxLayout1->setSpacing(6);
-    hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
-    spacerItem3 =
-        new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    hboxLayout1->addItem(spacerItem3);
-
-    pb_export = new QPushButton(ExportVHDLDlg);
-    pb_export->setObjectName(QString::fromUtf8("pb_export"));
-    pb_export->setDefault(true);
-
-    hboxLayout1->addWidget(pb_export);
-
-    spacerItem4 =
-        new QSpacerItem(20, 16, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    hboxLayout1->addItem(spacerItem4);
-
-    pb_cancel = new QPushButton(ExportVHDLDlg);
-    pb_cancel->setObjectName(QString::fromUtf8("pb_cancel"));
-
-    hboxLayout1->addWidget(pb_cancel);
-
-    spacerItem5 =
-        new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    hboxLayout1->addItem(spacerItem5);
-
-    vboxLayout->addLayout(hboxLayout1);
-
-    retranslateUi(ExportVHDLDlg);
-    QObject::connect(cb_symbolicstates, SIGNAL(clicked()), ExportVHDLDlg,
-                     SLOT(symbolicNamesClicked()));
-    QObject::connect(cb_synchreset, SIGNAL(clicked()), ExportVHDLDlg,
-                     SLOT(synchronousResetClicked()));
-    QObject::connect(cb_stdlogic, SIGNAL(clicked()), ExportVHDLDlg,
-                     SLOT(useStdLogicClicked()));
-    QObject::connect(pb_export, SIGNAL(clicked()), ExportVHDLDlg,
-                     SLOT(accept()));
-    QObject::connect(pb_cancel, SIGNAL(clicked()), ExportVHDLDlg,
-                     SLOT(reject()));
-
-    QMetaObject::connectSlotsByName(ExportVHDLDlg);
-  } // setupUi
-
-  void retranslateUi(QDialog *ExportVHDLDlg) {
-    ExportVHDLDlg->setWindowTitle(QApplication::translate(
-        "ExportVHDLDlg", "VHDL Export Options", 0, QApplication::UnicodeUTF8));
-    cb_symbolicstates->setText(QApplication::translate(
-        "ExportVHDLDlg", "Use symbolic names for states", 0,
-        QApplication::UnicodeUTF8));
-    cb_synchreset->setText(QApplication::translate(
-        "ExportVHDLDlg", "Synchronous reset", 0, QApplication::UnicodeUTF8));
-    cb_stdlogic->setText(QApplication::translate("ExportVHDLDlg",
-                                                 "Use std_logic_1164 package ",
-                                                 0, QApplication::UnicodeUTF8));
-    pb_export->setText(QApplication::translate("ExportVHDLDlg", "Export", 0,
-                                               QApplication::UnicodeUTF8));
-    pb_cancel->setText(QApplication::translate("ExportVHDLDlg", "Cancel", 0,
-                                               QApplication::UnicodeUTF8));
-    Q_UNUSED(ExportVHDLDlg);
-  } // retranslateUi
-};
-
-namespace Ui {
-class ExportVHDLDlg : public Ui_ExportVHDLDlg {};
-} // namespace Ui
-
-class ExportVHDLDlg : public QDialog, public Ui::ExportVHDLDlg {
+class ExportVHDLDlgImpl : public QDialog {
   Q_OBJECT
+  Ui::ExportVHDLDlg ui;
 
 public:
-  ExportVHDLDlg(QWidget *parent = 0, const char *name = 0, bool modal = false,
-                Qt::WindowFlags fl = 0);
-  ~ExportVHDLDlg();
+  ExportVHDLDlgImpl(QWidget *parent = 0, const char *name = 0,
+                    bool modal = false, Qt::WindowFlags fl = {});
+  ~ExportVHDLDlgImpl();
+
+  /// Returns the 'symbolic states' flag
+  bool getSymbolicStates() { return symbolic_states; }
+  /// Sets the 'symbolic states' flag
+  void setSymbolicStates(bool ss) { symbolic_states = ss; }
+  /// Returns the 'input/output names' flag
+  bool getInOutNames() { return inout_names; }
+  /// Sets the 'input/output names' flag
+  void setInOutNames(bool ion) { inout_names = ion; }
+  /// Returns the 'synchronous reset' flag
+  bool getSyncReset() { return sync_reset; }
+  /// Sets the 'synchronous reset' flag
+  void setSyncReset(bool sr) { sync_reset = sr; }
+  /// Returns the 'synchronous enable' flag
+  bool getSyncEnable() { return sync_enable; }
+  /// Sets the 'synchronous enable' flag
+  void setSyncEnable(bool se) { sync_enable = se; }
+  /// Returns the 'negated reset' flag
+  bool getNegReset() { return neg_reset; }
+  /// Sets the 'synchronous reset' flag
+  void setNegReset(bool nr) { neg_reset = nr; }
+  /// Returns the 'std_logic package' flag
+  bool getStdLogic() { return stdlogic; }
+  /// Sets the 'std_logic package' flag
+  void setStdLogic(bool sl) { stdlogic = sl; }
+  /// Returns the 'IO header' flag
+  bool getIOheader() { return io_header; }
+  /// Sets the 'IO header' flag
+  void setIOheader(bool ioh) { io_header = ioh; }
+  /// Returns the 'alliance' flag
+  bool getAlliance() { return alliance; }
+  /// Sets the 'alliance' flag
+  void setAlliance(bool al) { alliance = al; }
+  /// Returns the condition notation
+  int getCondNotation() { return cond_notation; }
+  /// Sets the condition notation
+  void setCondNotation(int cn) { cond_notation = cn; }
+  /// Returns the state code export flag
+  bool getStateCode() { return state_code; }
+  /// Sets the state code export flag
+  void setStateCode(bool sc) { state_code = sc; }
+  /// Set the architecture name
+  void setArchitectureName(QString n) { architecture_name = n; }
+  /// Get the architecture name
+  QString getArchitectureName() { return architecture_name; }
+  void setSepFiles(bool sep);
+  /// Get the flag for exporting the state machine in two files
+  bool getSepFiles() { return sep_files; }
+  /// Set the flag to export state machine with synchronous look-ahead buffer
+  void setLookAhead(bool a) { sync_look_ahead = a; }
+  /// Get the flag to export state machine with synchronous look-ahead buffer
+  bool getLookAhead() { return sync_look_ahead; }
+  /// Set the export path for the entity file
+  void setEntityPath(QString n) { path_entity = n; }
+  /// Get the export path for the entity file
+  QString getEntityPath() { return path_entity; }
+  /// Set the export path for the entity file
+  void setArchitecturePath(QString n) { path_architecture = n; }
+  /// Get the export path for the entity file
+  QString getArchitecturePath() { return path_architecture; }
+  /// Returns the debug state export flag
+  bool getDebugState() { return debug_state; }
+  /// Sets the state code export flag
+  void setDebugState(bool sd) { debug_state = sd; }
+
+  void init(Options *opt, Machine *m);
 
 public slots:
-  virtual void symbolicNamesClicked();
-  virtual void synchronousResetClicked();
-  virtual void useStdLogicClicked();
+  void symbolicNamesClicked();
+  void inOutNamesClicked();
+  void synchronousResetClicked();
+  void synchronousEnableClicked();
+  void negResetClicked();
+  void useStdLogicClicked();
+  void ioHeaderClicked();
+  void allianceClicked();
+  void stateCodeClicked();
+  void condNotationClicked(bool);
+  void sepFilesClicked();
+  void lookAheadClicked();
+  void selectArchitectureFileClicked();
+  void selectEntityFileClicked();
+  void architectureNameChanged(QString);
+  void entityPathChanged(QString);
+  void archtitecturePathChanged(QString);
+  void debugStateClicked();
 
-protected slots:
-  virtual void languageChange();
+private:
+  /// If true use symbolic names for states
+  bool symbolic_states;
+  /// if true use input/output names
+  bool inout_names;
+  /// If true use synchronous reset, otherwise asynchronous reset
+  bool sync_reset;
+  /// If true add synchronous enable port
+  bool sync_enable;
+  /// If true use negated reset
+  bool neg_reset;
+  /// if true use std_logic_1164 package
+  bool stdlogic;
+  /// if true write input/output description into header
+  bool io_header;
+  /// if true write Alliance compliant code
+  bool alliance;
+  /// 0: IF-THEN condition notation  1: CASE-WHEN notation
+  int cond_notation;
+  /// if true state codes were exported
+  bool state_code;
+  /// architecture name
+  QString architecture_name;
+  /// if true, export architecture and entity in separate files
+  bool sep_files;
+  /// export state machine with synchronous look-ahead-buffer
+  bool sync_look_ahead;
+  /// Path to save the entity file or path for the whole VHDL file when only one
+  /// file is exported
+  QString path_entity;
+  /// Path to save the architecture file
+  QString path_architecture;
+  /// Name of the current machine (used to generate default file names)
+  QString machine_name;
+  /// if true debug state is exported
+  bool debug_state = false;
 };
 
-#endif // EXPORTVHDLDLG_H
+#endif // EXPORTVHDLDLGIMPL_H

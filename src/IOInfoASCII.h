@@ -64,7 +64,7 @@ public:
   /// Returns the I/O info
   QString getInfo() { return info; };
   /// Sets the I/O info
-  void setInfo(QString i) { info = i.stripWhiteSpace(); };
+  void setInfo(QString i) { info = i.trimmed(); };
   void setBin(QString bin, int numbits);
   void setASCII(const unsigned char *ascii, int asciilen, int numbits);
   void setString(QString string, int numbits);

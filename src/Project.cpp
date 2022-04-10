@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// Constructor
 Project::Project(QObject *parent /*=NULL*/, const char *name /*=0*/)
-    : QObject(parent, name) {
+    : QObject(parent) {
   main = (MainWindow *)parent;
   machine = NULL;
   undobuffer = new UndoBuffer(this);
@@ -118,7 +118,6 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
   QList<GState *> slist;
   QList<GTransition *> tlist;
   double xpos, ypos, endx, endy, c1x, c1y, c2x, c2y;
-  AppInfo appinfo(qApp->mainWidget());
 
   domdoc.setContent(prolog);
 
@@ -130,7 +129,7 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
   // Machine
 
   root.setAttribute("author", "Qfsm");
-  root.setAttribute("version", appinfo.getVersion());
+  root.setAttribute("version", qfsm::AppInfo::getVersion());
   me = domdoc.createElement("machine");
   me.setAttribute("name", m->getName());
   me.setAttribute("version", m->getVersion());
@@ -254,8 +253,7 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
 
         if (!onlyselected || s->isSelected()) {
           QDomElement from = domdoc.createElement("from");
-          QString sfrom;
-          sfrom.sprintf("%d", s->getEncoding());
+          QString sfrom = QString::number(s->getEncoding());
           QDomText fromt = domdoc.createTextNode(sfrom);
           from.appendChild(fromt);
           te.appendChild(from);
@@ -263,8 +261,8 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
 
         if (send && (!onlyselected || send->isSelected())) {
           QDomElement to = domdoc.createElement("to");
-          QString sto;
-          sto.sprintf("%d", send->getEncoding());
+          QString sto    = QString::number(send->getEncoding());
+          // sto.sprintf("%d", send->getEncoding());
           QDomText tot = domdoc.createTextNode(sto);
           to.appendChild(tot);
           te.appendChild(to);
@@ -325,8 +323,7 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
       send = (GState *)t->getEnd();
       if (send && (!onlyselected || send->isSelected())) {
         QDomElement to = domdoc.createElement("to");
-        QString sto;
-        sto.sprintf("%d", send->getEncoding());
+        QString sto    = QString::number(send->getEncoding());
         QDomText tot = domdoc.createTextNode(sto);
         to.appendChild(tot);
         te.appendChild(to);

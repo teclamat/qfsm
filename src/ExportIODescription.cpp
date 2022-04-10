@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+// #include <qregexp.h>
 
 #include "Convert.h"
 #include "ExportIODescription.h"
@@ -59,7 +59,7 @@ void ExportIODescription::writeTable() {
     QStringList inputs = machine->getInputNameList();
     QStringList::const_iterator i;
     for (i = inputs.constBegin(); i != inputs.constEnd(); ++i) {
-      *out << ";\"" << i->latin1() << "\"";
+      *out << ";\"" << i->toLatin1() << "\"";
     }
     *out << endl;
   }
@@ -68,7 +68,7 @@ void ExportIODescription::writeTable() {
     QStringList outputs = machine->getOutputNameList();
     QStringList::const_iterator i;
     for (i = outputs.constBegin(); i != outputs.constEnd(); ++i) {
-      *out << ";\"" << i->latin1() << "\"";
+      *out << ";\"" << i->toLatin1() << "\"";
     }
     *out << endl;
   }
@@ -79,7 +79,7 @@ void ExportIODescription::writeTable() {
     QStringList outputs = machine->getMooreOutputList();
     QStringList::const_iterator i;
     for (i = outputs.constBegin(); i != outputs.constEnd(); ++i) {
-      *out << ";\"" << i->latin1() << "\"";
+      *out << ";\"" << i->toLatin1() << "\"";
     }
   }
   *out << endl;
@@ -89,7 +89,7 @@ void ExportIODescription::writeTable() {
   QString sMooreOutput;
 
   for (is = states.constBegin(); is != states.constEnd(); ++is) {
-    *out << "\"" << (*is)->getStateName().latin1() << "\"";
+    *out << "\"" << (*is)->getStateName().toLatin1() << "\"";
     if (machine->getNumMooreOutputs() > 0) {
       mooreOutput = (*is)->getMooreOutputs();
       sMooreOutput = mooreOutput->convertToBinStr();

@@ -33,8 +33,8 @@ contentsMouseMoveEvent calls repaint, instead.
 #ifndef SCROLLVIEW_H
 #define SCROLLVIEW_H
 
-#include <q3scrollview.h>
-#include <qcursor.h>
+// #include <q3scrollview.h>
+#include <QCursor>
 // Added by qt3to4:
 #include <QMouseEvent>
 #include <QPaintEvent>

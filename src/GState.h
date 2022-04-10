@@ -44,11 +44,11 @@ but sometimes it may be needed to call delete during runtime.
 #ifndef GSTATE_H
 #define GSTATE_H
 
-#include <q3ptrlist.h>
-#include <qbrush.h>
-#include <qfont.h>
-#include <qpen.h>
-#include <qpoint.h>
+// #include <q3ptrlist.h>
+#include <QBrush>
+#include <QFont>
+#include <QPen>
+#include <QPoint>
 
 #include "DRect.h"
 #include "GObject.h"

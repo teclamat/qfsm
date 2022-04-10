@@ -55,7 +55,7 @@ public:
   ~FileIO();
 
   // Project* openFile(QString mrufile=QString::null);  // deprecated
-  Project *openFileXML(QString mrufile = QString::null);
+  Project *openFileXML(QString mrufile = {});
   bool saveFile(Project *);
   bool saveFileAs(Project *);
   Project *importFile(Import *, ScrollView *sv = NULL);

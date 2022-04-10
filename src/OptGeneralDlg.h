@@ -1,104 +1,49 @@
-#ifndef OPTGENERALDLG_H
-#define OPTGENERALDLG_H
+/*
+Copyright (C) 2000,2001 Stefan Duffner
 
-#include <qvariant.h>
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or any later version.
 
-#include <Qt3Support/Q3MimeSourceFactory>
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QComboBox>
-#include <QtGui/QDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-class Ui_OptGeneralDlg {
-public:
-  QWidget *Layout3;
-  QVBoxLayout *vboxLayout;
-  QHBoxLayout *hboxLayout;
-  QLabel *TextLabel12;
-  QComboBox *cmb_language;
-  QSpacerItem *spacerItem;
-  QLabel *TextLabel1;
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
+/*
+Qt 4 Port by Rainer Strobel
 
-  void setupUi(QDialog *OptGeneralDlg) {
-    if (OptGeneralDlg->objectName().isEmpty())
-      OptGeneralDlg->setObjectName(QString::fromUtf8("OptGeneralDlg"));
-    OptGeneralDlg->resize(336, 234);
-    Layout3 = new QWidget(OptGeneralDlg);
-    Layout3->setObjectName(QString::fromUtf8("Layout3"));
-    Layout3->setGeometry(QRect(10, 70, 306, 130));
-    vboxLayout = new QVBoxLayout(Layout3);
-    vboxLayout->setSpacing(6);
-    vboxLayout->setMargin(0);
-    vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
-    vboxLayout->setContentsMargins(0, 0, 0, 0);
-    hboxLayout = new QHBoxLayout();
-    hboxLayout->setSpacing(6);
-    hboxLayout->setMargin(0);
-    hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-    TextLabel12 = new QLabel(Layout3);
-    TextLabel12->setObjectName(QString::fromUtf8("TextLabel12"));
-    TextLabel12->setWordWrap(false);
+if(!QString) replaced by if(QString.isEmpty())
+*/
 
-    hboxLayout->addWidget(TextLabel12);
+#ifndef OPTGENERALDLGIMPL_H
+#define OPTGENERALDLGIMPL_H
 
-    cmb_language = new QComboBox(Layout3);
-    cmb_language->setObjectName(QString::fromUtf8("cmb_language"));
+#include "ui_OptGeneralDlg.h"
+#include <qcombobox.h>
 
-    hboxLayout->addWidget(cmb_language);
-
-    vboxLayout->addLayout(hboxLayout);
-
-    spacerItem =
-        new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-    vboxLayout->addItem(spacerItem);
-
-    TextLabel1 = new QLabel(Layout3);
-    TextLabel1->setObjectName(QString::fromUtf8("TextLabel1"));
-    TextLabel1->setAlignment(Qt::AlignVCenter);
-    TextLabel1->setWordWrap(true);
-
-    vboxLayout->addWidget(TextLabel1);
-
-    retranslateUi(OptGeneralDlg);
-
-    QMetaObject::connectSlotsByName(OptGeneralDlg);
-  } // setupUi
-
-  void retranslateUi(QDialog *OptGeneralDlg) {
-    OptGeneralDlg->setWindowTitle(QApplication::translate(
-        "OptGeneralDlg", "General", 0, QApplication::UnicodeUTF8));
-    TextLabel12->setText(QApplication::translate(
-        "OptGeneralDlg", "Language:", 0, QApplication::UnicodeUTF8));
-    TextLabel1->setText(QApplication::translate(
-        "OptGeneralDlg",
-        "Language settings go into effect the next time you start Qfsm.", 0,
-        QApplication::UnicodeUTF8));
-    Q_UNUSED(OptGeneralDlg);
-  } // retranslateUi
-};
-
-namespace Ui {
-class OptGeneralDlg : public Ui_OptGeneralDlg {};
-} // namespace Ui
-
-class OptGeneralDlg : public QDialog, public Ui::OptGeneralDlg {
+/**
+ * @class OptGeneralDlgImpl
+ * @brief Tab dialog for the general options.
+ */
+class OptGeneralDlgImpl : public QDialog {
   Q_OBJECT
 
-public:
-  OptGeneralDlg(QWidget *parent = 0, const char *name = 0, bool modal = false,
-                Qt::WindowFlags fl = 0);
-  ~OptGeneralDlg();
+  Ui::OptGeneralDlg ui;
 
-protected slots:
-  virtual void languageChange();
+public:
+  OptGeneralDlgImpl(QWidget *parent = 0, const char *name = 0,
+                    bool modal = false, Qt::WindowFlags fl = {});
+  ~OptGeneralDlgImpl();
+
+  void init();
+  QString getLanguage();
+  void setLanguage(QString s);
 };
 
-#endif // OPTGENERALDLG_H
+#endif // OPTGENERALDLGIMPL_H

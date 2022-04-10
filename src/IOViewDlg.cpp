@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QCloseEvent>
 
-#include "IOViewDlgImpl.h"
+#include "IOViewDlg.h"
 #include "MainWindow.h"
 
 /**
@@ -29,9 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  true to construct a modal dialog.
  */
 IOViewDlgImpl::IOViewDlgImpl(QWidget *parent, const char *name, bool modal,
-                             Qt::WFlags fl)
-    : QDialog(parent, name, modal, fl) {
-  ioViewDlg.setupUi(this);
+                             Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
+  ui.setupUi(this);
 
   main = (MainWindow *)parent;
 }
@@ -75,8 +75,8 @@ void IOViewDlgImpl::updateIOList(Machine *m) {
     content += joinedList;
     content += "</span></p>\n";
     vertSize += 40;
-    if (horzSize < fontSize.width(joinedList))
-      horzSize = fontSize.width(joinedList);
+    const auto textRect = fontSize.boundingRect(joinedList);
+    if (horzSize < textRect.width()) horzSize = textRect.width();
   }
 
   if (m->getNumOutputs() > 0) {
@@ -94,8 +94,8 @@ void IOViewDlgImpl::updateIOList(Machine *m) {
     content += joinedList;
     content += "</span></p>\n";
     vertSize += 40;
-    if (horzSize < fontSize.width(joinedList))
-      horzSize = fontSize.width(joinedList);
+    const auto textRect = fontSize.boundingRect(joinedList);
+    if (horzSize < textRect.width()) horzSize = textRect.width();
   }
 
   if (m->getNumMooreOutputs() > 0) {
@@ -113,12 +113,12 @@ void IOViewDlgImpl::updateIOList(Machine *m) {
     content += joinedList;
     content += "</span></p>\n";
     vertSize += 40;
-    if (horzSize < fontSize.width(joinedList))
-      horzSize = fontSize.width(joinedList);
+    const auto textRect = fontSize.boundingRect(joinedList);
+    if (horzSize < textRect.width()) horzSize = textRect.width();
   }
 
   content += "</body></html>";
-  ioViewDlg.textBrowser->setHtml(content);
+  ui.textBrowser->setHtml(content);
 
   dialogGeometry = geometry();
   dialogGeometry.setWidth(horzSize + 40);
@@ -131,7 +131,7 @@ void IOViewDlgImpl::updateIOList(Machine *m) {
  * Updates the text of the text browser.
  */
 void IOViewDlgImpl::showEvent(QShowEvent *) {
-  ioViewDlg.textBrowser->setHtml(content);
+  ui.textBrowser->setHtml(content);
 }
 
 /**

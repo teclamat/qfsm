@@ -25,8 +25,8 @@ added #include <QFont>
 #define PROJECT_H
 
 #include <QFont>
-#include <qdom.h>
-#include <qobject.h>
+#include <QDomDocument>
+#include <QObject>
 
 class Machine;
 class MainWindow;

@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Machine.h"
 #include "MainWindow.h"
 #include "Selection.h"
-#include "SimulatorDlgImpl.h"
+#include "SimulatorDlg.h"
 #include "TransitionInfo.h"
 
 /**
@@ -181,7 +181,7 @@ void Simulator::next() {
     ioinfo = &iobin;
   } else if (simdlg->isIHexChecked()) {
     QString intmp = in;
-    intmp = intmp.replace(QRegExp("[0-9a-fA-F\\s]"), "");
+    intmp = intmp.replace(QRegularExpression("[0-9a-fA-F\\s]"), "");
     if (!intmp.isEmpty()) {
       if (!simdlg->isClockOn())
         err.info(tr("Input is not in hexadecimal format."));

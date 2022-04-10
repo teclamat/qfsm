@@ -58,29 +58,30 @@ All buttons must be added to the toolbar by calling addWidget.
 #include <QMainWindow>
 #include <QMenu>
 #include <QPixmap>
+#include <QTabWidget>
 #include <QToolBar>
-#include <q3tabdialog.h>
-#include <qcursor.h>
-#include <qmenubar.h>
-#include <qmessagebox.h>
-#include <qtoolbutton.h>
+// #include <q3tabdialog.h>
+#include <QCursor>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QToolButton>
 
 #include "DocStatus.h"
 #include "Edit.h"
-#include "ExportAHDLDlgImpl.h"
-#include "ExportRagelDlgImpl.h"
-#include "ExportStateTableDlgImpl.h"
-#include "ExportTestbenchDlgImpl.h"
+#include "ExportAHDLDlg.h"
+#include "ExportRagelDlg.h"
+#include "ExportStateTableDlg.h"
+#include "ExportTestbenchDlg.h"
 #include "ExportTestbenchVHDL.h"
 #include "ExportTestvectorASCII.h"
-#include "ExportVHDLDlgImpl.h"
-#include "ExportVVVVDlgImpl.h"
-#include "ExportVerilogDlgImpl.h"
-#include "IOViewDlgImpl.h"
+#include "ExportVHDLDlg.h"
+#include "ExportVVVVDlg.h"
+#include "ExportVerilogDlg.h"
+#include "IOViewDlg.h"
 #include "MachineManager.h"
-#include "OptDisplayDlgImpl.h"
-#include "OptGeneralDlgImpl.h"
-#include "OptPrintingDlgImpl.h"
+#include "OptDisplayDlg.h"
+#include "OptGeneralDlg.h"
+#include "OptPrintingDlg.h"
 #include "Options.h"
 #include "ScrollView.h"
 #include "StateManager.h"
@@ -93,8 +94,12 @@ class FileIO;
 class StatusBar;
 class PrintManager;
 class Simulator;
-class MainControl;
 class ICheck;
+class QAction;
+
+namespace qfsm {
+class MainControl;
+}
 
 /**
  * @class MainWindow
@@ -105,44 +110,46 @@ class ICheck;
  */
 class MainWindow : public QMainWindow {
   Q_OBJECT
-public:
-  MainWindow(QObject *parent = 0, const char *name = 0);
+ public:
+  MainWindow(QObject* a_parentf = nullptr);
   ~MainWindow();
 
   /// Returns the options.
-  Options *getOptions() { return &doc_options; }
+  Options* getOptions() { return &doc_options; }
   /// Returns the scroll view.
-  ScrollView *getScrollView() { return wscroll; }
+  ScrollView* getScrollView() { return m_mainView; }
   /// Returns the status bar.
-  StatusBar *getStatusBar() { return statusbar; }
+  StatusBar* getStatusBar() { return statusbar; }
+  Project* project() { return m_project; }
   /// Returns the tab dialog for the general options
-  OptGeneralDlgImpl *getOptGeneral() { return opt_general; }
+  OptGeneralDlgImpl* getOptGeneral() { return opt_general; }
   /// Returns the tab dialog for the display options
-  OptDisplayDlgImpl *getOptDisplay() { return opt_display; }
+  OptDisplayDlgImpl* getOptDisplay() { return opt_display; }
   /// Returns the tab dialog for the printing options
-  OptPrintingDlgImpl *getOptPrinting() { return opt_printing; }
+  OptPrintingDlgImpl* getOptPrinting() { return opt_printing; }
   /// Returns the AHDL export dialog
-  ExportAHDLDlgImpl *getExportAHDL() { return ahdl_export; }
+  ExportAHDLDlgImpl* getExportAHDL() { return ahdl_export; }
   /// Returns the VHDL export dialog
-  ExportVHDLDlgImpl *getExportVHDL() { return vhdl_export; }
+  ExportVHDLDlgImpl* getExportVHDL() { return vhdl_export; }
   /// Returns the VHDL export dialog
-  ExportTestbenchDlgImpl *getExportTestbench() { return testbench_export; }
+  ExportTestbenchDlgImpl* getExportTestbench() { return testbench_export; }
   /// Returns the Verilog export dialog
-  ExportVerilogDlgImpl *getExportVerilog() { return ver_export; }
+  ExportVerilogDlgImpl* getExportVerilog() { return ver_export; }
   /// Returns the State table export dialog
-  ExportStateTableDlgImpl *getExportStateTable() { return statetable_export; }
+  ExportStateTableDlgImpl* getExportStateTable() { return statetable_export; }
   /// Returns the Ragel export dialog
-  ExportRagelDlgImpl *getExportRagel() { return ragel_export; }
+  ExportRagelDlgImpl* getExportRagel() { return ragel_export; }
   /// Returns the VVVV export dialog
-  ExportVVVVDlgImpl *getExportVVVV() { return vvvv_export; }
+  ExportVVVVDlgImpl* getExportVVVV() { return vvvv_export; }
   /// Sets the string with the language
-  void setLanguage(QString s) {
+  void setLanguage(QString s)
+  {
     language = s;
     opt_general->setLanguage(language);
   }
   /// Gets the string with the language
   QString getLanguage() { return language; }
-  void updateIOView(Machine *);
+  void updateIOView(Machine*);
   bool runDragOperation(bool force_copy);
 
   //    void repaintView() { wscroll->viewport()->repaint(); };
@@ -151,18 +158,16 @@ public:
   /// Returns true if the control key is pressed otherwise false
   bool controlPressed() { return control_pressed; }
 
-  /// The project this window contains
-  Project *project;
   /// State manager
-  StateManager *statemanager;
+  StateManager* statemanager;
   /// Machine manager
-  MachineManager *machinemanager;
+  MachineManager* machinemanager;
   /// Transition manager
-  TransitionManager *transmanager;
+  TransitionManager* transmanager;
   /// File I/O
-  FileIO *fileio;
+  FileIO* fileio;
   /// Print manager
-  PrintManager *printmanager;
+  PrintManager* printmanager;
 
   /// Returns the current mode.
   int getMode() { return doc_status.getMode(); }
@@ -170,252 +175,250 @@ public:
   /// true if this window is about to close
   bool aboutToClose;
 
-protected:
-  virtual void keyPressEvent(QKeyEvent *);
-  virtual void keyReleaseEvent(QKeyEvent *);
-  virtual void closeEvent(QCloseEvent *);
-  virtual void focusInEvent(QFocusEvent *);
-  virtual void dragEnterEvent(QDragEnterEvent *);
-  virtual void dropEvent(QDropEvent *);
+ protected:
+  virtual void keyPressEvent(QKeyEvent*);
+  virtual void keyReleaseEvent(QKeyEvent*);
+  virtual void closeEvent(QCloseEvent*);
+  virtual void focusInEvent(QFocusEvent*);
+  virtual void dragEnterEvent(QDragEnterEvent*);
+  virtual void dropEvent(QDropEvent*);
 
-private:
+ private:
   void createToolBar();
   void destroyToolBar();
 
-  /// Pointer to the main control
-  MainControl *control;
-  /// Scroll view
-  ScrollView *wscroll;
-  /// Menu bar
-  QMenuBar *menubar;
+ private:
+  /// Pointer to the main control.
+  qfsm::MainControl* m_control;
+  /// Scroll view.
+  ScrollView* m_mainView;
+  /// Main Menu bar.
+  QMenuBar* m_menuBar;
+  /// The project this window contains.
+  Project* m_project;
+
+ private:
   /// File menu
-  QMenu *menu_file;
+  QMenu* menu_file;
   /// File->Import menu
-  QMenu *menu_import;
+  QMenu* menu_import;
   /// File->Export menu
-  QMenu *menu_export;
+  QMenu* menu_export;
   /// Edit menu
-  QMenu *menu_edit;
+  QMenu* menu_edit;
   /// View menu
-  QMenu *menu_view;
+  QMenu* menu_view;
   /// Machine menu
-  QMenu *menu_machine;
+  QMenu* menu_machine;
   /// State menu
-  QMenu *menu_state;
+  QMenu* menu_state;
   /// Transition menu
-  QMenu *menu_trans;
+  QMenu* menu_trans;
   /// Help menu
-  QMenu *menu_help;
+  QMenu* menu_help;
   /// 'File->Most recently used' menu
-  QMenu *menu_mru;
+  QMenu* menu_mru;
   /// Context menu (state)
-  QMenu *cmenu_state;
+  QMenu* cmenu_state;
   /// Context menu (transition)
-  QMenu *cmenu_trans;
+  QMenu* cmenu_trans;
   /// Context menu (scroll view)
-  QMenu *cmenu_sview;
+  QMenu* cmenu_sview;
   /// Toolbar
-  QToolBar *toolbar;
+  QToolBar* toolbar;
   /// Application icon
-  QPixmap *pappicon;
+  QPixmap* pappicon;
   /// New file icon
-  QPixmap *pnew;
+  QPixmap* pnew;
   /// Open file icon
-  QPixmap *popen;
+  QPixmap* popen;
   /// Zoom in icon
-  QPixmap *pzoomin;
+  QPixmap* pzoomin;
   /// Zoom out icon
-  QPixmap *pzoomout;
+  QPixmap* pzoomout;
   /// New file tool button
-  QToolButton *tbnew;
+  QAction* tbnew;
   /// Open file tool button
-  QToolButton *tbopen;
+  QAction* tbopen;
   /// Save file tool button
-  QToolButton *tbsave;
+  QAction* tbsave;
   /// Print file tool button
-  QToolButton *tbprint;
+  QAction* tbprint;
   /// Undo tool button
-  QToolButton *tbundo;
+  QAction* tbundo;
   /// Cut tool button
-  QToolButton *tbcut;
+  QAction* tbcut;
   /// Copy tool button
-  QToolButton *tbcopy;
+  QAction* tbcopy;
   /// Paste tool button
-  QToolButton *tbpaste;
+  QAction* tbpaste;
   /// Select tool button
-  QToolButton *tbselect;
+  QAction* tbselect;
   /// Pan tool button
-  QToolButton *tbpan;
+  QAction* tbpan;
   /// Zoom tool button
-  QToolButton *tbzoom;
+  QAction* tbzoom;
   /// New state tool button
-  QToolButton *tbstatenew;
+  QAction* tbstatenew;
   /// New transition tool button
-  QToolButton *tbtransnew;
+  QAction* tbtransnew;
   /// Simulate machine tool button
-  QToolButton *tbmachinesim;
+  QAction* tbmachinesim;
   /// Zoom in tool button
-  QToolButton *tbzoomin;
+  QAction* tbzoomin;
   /// Zoom out tool button
-  QToolButton *tbzoomout;
+  QAction* tbzoomout;
   /// Straighten transition tool button
-  QToolButton *tbtransstraighten;
+  QAction* tbtransstraighten;
   /// Save file icon set
-  QIcon *saveset;
+  QIcon* saveset;
   /// Print file icon set
-  QIcon *printset;
+  QIcon* printset;
   /// Undo icon set
-  QIcon *undoset;
+  QIcon* undoset;
   /// Cut icon set
-  QIcon *cutset;
+  QIcon* cutset;
   /// Copy icon set
-  QIcon *copyset;
+  QIcon* copyset;
   /// Paste icon set
-  QIcon *pasteset;
+  QIcon* pasteset;
   /// Select icon set
-  QIcon *selset;
+  QIcon* selset;
   /// Pan icon set
-  QIcon *panset;
+  QIcon* panset;
   /// Zoom icon set
-  QIcon *zoomset;
+  QIcon* zoomset;
   /// New state icon set
-  QIcon *statenewset;
+  QIcon* statenewset;
   /// New transition icon set
-  QIcon *transnewset;
+  QIcon* transnewset;
   /// Straighten transition icon set
-  QIcon *transstraightenset;
+  QIcon* transstraightenset;
   /// Simulate machine icon set
-  QIcon *machinesimset;
+  QIcon* machinesimset;
   /// Zoom cursor
-  QCursor *zoomCursor;
+  QCursor* zoomCursor;
 
   // menu item IDs
   // file
-  int id_open;                 ///< Menu id 'File->Open'
-  int id_save;                 ///< Menu id 'File->Save'
-  int id_saveas;               ///< Menu id 'File->Save as'
-  int id_print;                ///< Menu id 'File->Print'
-  int id_close;                ///< Menu id 'File->Close'
-  int id_import;               ///< Menu id 'File->Import'
-  int id_import_graphviz;      ///< Menu id 'File->Import->Graphviz'
-  int id_export;               ///< Menu id 'File->Export'
-  int id_export_eps;           ///< Menu id 'File->Export->EPS'
-  int id_export_svg;           ///< Menu id 'File->Export->SVG'
-  int id_export_png;           ///< Menu id 'File->Export->PNG'
-  int id_export_ahdl;          ///< Menu id 'File->Export->AHDL'
-  int id_export_vhdl;          ///< Menu id 'File->Export->VDHL'
-  int id_export_iodescription; ///< Menu id 'File->Export->IO Description'
-  int id_export_testbench;     /// <Menu id 'File->Export->VHDL Testbench'
-  int id_export_verilog;       ///< Menu id 'File->Export->Verilog HDL'
-  int id_export_kiss;          ///< Menu id 'File->Export->KISS'
-  int id_export_vvvv;          ///< Menu id 'File->Export->vvvv Automata code'
-  int id_export_scxml;         ///< Menu id 'File->Export->SCXML'
-  int id_export_stascii;       ///< Menu id 'File->Export->ASCII state table'
-  int id_export_stlat;         ///< Menu id 'File->Export->Latex state table'
-  int id_export_sthtml;        ///< Menu id 'File->Export->HTML state table'
-  int id_export_ragel;         ///< Menu id 'File->Export->Ragel'
-  int id_export_smc;           ///< Menu id 'File->Export->SMC'
+  QAction* id_open;            ///< Menu id 'File->Open'
+  QAction* id_save;            ///< Menu id 'File->Save'
+  QAction* id_saveas;          ///< Menu id 'File->Save as'
+  QAction* id_print;           ///< Menu id 'File->Print'
+  QAction* id_close;           ///< Menu id 'File->Close'
+  QAction* id_import;          ///< Menu id 'File->Import'
+  QAction* id_import_graphviz; ///< Menu id 'File->Import->Graphviz'
+  QAction* id_export;          ///< Menu id 'File->Export'
+  QAction* id_export_ahdl;     ///< Menu id 'File->Export->AHDL'
+  QAction* id_export_vhdl;     ///< Menu id 'File->Export->VDHL'
+  QAction* id_export_verilog;  ///< Menu id 'File->Export->Verilog HDL'
+  QAction* id_export_kiss;     ///< Menu id 'File->Export->KISS'
+  QAction* id_export_vvvv;     ///< Menu id 'File->Export->vvvv Automata code'
+  QAction* id_export_scxml;    ///< Menu id 'File->Export->SCXML'
+  QAction* id_export_ragel;    ///< Menu id 'File->Export->Ragel'
+  QAction* id_export_smc;      ///< Menu id 'File->Export->SMC'
 
   // edit
-  int id_undo;        ///< Menu id 'Edit->Undo'
-  int id_cut;         ///< Menu id 'Edit->Cut'
-  int id_copy;        ///< Menu id 'Edit->Copy'
-  int id_paste;       ///< Menu id 'Edit->Paste'
-  int id_delete;      ///< Menu id 'Edit->Delete'
-  int id_select;      ///< Menu id 'Edit->Select'
-  int id_selectall;   ///< Menu id 'Edit->Select all'
-  int id_deselectall; ///< Menu id 'Edit->Deselect all'
+  QAction* id_undo;        ///< Menu id 'Edit->Undo'
+  QAction* id_cut;         ///< Menu id 'Edit->Cut'
+  QAction* id_copy;        ///< Menu id 'Edit->Copy'
+  QAction* id_paste;       ///< Menu id 'Edit->Paste'
+  QAction* id_delete;      ///< Menu id 'Edit->Delete'
+  QAction* id_select;      ///< Menu id 'Edit->Select'
+  QAction* id_selectall;   ///< Menu id 'Edit->Select all'
+  QAction* id_deselectall; ///< Menu id 'Edit->Deselect all'
 
   // view
-  int id_pan;          ///< Menu id 'View->Pan'
-  int id_zoom;         ///< Menu id 'View->Zoom'
-  int id_zoomin;       ///< Menu id 'View->Zoom in'
-  int id_zoomout;      ///< Menu id 'View->Zoom out'
-  int id_zoom100;      ///< Menu id 'View->Zoom 100%'
-  int id_viewstateenc; ///< Menu id 'View->State codes'
-  int id_viewmoore;    ///< Menu id 'View->Moore outputs'
-  int id_viewmealyin;  ///< Menu id 'View->Mealy inputs'
-  int id_viewmealyout; ///< Menu id 'View->Mealy outputs'
-  int id_viewgrid;     ///< Menu id 'View->Grid'
-  int id_viewshadows;  ///< Menu id 'View->Shadows'
-  int id_ioview;       ///< Menu id 'View->IO View'
+  QAction* id_pan;          ///< Menu id 'View->Pan'
+  QAction* id_zoom;         ///< Menu id 'View->Zoom'
+  QAction* id_zoomin;       ///< Menu id 'View->Zoom in'
+  QAction* id_zoomout;      ///< Menu id 'View->Zoom out'
+  QAction* id_zoom100;      ///< Menu id 'View->Zoom 100%'
+  QAction* id_viewstateenc; ///< Menu id 'View->State codes'
+  QAction* id_viewmoore;    ///< Menu id 'View->Moore outputs'
+  QAction* id_viewmealyin;  ///< Menu id 'View->Mealy inputs'
+  QAction* id_viewmealyout; ///< Menu id 'View->Mealy outputs'
+  QAction* id_viewgrid;     ///< Menu id 'View->Grid'
+  QAction* id_viewshadows;  ///< Menu id 'View->Shadows'
+  QAction* id_ioview;       ///< Menu id 'View->IO View'
 
   // machine
-  int id_machineedit;   ///< Menu id 'Machine->Edit'
-  int id_machinesim;    ///< Menu id 'Machine->Simulate'
-  int id_correctcodes;  ///< Menu id 'Machine->Auto correct State Codes'
-  int id_machineicheck; ///< Menu id 'Machine->Check integrity'
+  QAction* id_machineedit;   ///< Menu id 'Machine->Edit'
+  QAction* id_machinesim;    ///< Menu id 'Machine->Simulate'
+  QAction* id_correctcodes;  ///< Menu id 'Machine->Auto correct State Codes'
+  QAction* id_machineicheck; ///< Menu id 'Machine->Check integrity'
 
   // state
-  int id_editstate;  ///< Menu id 'State->Edit'
-  int id_newstate;   ///< Menu id 'State->New'
-  int id_setinitial; ///< Menu id 'State->Set initial'
-  int id_setend;     ///< Menu id 'State->Toggle end state'
+  QAction* id_editstate;  ///< Menu id 'State->Edit'
+  QAction* id_newstate;   ///< Menu id 'State->New'
+  QAction* id_setinitial; ///< Menu id 'State->Set initial'
+  QAction* id_setend;     ///< Menu id 'State->Toggle end state'
 
   // transition
-  int id_edittrans;      ///< Menu id 'Transition->Edit'
-  int id_newtrans;       ///< Menu id 'Transition->New'
-  int id_trans_straight; ///< Menu id 'Transition->Straighten'
+  QAction* id_edittrans;      ///< Menu id 'Transition->Edit'
+  QAction* id_newtrans;       ///< Menu id 'Transition->New'
+  QAction* id_trans_straight; ///< Menu id 'Transition->Straighten'
 
   // context menu item IDs
   // state
-  int id_ceditstate;  ///< Context menu id 'Edit state'
-  int id_csetinitial; ///< Context menu id 'Set initial state'
-  int id_csetend;     ///< Context menu id 'Toggle end state'
-  int id_csundo;      ///< Context menu id 'Undo' (State)
-  int id_cscut;       ///< Context menu id 'Cut' (State)
-  int id_cscopy;      ///< Context menu id 'Copy' (State)
-  int id_csdelete;    ///< Context menu id 'Delete' (State)
+  QAction* id_ceditstate;  ///< Context menu id 'Edit state'
+  QAction* id_csetinitial; ///< Context menu id 'Set initial state'
+  QAction* id_csetend;     ///< Context menu id 'Toggle end state'
+  QAction* id_csundo;      ///< Context menu id 'Undo' (State)
+  QAction* id_cscut;       ///< Context menu id 'Cut' (State)
+  QAction* id_cscopy;      ///< Context menu id 'Copy' (State)
+  QAction* id_csdelete;    ///< Context menu id 'Delete' (State)
 
   // transition
-  int id_cedittrans;      ///< Context menu id 'Edit transition'
-  int id_ctrans_straight; ///< Context menu id 'Straighten transition'
-  int id_ctundo;          ///< Context menu id 'Undo' (Transition)
-  int id_ctcut;           ///< Context menu id 'Cut' (Transition)
-  int id_ctcopy;          ///< Context menu id 'Copy' (Transition)
-  int id_ctdelete;        ///< Context menu id 'Delete' (Transition)
+  QAction* id_cedittrans;      ///< Context menu id 'Edit transition'
+  QAction* id_ctrans_straight; ///< Context menu id 'Straighten transition'
+  QAction* id_ctundo;          ///< Context menu id 'Undo' (Transition)
+  QAction* id_ctcut;           ///< Context menu id 'Cut' (Transition)
+  QAction* id_ctcopy;          ///< Context menu id 'Copy' (Transition)
+  QAction* id_ctdelete;        ///< Context menu id 'Delete' (Transition)
 
   /// Messagebox that is opend when the user wants to close a changed file
-  QMessageBox *mb_changed;
+  QMessageBox* mb_changed;
   /// Status bar
-  StatusBar *statusbar;
+  StatusBar* statusbar;
   /// Doc status
   DocStatus doc_status;
   /// Options
   Options doc_options;
   /// Edit object
-  Edit *edit;
+  Edit* edit;
 
+  QDialog* tabwidgetdialog;
   /// Tabdialog (options)
-  Q3TabDialog *tabdialog;
+  QTabWidget* tabdialog;
   /// General options dialog
-  OptGeneralDlgImpl *opt_general;
+  OptGeneralDlgImpl* opt_general;
   /// Display options dialog
-  OptDisplayDlgImpl *opt_display;
+  OptDisplayDlgImpl* opt_display;
   /// Printing options dialog
-  OptPrintingDlgImpl *opt_printing;
+  OptPrintingDlgImpl* opt_printing;
   /// VHDL export options dialog
-  ExportVHDLDlgImpl *vhdl_export;
+  ExportVHDLDlgImpl* vhdl_export;
   /// Verilog export options dialog
-  ExportVerilogDlgImpl *ver_export;
+  ExportVerilogDlgImpl* ver_export;
   /// AHDL export options dialog
-  ExportAHDLDlgImpl *ahdl_export;
+  ExportAHDLDlgImpl* ahdl_export;
   /// State table export options dialog
-  ExportStateTableDlgImpl *statetable_export;
+  ExportStateTableDlgImpl* statetable_export;
   /// Ragel export options dialog
-  ExportRagelDlgImpl *ragel_export;
+  ExportRagelDlgImpl* ragel_export;
   /// Testbench export options dialog
-  ExportTestbenchDlgImpl *testbench_export;
+  ExportTestbenchDlgImpl* testbench_export;
   /// Testbench export options dialog
-  ExportVVVVDlgImpl *vvvv_export;
+  ExportVVVVDlgImpl* vvvv_export;
 
   /// IO view dialog
-  IOViewDlgImpl *view_io;
+  IOViewDlgImpl* view_io;
 
   /// Simulator
-  Simulator *simulator;
+  Simulator* simulator;
   /// Integrity checker
-  ICheck *ichecker;
+  ICheck* ichecker;
 
   /// If true the shift key was pressed
   bool shift_pressed;
@@ -430,19 +433,19 @@ private:
   /// Previous view cursor (used when wait cursor is set)
   QCursor previous_viewcursor;
 
-signals:
+ signals:
   /// Emited when 'Select all' is performed
   void allSelected();
   /// Emited when a set of objects has been pasted into this main window
   void objectsPasted();
   /// Emited when this main window is about to close
-  void quitWindow(MainWindow *);
+  void quitWindow(MainWindow*);
   /// Emited when the zoom factor changes
   void updateStatusZoom(int);
   /// Emited when the escape key has been pressed
   void escapePressed();
 
-public slots:
+ public slots:
   void refreshMRU();
   void setMode(int);
   void repaintViewport();
@@ -453,7 +456,7 @@ public slots:
   void updateStatusBar();
   void updateVVVV();
 
-  void menuItemActivated(int id);
+  void menuItemActivated(QAction* id);
   void editMenuAboutToShow();
   void showContextState();
   void showContextTrans();

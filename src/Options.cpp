@@ -16,9 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <q3textstream.h>
+// #include <q3textstream.h>
 #include <qdir.h>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "MainWindow.h"
 #include "Options.h"
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * Initialises the options object with standard values.
  */
 Options::Options(QObject *parent /*=NULL*/, const char *name /*=0*/)
-    : QObject(parent, name) {
+    : QObject(parent) {
   viewStateEncoding = false;
   viewMoore = true;
   viewMealyIn = true;
@@ -109,10 +109,10 @@ void Options::applyOptions(MainWindow *pMain) {
   QString lang;
   QString path;
   QDir dir = QDir::home();
-  path = dir.absPath() + "/.qfsm/language";
+  path = dir.absolutePath() + "/.qfsm/language";
 
   QFile file(path);
-  Q3TextStream fout(&file);
+  QTextStream fout(&file);
 
   if (!file.open(QIODevice::WriteOnly)) {
     qDebug("language could not be saved");
@@ -122,7 +122,7 @@ void Options::applyOptions(MainWindow *pMain) {
   OptGeneralDlgImpl *optgen;
   optgen = pMain->getOptGeneral();
   lang = optgen->getLanguage();
-  fout << lang << endl;
+  fout << lang << Qt::endl;
 
   file.close();
 
@@ -139,13 +139,13 @@ void Options::applyOptions(MainWindow *pMain) {
   bdrawbox = pMain->getOptDisplay()->getDrawBox();
 
   initial_descriptor = pMain->getOptDisplay()->getInitialDescriptor();
-  initial_descriptor = initial_descriptor.replace(QRegExp("\\s"), "_");
+  initial_descriptor = initial_descriptor.replace(QRegularExpression("\\s"), "_");
   inversion_descriptor = pMain->getOptDisplay()->getInversionDescriptor();
-  inversion_descriptor = inversion_descriptor.replace(QRegExp("\\s"), "_");
+  inversion_descriptor = inversion_descriptor.replace(QRegularExpression("\\s"), "_");
   any_input_descriptor = pMain->getOptDisplay()->getAnyInputDescriptor();
-  any_input_descriptor = any_input_descriptor.replace(QRegExp("\\s"), "_");
+  any_input_descriptor = any_input_descriptor.replace(QRegularExpression("\\s"), "_");
   default_descriptor = pMain->getOptDisplay()->getDefaultDescriptor();
-  default_descriptor = default_descriptor.replace(QRegExp("\\s"), "_");
+  default_descriptor   = default_descriptor.replace(QRegularExpression("\\s"), "_");
 
   // AHDL
   ahdl_sync_reset = pMain->getExportAHDL()->getSyncReset();

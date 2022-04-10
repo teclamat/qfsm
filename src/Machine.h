@@ -29,10 +29,10 @@ QList
 #ifndef MACHINE_H
 #define MACHINE_H
 
-#include <math.h>
-#include <q3ptrlist.h>
-#include <qobject.h>
-#include <qstringlist.h>
+// #include <math.h>
+// #include <q3ptrlist.h>
+#include <QObject>
+#include <QStringList>
 
 #include "GITransition.h"
 #include "GState.h"

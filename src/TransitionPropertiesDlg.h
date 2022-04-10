@@ -1,241 +1,121 @@
-#ifndef TRANSITIONPROPERTIESDLG_H
-#define TRANSITIONPROPERTIESDLG_H
+/*
+Copyright (C) 2000,2001 Stefan Duffner
 
-#include <qvariant.h>
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or any later version.
 
-#include <Qt3Support/Q3ButtonGroup>
-#include <Qt3Support/Q3MimeSourceFactory>
-#include <Qt3Support/Q3TextEdit>
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialog>
-#include <QtGui/QGridLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
-#include <QtGui/QVBoxLayout>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-class Ui_TransitionPropertiesDlg {
-public:
-  QVBoxLayout *vboxLayout;
-  Q3ButtonGroup *bg_type;
-  QHBoxLayout *hboxLayout;
-  QRadioButton *rb_bin;
-  QRadioButton *rb_ascii;
-  QRadioButton *rb_text;
-  QGridLayout *gridLayout;
-  QLabel *TextLabel7;
-  QCheckBox *cb_invert;
-  QLineEdit *le_input;
-  QCheckBox *cb_default;
-  QCheckBox *cb_any;
-  QLineEdit *le_output;
-  QLabel *TextLabel6;
-  QLabel *TextLabel3;
-  Q3TextEdit *te_description;
-  QHBoxLayout *hboxLayout1;
-  QPushButton *PushButton19;
-  QPushButton *PushButton20;
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
+/*
+Qt 4 Port by Rainer Strobel
 
-  void setupUi(QDialog *TransitionPropertiesDlg) {
-    if (TransitionPropertiesDlg->objectName().isEmpty())
-      TransitionPropertiesDlg->setObjectName(
-          QString::fromUtf8("TransitionPropertiesDlg"));
-    TransitionPropertiesDlg->resize(323, 479);
-    vboxLayout = new QVBoxLayout(TransitionPropertiesDlg);
-    vboxLayout->setSpacing(6);
-    vboxLayout->setMargin(11);
-    vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
-    bg_type = new Q3ButtonGroup(TransitionPropertiesDlg);
-    bg_type->setObjectName(QString::fromUtf8("bg_type"));
-    bg_type->setColumnLayout(0, Qt::Vertical);
-    bg_type->layout()->setSpacing(6);
-    bg_type->layout()->setMargin(11);
-    hboxLayout = new QHBoxLayout();
-    QBoxLayout *boxlayout = qobject_cast<QBoxLayout *>(bg_type->layout());
-    if (boxlayout)
-      boxlayout->addLayout(hboxLayout);
-    hboxLayout->setAlignment(Qt::AlignTop);
-    hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-    rb_bin = new QRadioButton(bg_type);
-    rb_bin->setObjectName(QString::fromUtf8("rb_bin"));
+in method getType:
+changed the code which checks the current type so that it works
+under windows
+*/
 
-    hboxLayout->addWidget(rb_bin);
+#ifndef TRANSITIONPROPERTIESDLGIMPL_H
+#define TRANSITIONPROPERTIESDLGIMPL_H
 
-    rb_ascii = new QRadioButton(bg_type);
-    rb_ascii->setObjectName(QString::fromUtf8("rb_ascii"));
+#include "ui_TransitionPropertiesDlg.h"
+// #include <q3textedit.h>
+#include <qcheckbox.h>
+#include <qlineedit.h>
 
-    hboxLayout->addWidget(rb_ascii);
-
-    rb_text = new QRadioButton(bg_type);
-    rb_text->setObjectName(QString::fromUtf8("rb_text"));
-
-    hboxLayout->addWidget(rb_text);
-
-    vboxLayout->addWidget(bg_type);
-
-    gridLayout = new QGridLayout();
-    gridLayout->setSpacing(6);
-    gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-    TextLabel7 = new QLabel(TransitionPropertiesDlg);
-    TextLabel7->setObjectName(QString::fromUtf8("TextLabel7"));
-    TextLabel7->setWordWrap(false);
-
-    gridLayout->addWidget(TextLabel7, 4, 0, 1, 1);
-
-    cb_invert = new QCheckBox(TransitionPropertiesDlg);
-    cb_invert->setObjectName(QString::fromUtf8("cb_invert"));
-
-    gridLayout->addWidget(cb_invert, 2, 1, 1, 1);
-
-    le_input = new QLineEdit(TransitionPropertiesDlg);
-    le_input->setObjectName(QString::fromUtf8("le_input"));
-
-    gridLayout->addWidget(le_input, 0, 1, 1, 1);
-
-    cb_default = new QCheckBox(TransitionPropertiesDlg);
-    cb_default->setObjectName(QString::fromUtf8("cb_default"));
-
-    gridLayout->addWidget(cb_default, 3, 1, 1, 1);
-
-    cb_any = new QCheckBox(TransitionPropertiesDlg);
-    cb_any->setObjectName(QString::fromUtf8("cb_any"));
-
-    gridLayout->addWidget(cb_any, 1, 1, 1, 1);
-
-    le_output = new QLineEdit(TransitionPropertiesDlg);
-    le_output->setObjectName(QString::fromUtf8("le_output"));
-
-    gridLayout->addWidget(le_output, 4, 1, 1, 1);
-
-    TextLabel6 = new QLabel(TransitionPropertiesDlg);
-    TextLabel6->setObjectName(QString::fromUtf8("TextLabel6"));
-    TextLabel6->setWordWrap(false);
-
-    gridLayout->addWidget(TextLabel6, 0, 0, 1, 1);
-
-    vboxLayout->addLayout(gridLayout);
-
-    TextLabel3 = new QLabel(TransitionPropertiesDlg);
-    TextLabel3->setObjectName(QString::fromUtf8("TextLabel3"));
-    TextLabel3->setWordWrap(false);
-
-    vboxLayout->addWidget(TextLabel3);
-
-    te_description = new Q3TextEdit(TransitionPropertiesDlg);
-    te_description->setObjectName(QString::fromUtf8("te_description"));
-
-    vboxLayout->addWidget(te_description);
-
-    hboxLayout1 = new QHBoxLayout();
-    hboxLayout1->setSpacing(6);
-    hboxLayout1->setMargin(0);
-    hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
-    PushButton19 = new QPushButton(TransitionPropertiesDlg);
-    PushButton19->setObjectName(QString::fromUtf8("PushButton19"));
-    PushButton19->setDefault(true);
-
-    hboxLayout1->addWidget(PushButton19);
-
-    PushButton20 = new QPushButton(TransitionPropertiesDlg);
-    PushButton20->setObjectName(QString::fromUtf8("PushButton20"));
-
-    hboxLayout1->addWidget(PushButton20);
-
-    vboxLayout->addLayout(hboxLayout1);
-
-    QWidget::setTabOrder(le_input, le_output);
-    QWidget::setTabOrder(le_output, rb_bin);
-    QWidget::setTabOrder(rb_bin, rb_ascii);
-    QWidget::setTabOrder(rb_ascii, PushButton19);
-    QWidget::setTabOrder(PushButton19, PushButton20);
-
-    retranslateUi(TransitionPropertiesDlg);
-    QObject::connect(PushButton19, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(validate()));
-    QObject::connect(PushButton20, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(reject()));
-    QObject::connect(rb_bin, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(binaryClicked()));
-    QObject::connect(rb_ascii, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(asciiClicked()));
-    QObject::connect(cb_any, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(anyClicked()));
-    QObject::connect(cb_default, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(defaultClicked()));
-    QObject::connect(cb_invert, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(invertClicked()));
-    QObject::connect(rb_text, SIGNAL(clicked()), TransitionPropertiesDlg,
-                     SLOT(freeTextClicked()));
-
-    QMetaObject::connectSlotsByName(TransitionPropertiesDlg);
-  } // setupUi
-
-  void retranslateUi(QDialog *TransitionPropertiesDlg) {
-    TransitionPropertiesDlg->setWindowTitle(QApplication::translate(
-        "TransitionPropertiesDlg", "Transition Properties", 0,
-        QApplication::UnicodeUTF8));
-    bg_type->setTitle(QApplication::translate("TransitionPropertiesDlg",
-                                              "Condition Type", 0,
-                                              QApplication::UnicodeUTF8));
-    rb_bin->setText(QApplication::translate("TransitionPropertiesDlg", "Binary",
-                                            0, QApplication::UnicodeUTF8));
-    rb_ascii->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "ASCII", 0, QApplication::UnicodeUTF8));
-    rb_text->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "Free Text", 0, QApplication::UnicodeUTF8));
-    TextLabel7->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "Output:", 0, QApplication::UnicodeUTF8));
-    cb_invert->setText(QApplication::translate("TransitionPropertiesDlg",
-                                               "Invert condition", 0,
-                                               QApplication::UnicodeUTF8));
-    cb_default->setText(QApplication::translate("TransitionPropertiesDlg",
-                                                "Default transition", 0,
-                                                QApplication::UnicodeUTF8));
-    cb_any->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "Any input", 0, QApplication::UnicodeUTF8));
-    TextLabel6->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "Input:", 0, QApplication::UnicodeUTF8));
-    TextLabel3->setText(QApplication::translate("TransitionPropertiesDlg",
-                                                "Description:", 0,
-                                                QApplication::UnicodeUTF8));
-    PushButton19->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "OK", 0, QApplication::UnicodeUTF8));
-    PushButton20->setText(QApplication::translate(
-        "TransitionPropertiesDlg", "Cancel", 0, QApplication::UnicodeUTF8));
-    Q_UNUSED(TransitionPropertiesDlg);
-  } // retranslateUi
-};
-
-namespace Ui {
-class TransitionPropertiesDlg : public Ui_TransitionPropertiesDlg {};
-} // namespace Ui
-
-class TransitionPropertiesDlg : public QDialog,
-                                public Ui::TransitionPropertiesDlg {
+/**
+ * @class TransitionPropertiesDlgImpl
+ * @brief Dialog for the properties of a transition.
+ */
+class TransitionPropertiesDlgImpl : public QDialog {
   Q_OBJECT
 
+  Ui::TransitionPropertiesDlg ui;
+
 public:
-  TransitionPropertiesDlg(QWidget *parent = 0, const char *name = 0,
-                          bool modal = false, Qt::WindowFlags fl = 0);
-  ~TransitionPropertiesDlg();
+  TransitionPropertiesDlgImpl(QWidget *parent = 0, const char *name = 0,
+                              bool modal = false, Qt::WindowFlags fl = {});
+  ~TransitionPropertiesDlgImpl();
+
+  QString getInputs(); // { return ui.le_input->text(); };
+  void
+  setInputs(QString s); // { ui.le_input->setText(s); };
+  /// Returns the output condition string
+  QString getOutputs() { return ui.le_output->text(); };
+  /// Sets the outputs condition string
+  void setOutputs(QString s) { ui.le_output->setText(s); };
+  /// Returns the string of the desription field
+  QString getDescription() {
+    return ui.te_description->toPlainText();
+  };
+  /// Sets the string of the description field
+  void setDescription(QString s) {
+    ui.te_description->setPlainText(s);
+  };
+  /// Returns the state of the 'invert' checkbox
+  bool getInvert() { return ui.cb_invert->isChecked(); };
+  /// Sets the state of the 'invert' checkbox
+  void setInvert(bool i) { ui.cb_invert->setChecked(i); };
+  /// Returns the state of the 'any input' checkbox
+  bool getAnyInput() { return ui.cb_any->isChecked(); };
+  /// Sets the state of the 'any input' checkbox
+  void setAnyInput(bool i) { ui.cb_any->setChecked(i); };
+  /// Returns the state of the 'default transition' checkbox
+  bool getDefaultTransition() {
+    return ui.cb_default->isChecked();
+  };
+  /// Sets the state of the 'default transition' checkbox
+  void setDefaultTransition(bool i) {
+    ui.cb_default->setChecked(i);
+  };
+
+  int getType();
+  void setType(int t);
+  /// Sets the maximum number of bits allowed for the inputs and outputs
+  void setBinMaxLength(int in, int out) {
+    binmax_in = in;
+    binmax_out = out;
+  };
+
+  /// Selects first field in dialog and sets the focus
+  void selectFirst() {
+    ui.le_input->selectAll();
+    ui.le_input->setFocus();
+  };
+
+  /// Sets the maximum length for the inputs field
+  void setInputMaxLength(int l) {
+    ui.le_input->setMaxLength(l);
+  };
+  /// Sets the maximum length for the outputs field
+  void setOutputMaxLength(int l) {
+    ui.le_output->setMaxLength(l);
+  };
+
+  void resetFields();
 
 public slots:
-  virtual void asciiClicked();
-  virtual void binaryClicked();
-  virtual void validate();
-  virtual void anyClicked();
-  virtual void defaultClicked();
-  virtual void invertClicked();
-  virtual void freeTextClicked();
+  void validate();
+  void binaryClicked();
+  void asciiClicked();
+  void freeTextClicked();
+  void anyClicked();
+  void defaultClicked();
+  void invertClicked();
 
-protected slots:
-  virtual void languageChange();
+private:
+  /// Maximum length of the inputs (in bits)
+  int binmax_in;
+  /// Maximum length of the outputs (in bits)
+  int binmax_out;
 };
 
-#endif // TRANSITIONPROPERTIESDLG_H
+#endif // TRANSITIONPROPERTIESDLGIMPL_H

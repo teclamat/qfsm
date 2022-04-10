@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "ExportSMC.h"
 #include "Machine.h"
@@ -45,13 +45,13 @@ void ExportSMC::writeMain() {
 
   initial = machine->getInitialState();
 
-  *out << "%class " << machine->getName().latin1() << endl;
+  *out << "%class " << machine->getName().toLatin1() << endl;
   *out << endl;
   /*
    *out << "%fsmclass " << machine->getName().latin1() << endl;
    *out << endl;
    */
-  *out << "%start MainMap::" << initial->getStateName().latin1() << endl;
+  *out << "%start MainMap::" << initial->getStateName().toLatin1() << endl;
   *out << endl;
   *out << "%map MainMap" << endl;
   *out << "%%" << endl;
@@ -84,9 +84,9 @@ void ExportSMC::writeTransitions() {
       continue;
 
     sn1 = s->getStateName();
-    sn1.replace(QRegExp(" "), "_");
+    sn1.replace(QRegularExpression(" "), "_");
 
-    *out << sn1.latin1() << endl;
+    *out << sn1.toLatin1() << endl;
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -98,8 +98,8 @@ void ExportSMC::writeTransitions() {
       sit = action_list.begin();
       while (sit != action_list.end()) {
         act = (*sit).trimmed();
-        act.replace(QRegExp(" "), "_");
-        *out << "  " << act.latin1() << ";" << endl;
+        act.replace(QRegularExpression(" "), "_");
+        *out << "  " << act.toLatin1() << ";" << endl;
         ++sit;
       }
       *out << "}" << endl;
@@ -112,8 +112,8 @@ void ExportSMC::writeTransitions() {
       sit = action_list.begin();
       while (sit != action_list.end()) {
         act = (*sit).trimmed();
-        act.replace(QRegExp(" "), "_");
-        *out << "  " << act.latin1() << ";" << endl;
+        act.replace(QRegularExpression(" "), "_");
+        *out << "  " << act.toLatin1() << ";" << endl;
         ++sit;
       }
       *out << "}" << endl;
@@ -132,24 +132,24 @@ void ExportSMC::writeTransitions() {
         tinfoo_list = tinfoo.split(',');
 
         tinfoi_processed = tinfoi.trimmed();
-        tinfoi_processed.replace(QRegExp(" "), "_");
+        tinfoi_processed.replace(QRegularExpression(" "), "_");
         stmp = t->getEnd();
 
         if ((!tinfoi.isEmpty() || tioinfo->isDefault()) && stmp) {
           sn2 = stmp->getStateName();
-          sn2.replace(QRegExp(" "), "_");
+          sn2.replace(QRegularExpression(" "), "_");
           if (tioinfo->isDefault()) // default transition
             *out << "  Default" << endl;
           else // not default transition
-            *out << "  " << tinfoi_processed.latin1() << endl;
-          *out << "    " << sn2.latin1() << endl;
+            *out << "  " << tinfoi_processed.toLatin1() << endl;
+          *out << "    " << sn2.toLatin1() << endl;
           *out << "    {" << endl;
           if (!tinfoo.isEmpty()) {
             sit = tinfoo_list.begin();
             while (sit != tinfoo_list.end()) {
               tinfoo_processed = (*sit).trimmed();
-              tinfoo_processed.replace(QRegExp(" "), "_");
-              *out << "      " << tinfoo_processed.latin1() << ";" << endl;
+              tinfoo_processed.replace(QRegularExpression(" "), "_");
+              *out << "      " << tinfoo_processed.toLatin1() << ";" << endl;
               ++sit;
             }
           }

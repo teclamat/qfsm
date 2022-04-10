@@ -49,8 +49,9 @@ Qt 4 QList
 #define UNDOBUFFER_H
 
 #include "Undo.h"
-#include <q3ptrlist.h>
-#include <qobject.h>
+// #include <q3ptrlist.h>
+#include <QObject>
+#include <QList>
 
 class MainWindow;
 class GState;

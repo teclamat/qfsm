@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <q3scrollview.h>
-#include <qrect.h>
+// #include <q3scrollview.h>
+#include <QRect>
 // Added by qt3to4:
 #include <QApplication>
 #include <QMouseEvent>
@@ -62,6 +62,13 @@ DrawArea::DrawArea(QWidget *parent, MainWindow *m, const char *name)
   connect(selection, SIGNAL(updateAll()), main, SLOT(updateAll()));
 }
 
+void DrawArea::setBackgroundColor(const QColor& a_color)
+{
+  QVariant variant = a_color;
+  QString colcode  = variant.toString();
+  setStyleSheet("background-color:" + colcode);
+}
+
 /// Resets all variables storing the state of the view
 void DrawArea::resetState() {
   left_down = false;
@@ -86,14 +93,14 @@ void DrawArea::resetState() {
 void DrawArea::reset() {
   resetState();
   updateBackground();
-  selection->deselectAll(main->project->machine);
+  selection->deselectAll(main->project()->machine);
 }
 
 /// Updates the background
 void DrawArea::updateBackground() {
   if (main) {
     QColor bgcol;
-    if (main->project && main->project->machine)
+    if (main->project() && main->project()->machine)
       bgcol.setRgb(255, 255, 255);
     else
       bgcol.setRgb(220, 220, 220);
@@ -133,7 +140,7 @@ void DrawArea::updateCanvasSize()
 // do not resize draw area according to content (machine) but
 // only when parent (scrollview) changes size
 /*
-Project* p=main->project;
+Project* p=main->project();
 if (!p)
   return;
 
@@ -162,7 +169,7 @@ void DrawArea::mousePressEvent(QMouseEvent *e) {
   double mousex, mousey;
   scale = zoom->getScale();
   p = e->pos();
-  if (e->button() == Qt::MidButton && (left_down || drag))
+  if (e->button() == Qt::MiddleButton && (left_down || drag))
     return;
   else if (e->button() == Qt::RightButton &&
            (left_down || drag || middle_down || drag_middle))
@@ -190,10 +197,10 @@ void DrawArea::mousePressEvent(QMouseEvent *e) {
   //  offset = mapTo(widget(),QPoint(0,0));
   offset = QPoint(0, 0);
 
-  if (!main->project)
+  if (!main->project())
     return;
 
-  m = main->project->machine;
+  m = main->project()->machine;
   if (!m)
     return;
 
@@ -283,7 +290,7 @@ void DrawArea::mousePressEvent(QMouseEvent *e) {
     case DocStatus::NewState:
       if (!drag_middle) {
         if (main->statemanager->addState(mousex, mousey))
-          main->project->setChanged();
+          main->project()->setChanged();
       }
       break;
     case DocStatus::NewTransition:
@@ -338,7 +345,7 @@ void DrawArea::mousePressEvent(QMouseEvent *e) {
       break;
     }
     break;
-  case Qt::MidButton:
+  case Qt::MiddleButton:
     if (!(left_down || drag)) {
       middle_down = true;
       resetContext();
@@ -358,12 +365,12 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
   Machine *m = NULL;
 
   // main = (MainWindow*)parent();
-  if (main && main->project)
-    m = main->project->machine;
+  if (main && main->project())
+    m = main->project()->machine;
   QPoint p;
   double scale = zoom->getScale();
   p = e->pos();
-  if (main->project)
+  if (main->project())
     main->getStatusBar()->setPosition(p.x() / scale, p.y() / scale);
   else
     main->getStatusBar()->setPosition(-1, -1);
@@ -427,7 +434,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
       QRect window;
 
       if (lastTransitionControl) {
-        sover = main->project->machine->getState(p, scale);
+        sover = main->project()->machine->getState(p, scale);
         int cont = lastTransitionControl;
 
         if (!dragITransition) // draw normal Transition
@@ -582,7 +589,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
             lastITextRect = QRect();
           }
         }
-        udrect.normalize();
+        udrect = udrect.normalized();
         udrect.adjust(-2 - 2 * CPOINT_SIZE, -2 - 2 * CPOINT_SIZE,
                       +4 + 2 * CPOINT_SIZE, +4 + 2 * CPOINT_SIZE);
 
@@ -617,7 +624,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
           QRect r1;
           r1.setCoords((int)dragStartX, (int)dragStartY, (int)lastMousePosX,
                        (int)lastMousePosY);
-          r1 = r1.normalize();
+          r1 = r1.normalized();
 
           selectionRect.setCoords(dragStartX, dragStartY, (double)p.x() / scale,
                                   (double)p.y() / scale);
@@ -661,7 +668,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
           newselrect = selectionRect.getQRect();
           udrect = oldselrect;
           udrect = udrect.united(newselrect);
-          udrect.normalize();
+          udrect = udrect.normalized();
           udrect.adjust(-2, -2, +4, +4);
           //          pa.drawRect(selectionRect.getQRect());
           mainPoint = mapTo(main, p);
@@ -701,7 +708,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
 
       udrect.setRect(int(udrect.x() * scale), int(udrect.y() * scale),
                      int(udrect.width() * scale), int(udrect.height() * scale));
-      repaint(udrect, false);
+      repaint(udrect);
     }
     break;
   case DocStatus::Pan:
@@ -729,7 +736,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
       GState *sover;
       QRect lastrect, rtmp;
 
-      sover = main->project->machine->getState(p, scale);
+      sover = main->project()->machine->getState(p, scale);
 
       if (lastStateClicked) {
         double mx, my, mx2, my2, edgex, edgey, destx, desty;
@@ -800,13 +807,13 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
         rtmp.setCoords((int)c1x, (int)c1y, (int)c2x, (int)c2y);
         udrect = udrect.united(rtmp);
         udrect = udrect.united(lastrect);
-        udrect.normalize();
+        udrect = udrect.normalized();
         udrect.adjust(-15, -15, +30, +30);
         udrect.setRect(int(udrect.x() * scale), int(udrect.y() * scale),
                        int(udrect.width() * scale),
                        int(udrect.height() * scale));
 
-        repaint(udrect, false);
+        repaint(udrect);
 
         /*        draw->drawTransition(m, lastTransitionDragged, &pa,
            contentsX(), contentsY(), scale, m->getNumInputs(),
@@ -890,7 +897,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
 
         if (lastTransitionControl)
   {
-          sover = main->project->machine->getState(p, scale);
+          sover = main->project()->machine->getState(p, scale);
           int cont = lastTransitionControl;
 
     if (!dragITransition)		// draw normal Transition
@@ -1148,7 +1155,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
   double c1x, c1y, c2x, c2y;
   GState* sover;
 
-        sover = main->project->machine->getState(p, scale);
+        sover = main->project()->machine->getState(p, scale);
 
   if (lastStateClicked)
   {
@@ -1237,7 +1244,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e) {
 void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
 
   // MainWindow* main = (MainWindow*)parent();
-  Project *project = main->project;
+  Project *project = main->project();
   GState *s;
   Machine *m;
   double scale = zoom->getScale();
@@ -1269,7 +1276,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
       if (drag) {
         drag = false;
         GState *sover;
-        sover = main->project->machine->getState(p, scale);
+        sover = main->project()->machine->getState(p, scale);
 
         if (dragTransition) {
 
@@ -1288,7 +1295,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
             } else // append trans.to phantom state
             {
               GState *ph;
-              ph = main->project->machine->getPhantomState();
+              ph = main->project()->machine->getPhantomState();
               ph->tlist.append(lastTransitionClicked);
               dragTransition->setStart(ph);
             }
@@ -1304,7 +1311,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
           }
           lastTransitionClicked->setDragged(false);
 
-          main->project->getUndoBuffer()->changeTransition(
+          main->project()->getUndoBuffer()->changeTransition(
               lastTransitionClicked);
 
           *lastTransitionClicked = *dragTransition;
@@ -1313,12 +1320,12 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
           emit updateCanvasSize(p.x() + 100, p.y() + 100, scale);
           dragTransition = NULL;
 
-          main->project->setChanged();
+          main->project()->setChanged();
         } else if (dragITransition) // initial trans. dragged
         {
           m->getInitialTransition()->setDragged(false);
 
-          main->project->getUndoBuffer()->changeInitialTransition(
+          main->project()->getUndoBuffer()->changeInitialTransition(
               m->getInitialTransition());
 
           *m->getInitialTransition() = *dragITransition;
@@ -1326,10 +1333,10 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
           delete dragITransition;
           emit updateCanvasSize(p.x() + 100, p.y() + 100, scale);
           dragITransition = NULL;
-          main->project->setChanged();
+          main->project()->setChanged();
         } else if (dragRect) {
           selectionRect.normalize();
-          if (selection->selectRect(main->project->machine, selectionRect,
+          if (selection->selectRect(main->project()->machine, selectionRect,
                                     main->shiftPressed()))
             dragMultiple = true;
         } else if (/*dragMultiple &&*/ onSelection) // move /*multiple*/
@@ -1339,21 +1346,21 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
           movebyx = mousex - dragStartgX;
           movebyy = mousey - dragStartgY;
 
-          selection->move(movebyx, movebyy, this, main->project->machine);
+          selection->move(movebyx, movebyy, this, main->project()->machine);
 
-          main->project->getUndoBuffer()->moveMultiple(
+          main->project()->getUndoBuffer()->moveMultiple(
               &selection->getSList(), &selection->getTList(), movebyx, movebyy);
 
           emit updateCanvasSize((int)selectionRect.right() + 100,
                                 (int)selectionRect.bottom() + 100, scale);
-          main->project->setChanged();
+          main->project()->setChanged();
         }
         /*
             else if (lastStateClicked)
             {
             project->getUndoBuffer()->changeState(&savedState,
             lastStateClicked, &savedITrans);
-            main->project->setChanged();
+            main->project()->setChanged();
 
             double x, y;
             int radius;
@@ -1367,15 +1374,15 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
 
         dragRect = false;
         // viewport()->repaint();
-        repaint(false);
+        repaint();
       } else if (main->shiftPressed()) {
-        selection->selectAdd(this, main->project->machine, p, scale);
+        selection->selectAdd(this, main->project()->machine, p, scale);
         dragMultiple = true;
         //	    main->updateAll();
       } else {
 
         dragMultiple = false;
-        //	    selection->deselectAll(main->project->machine);
+        //	    selection->deselectAll(main->project()->machine);
         //	    viewport()->repaint();
         //	    if (!onSelection)
         //	      main->updateAll();
@@ -1391,7 +1398,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
     case DocStatus::NewTransition:
       if (drag) {
         drag = false;
-        s = main->project->machine->getState(e->pos(), scale);
+        s = main->project()->machine->getState(e->pos(), scale);
         if (lastStateClicked && s) {
           double sx, sy, ex, ey, c1x, c1y, c2x, c2y;
           /*
@@ -1411,22 +1418,22 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
           lastTransitionDragged->getCPoint2(c2x, c2y);
 
           if (main->transmanager->addTransition(
-                  lastStateClicked, s, main->project->machine->getNumInputs(),
-                  main->project->machine->getNumOutputs(), sx, sy, ex, ey, c1x,
+                  lastStateClicked, s, main->project()->machine->getNumInputs(),
+                  main->project()->machine->getNumOutputs(), sx, sy, ex, ey, c1x,
                   c1y, c2x, c2y))
-            main->project->setChanged();
+            main->project()->setChanged();
         }
         delete lastTransitionDragged;
         lastTransitionDragged = NULL;
         // viewport()->repaint();
-        repaint(false);
+        repaint();
       }
       //	  left_down=false;
       //	  drag=false;
       break;
     }
     break;
-  case Qt::MidButton:
+  case Qt::MiddleButton:
     middle_down = false;
     drag_middle = false;
     setCursor(oldCursor);
@@ -1440,7 +1447,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e) {
 /// Invoked when users double clicks with the mouse.
 void DrawArea::mouseDoubleClickEvent(QMouseEvent *e) {
   //  MainWindow* main = (MainWindow*)parent();
-  Project *project = main->project;
+  Project *project = main->project();
   Machine *m;
   double scale = zoom->getScale();
   QPoint p;
@@ -1483,8 +1490,8 @@ void DrawArea::escapePressed() {
   Machine *m = NULL;
 
   //  main = (MainWindow*)parent();
-  if (main && main->project)
-    m = main->project->machine;
+  if (main && main->project())
+    m = main->project()->machine;
 
   switch (main->getMode()) {
   case DocStatus::Select:
@@ -1505,7 +1512,7 @@ void DrawArea::escapePressed() {
       } else if (/*dragMultiple &&*/ onSelection) // move /*multiple*/ selection
         dragRect = false;
       // viewport()->repaint();
-      repaint(false);
+      repaint();
     }
     dragMultiple = false;
     break;
@@ -1519,7 +1526,7 @@ void DrawArea::escapePressed() {
       delete lastTransitionDragged;
       lastTransitionDragged = NULL;
       // viewport()->repaint();
-      repaint(false);
+      repaint();
     }
     break;
   }
@@ -1561,8 +1568,8 @@ void DrawArea::paintEvent(QPaintEvent *pe) {
 
   r = pe->rect();
   Machine *m = NULL;
-  if (main->project)
-    m = main->project->machine;
+  if (main->project())
+    m = main->project()->machine;
 
   if (m) {
     QPainter pa(this);
@@ -1651,8 +1658,8 @@ void DrawArea::drawTransition(GTransition *t, bool clear /*=false*/) {
   //  main = (MainWindow*)parent();
   Machine *m = NULL;
 
-  if (main && main->project)
-    m = main->project->machine;
+  if (main && main->project())
+    m = main->project()->machine;
   if (!m)
     return;
 
@@ -1685,8 +1692,8 @@ void DrawArea::drawInitialTransition(GITransition *t, bool clear /*=false*/) {
   Machine *m = NULL;
   QRect itextrect;
 
-  if (main && main->project)
-    m = main->project->machine;
+  if (main && main->project())
+    m = main->project()->machine;
   if (!m)
     return;
 
@@ -1713,7 +1720,7 @@ void DrawArea::showContext(QPoint point) {
   GObject *obj;
   int otype;
 
-  p = main->project;
+  p = main->project();
   if (!p)
     return;
   m = p->machine;
@@ -1739,7 +1746,7 @@ void DrawArea::showContext(QPoint point) {
   selection->setContextObject(obj, otype);
 
   // viewport()->repaint();
-  repaint(false);
+  repaint();
   main->updateAll();
 
   switch (otype) {
@@ -1824,7 +1831,7 @@ void DrawArea::objectsPasted() { dragMultiple = true; }
 void DrawArea::allSelected() {
   dragMultiple = true;
   // viewport()->repaint();
-  repaint(false);
+  repaint();
 }
 
 /// Returns the tooltip rectangle of the point @a p
@@ -1842,10 +1849,10 @@ QRect DrawArea::tooltipRect(const QPoint &p, QString &tinfo) {
   if (!main->getOptions()->getToolTips())
     return invalid;
 
-  if (!main->project)
+  if (!main->project())
     return invalid;
 
-  m = main->project->machine;
+  m = main->project()->machine;
 
   if (!m)
     return invalid;
@@ -1859,13 +1866,13 @@ QRect DrawArea::tooltipRect(const QPoint &p, QString &tinfo) {
 
   p_norm = QPoint(int(p.x() / scale), int(p.y() / scale));
   result = obj->getToolTipRect(p_norm /*+offset*/);
-  result.normalize();
+  result = result.normalized();
 
   result_scaled.setLeft(int(result.left() * scale));
   result_scaled.setTop(int(result.top() * scale));
   result_scaled.setWidth(int(result.width() * scale));
   result_scaled.setHeight(int(result.height() * scale));
-  result_scaled.moveBy(-offset.x(), -offset.y());
+  result_scaled.translate(-offset.x(), -offset.y());
 
   return result_scaled;
 }

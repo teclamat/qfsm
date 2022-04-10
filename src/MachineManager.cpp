@@ -24,11 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
 //#include "dialogs/DMachineProperties.h"
-#include "MachinePropertiesDlgImpl.h"
+#include "MachinePropertiesDlg.h"
 
 /// Constructor
 MachineManager::MachineManager(QObject *parent, const char *name)
-    : QObject(parent, name) {
+    : QObject(parent) {
   main = (MainWindow *)parent;
   //  machine_props = new DMachineProperties;
   machine_props = new MachinePropertiesDlgImpl((QWidget *)parent, 0, true);
@@ -97,9 +97,10 @@ int MachineManager::addMachine(Project *p) {
 
       p->getMain()->updateIOView(p->machine);
 
-      if (nb != p->machine->translateNames(onamesm).size() ||
+      if (type == 0 &&
+          (nb != p->machine->translateNames(onamesm).size() ||
           ni != p->machine->translateNames(inames).size() ||
-          no != p->machine->translateNames(onames).size()) {
+          no != p->machine->translateNames(onames).size())) {
         ires = err.warningOkCancel(
             tr("Warning.\nThe number of bits does not match the number of "
                "signal names. \nDo you want to proceed?"));
@@ -233,6 +234,7 @@ void MachineManager::editMachine(Project *p) {
       m->getInitialTransition()->select(false);
 
     p->getMain()->updateIOView(m);
-    main->project->setChanged();
+    if (main->project())
+      main->project()->setChanged();
   }
 }

@@ -27,7 +27,7 @@ one of the .latin1() calls did not exist
 
 #include <QObject>
 #include <fstream>
-#include <qstring.h>
+#include <QString>
 
 class Machine;
 class Options;
@@ -48,8 +48,8 @@ public:
 
   // void init(std::ofstream* ,Machine*, QString fn=QString::null, ScrollView*
   // sv=NULL);
-  void init(std::ostream *, Machine *, QString fn = QString::null,
-            ScrollView *sv = NULL);
+  void init(std::ostream *, Machine *, QString fn = {},
+            ScrollView *sv = nullptr);
   /// Does the actual exporting
   virtual void doExport() = 0;
   /// Returns the appropriate filter string for the file dialog.

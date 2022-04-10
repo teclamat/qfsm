@@ -50,7 +50,7 @@ IOInfoBin::IOInfoBin(IOType t, QString io, bool inv /*=false*/)
  * Sets no information.
  */
 IOInfoBin::IOInfoBin(IOType t, bool inv /*=false*/) : IOInfo(t, inv) {
-  info = QString("");
+  info = setBinFormat(QStringLiteral(""));
   //  length=0;
 }
 
@@ -97,7 +97,7 @@ int IOInfoBin::getLength() const {
 
     return count;
     */
-  int len = info.find('|');
+  int len = info.indexOf('|');
   if (len == -1)
     len = info.length();
   if (len < 0)
@@ -161,6 +161,9 @@ IOInfoBin IOInfoBin::convertToBin()
 
 /// corrects the format of the string @a io and returns the corrected string
 QString IOInfoBin::setBinFormat(QString io) {
+  if (io.isEmpty()) {
+    return QStringLiteral("0000000000000000");
+  }
   QStringList ioParts;
   int maxLen = 0;
   QStringList::iterator i;
@@ -410,7 +413,7 @@ void IOInfoBin::setSize(int newin) {
     int diff = getLength() - newin;
     info.remove(0, diff);
     int pos = -1;
-    while ((pos = info.find("|", pos + 1)) != -1)
+    while ((pos = info.indexOf("|", pos + 1)) != -1)
       info.remove(pos + 1, diff);
   }
   /*  int oldin = getLength();

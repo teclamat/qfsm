@@ -17,60 +17,56 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "MainControl.h"
+
 #include "Const.h"
 #include "MainWindow.h"
 
-/// Constructor
-MainControl::MainControl(QString lang) {
-  //  if (lang==QString::null || lang==0)
-  if (lang.isEmpty())
-    language = tr("English");
-  else
-    language = lang;
+namespace qfsm {
+
+MainControl::MainControl(const QString& a_language)
+  : QObject{}
+  , m_language{ a_language.isEmpty() ? tr("English") : a_language }
+{
 }
 
-/// Creates a new main window and opens it
-void MainControl::newWindow() {
-  MainWindow *w = new MainWindow(this);
-  w->setLanguage(language);
-  w->show();
+void MainControl::newWindow()
+{
+  MainWindow* window = new MainWindow{ this };
+  window->setLanguage(m_language);
+  window->show();
 }
 
 /// Creates a new main window and opens the file named @a fileName in it
-void MainControl::newWindow(const char *fileName) {
-  MainWindow *w = new MainWindow(this);
-  w->setLanguage(language);
+void MainControl::newWindow(const char* fileName)
+{
+  MainWindow* w = new MainWindow(this);
+  w->setLanguage(m_language);
   w->show();
   w->fileOpenRecent(fileName);
 }
 
-/// Closes the main window @a w
-void MainControl::quitWindow(MainWindow *w) {
+void MainControl::quitWindow(MainWindow* a_window)
+{
   //  w->hide();
   //  w->close();
-  if (w->aboutToClose)
-    delete w;
+  // if (w->aboutToClose)
+  //   delete w;
+  a_window->deleteLater();
 }
 
-/// Adds an entry to the MRU file list
-void MainControl::addMRUEntry(QString fileName) {
-  QStringList::Iterator it;
-  //  it = mru_list.find(fileName);
+void MainControl::addMRUEntry(const QString& a_fileName)
+{
+  m_recentList.removeAll(a_fileName);
+  m_recentList.prepend(a_fileName);
 
-  //  if (it != mru_list.end())
-  //  {
-  mru_list.remove(fileName);
-
-  mru_list.prepend(fileName);
-
-  if (mru_list.count() > MAX_MRUENTRIES) {
-    it = mru_list.fromLast();
-    if (it != mru_list.end())
-      mru_list.remove(it);
+  if (m_recentList.count() > MAX_MRUENTRIES) {
+    m_recentList.erase(m_recentList.begin() + MAX_MRUENTRIES, m_recentList.end());
   }
 }
 
-/// Removes an entry from the MRU file list
-void MainControl::removeMRUEntry(QString fileName) {
-  mru_list.remove(fileName);
+void MainControl::removeMRUEntry(const QString& a_fileName)
+{
+  m_recentList.removeAll(a_fileName);
+}
+
 }

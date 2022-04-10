@@ -16,10 +16,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <q3valuelist.h>
+// #include <q3valuelist.h>
 #include <qstring.h>
 // Added by qt3to4:
-#include <Q3PtrList>
+// #include <Q3PtrList>
 
 #include "IOInfo.h"
 #include "IOInfoBin.h"
@@ -189,7 +189,7 @@ void IOInfo::expandList(IOInfoList &input, IOInfoList &list,
   QString s, e;
 
   //  eventlist.sort();
-  qSort(eventlist.begin(), eventlist.end(), IOInfoList::lessThan);
+  std::sort(eventlist.begin(), eventlist.end(), IOInfoList::lessThan);
   // qHeapSort(eventlist.first(), eventlist.last());
   // qHeapSort(eventlist);
   start = end = NULL;

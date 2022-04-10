@@ -25,10 +25,10 @@ removed setAutoDelete(false) calls
 #ifndef ICHECK_H
 #define ICHECK_H
 
-#include "ICheckDlgImpl.h"
+#include "ICheckDlg.h"
 #include "Options.h"
 #include <QObject>
-#include <q3ptrlist.h>
+// #include <q3ptrlist.h>
 #include <qwidget.h>
 
 class Machine;

@@ -16,7 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <q3scrollview.h>
+// #include <q3scrollview.h>
+#include <QScrollBar>
 #include <qrect.h>
 // Added by qt3to4:
 #include <QDragEnterEvent>
@@ -81,11 +82,11 @@ void ScrollView::scrollContentsTo(int x, int y) {
 void ScrollView::updateBackground() {
   if (main) {
     QColor bgcol;
-    if (main->project && main->project->machine)
+    if (main->project() && main->project()->machine)
       bgcol.setRgb(255, 255, 255);
     else
       bgcol.setRgb(220, 220, 220);
-    setBackgroundColor(bgcol);
+    // setBackgroundColor(bgcol);
 
     drawArea->updateBackground();
   }
@@ -114,10 +115,10 @@ void ScrollView::updateSize(QResizeEvent *e) {
   if(!main->project->machine)
     return;
   */
-  if (!main->project || !main->project->machine)
+  if (!main->project() || !main->project()->machine)
     return;
 
-  main->project->machine->getCanvasSize(x, y);
+  main->project()->machine->getCanvasSize(x, y);
   scale = drawArea->getScale();
 
   sx = (int)((double)x * scale);

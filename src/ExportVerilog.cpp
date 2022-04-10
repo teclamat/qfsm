@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "Convert.h"
 #include "ExportVerilog.h"
@@ -47,9 +47,9 @@ void ExportVerilog::writeModule() {
   using namespace std;
 
   QString mname = machine->getName();
-  mname.replace(QRegExp("\\s"), "_");
+  mname.replace(QRegularExpression("\\s"), "_");
 
-  *out << "module " << mname.latin1() << " (clock, reset, in, ";
+  *out << "module " << mname.toLatin1() << " (clock, reset, in, ";
   if (machine->getNumOutputs() > 0)
     *out << "out, ";
   *out << "state";
@@ -94,7 +94,7 @@ void ExportVerilog::writeModule() {
         Convert::intToBinStr(st->getEncoding(), machine->getNumEncodingBits());
     first = false;
   }
-  *out << stmp.latin1() << ";" << endl << endl;
+  *out << stmp.toLatin1() << ";" << endl << endl;
 
   writeClockProcess();
   writeStateProcess();
@@ -119,7 +119,7 @@ void ExportVerilog::writeClockProcess() {
 
   *out << "    if (reset)" << endl;
   *out << "      begin" << endl;
-  *out << "        state <= " << Utils::noWS(stmp->getStateName()).latin1()
+  *out << "        state <= " << Utils::noWS(stmp->getStateName()).toLatin1()
        << ";" << endl;
   if (machine->getNumMooreOutputs() > 0) {
     mout = stmp->getMooreOutputs();
@@ -127,7 +127,7 @@ void ExportVerilog::writeClockProcess() {
 
     if (!smout.isEmpty()) {
       *out << "        moore <= " << machine->getNumMooreOutputs() << "\'b";
-      *out << smout.latin1() << ";" << endl;
+      *out << smout.toLatin1() << ";" << endl;
     }
   }
   *out << "      end;" << endl;
@@ -147,10 +147,10 @@ void ExportVerilog::writeClockProcess() {
       if (s->isDeleted())
         continue;
       sn = s->getStateName();
-      sn.replace(QRegExp(" "), "_");
+      sn.replace(QRegularExpression(" "), "_");
       // if (s->countTransitions()>0)
       {
-        *out << "          " << Utils::noWS(s->getStateName()).latin1() << ":"
+        *out << "          " << Utils::noWS(s->getStateName()).toLatin1() << ":"
              << endl;
       }
       //*out << "          begin" << endl;
@@ -161,7 +161,7 @@ void ExportVerilog::writeClockProcess() {
         if (!smout.isEmpty()) {
           *out << "            moore <= " << machine->getNumMooreOutputs()
                << "\'b";
-          *out << smout.latin1() << ";" << endl;
+          *out << smout.toLatin1() << ";" << endl;
         }
       }
 
@@ -195,7 +195,7 @@ void ExportVerilog::writeStateProcess() {
 
     *out << "  always @ (reset or in or state) begin" << endl;
     *out << "    if (reset)" << endl;
-    *out << "      nextstate = " << Utils::noWS(sinit->getStateName()).latin1()
+    *out << "      nextstate = " << Utils::noWS(sinit->getStateName()).toLatin1()
          << ";" << endl;
     *out << "    else begin" << endl;
   } else
@@ -219,10 +219,10 @@ void ExportVerilog::writeStateProcess() {
     if (s->isDeleted())
       continue;
     sn = s->getStateName();
-    sn.replace(QRegExp(" "), "_");
+    sn.replace(QRegularExpression(" "), "_");
     // if (s->countTransitions()>0)
     {
-      *out << "        " << Utils::noWS(s->getStateName()).latin1() << ":"
+      *out << "        " << Utils::noWS(s->getStateName()).toLatin1() << ":"
            << endl;
     }
     *out << "        begin" << endl;
@@ -291,7 +291,7 @@ void ExportVerilog::writeStateProcess() {
             for (int k = slen; k < numin; k++)
               *out << "0";
 
-            *out << tinfoi.latin1();
+            *out << tinfoi.toLatin1();
             first = false;
           }
         }
@@ -307,16 +307,16 @@ void ExportVerilog::writeStateProcess() {
           for (int l = slen; l < numout; l++)
             *out << "0";
 
-          *out << tinfoo.latin1() << ";" << endl;
+          *out << tinfoo.toLatin1() << ";" << endl;
         }
         stmp = t->getEnd();
         if (stmp) {
           sn = stmp->getStateName();
-          sn.replace(QRegExp(" "), "_");
+          sn.replace(QRegularExpression(" "), "_");
         }
         if (stmp != s) {
           *out << "            nextstate = "
-               << Utils::noWS(stmp->getStateName()).latin1() << ";" << endl;
+               << Utils::noWS(stmp->getStateName()).toLatin1() << ";" << endl;
         }
         *out << "          end" << endl;
       }

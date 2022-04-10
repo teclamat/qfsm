@@ -34,9 +34,10 @@ the simulator input
 #ifndef IOINFO_H
 #define IOINFO_H
 
-#include <q3ptrlist.h>
-#include <qstring.h>
-#include <qstringlist.h>
+// #include <q3ptrlist.h>
+#include <QString>
+#include <QStringList>
+#include <QRegularExpression>
 //#include "IOInfo.h"
 //#include "IOInfoList.h"
 
@@ -186,7 +187,7 @@ public:
   };
 
   static int isBinaryType(QString iostring) {
-    QRegExp regexp("^(DEF|ANY)$|^((NOT)?[ ]*[01]+([|][01]+)*)$");
+    static const QRegularExpression regexp{"^(DEF|ANY)$|^((NOT)?[ ]*[01]+([|][01]+)*)$"};
     if (iostring.contains(regexp))
       return 1;
     return 0;

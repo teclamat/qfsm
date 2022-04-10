@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "ExportVVVV.h"
 #include "Machine.h"
@@ -51,7 +51,7 @@ void ExportVVVV::writeMain() {
   // output reset state first
   reset = machine->getInitialState();
   sn1 = reset->getStateName();
-  sn1.replace(QRegExp(" "), "_");
+  sn1.replace(QRegularExpression(" "), "_");
   reset_sn = sn1;
   reset_event_name = options->getVVVVResetEvent();
   if (reset_event_name.isEmpty())
@@ -69,19 +69,19 @@ void ExportVVVV::writeMain() {
     if (!t->isDeleted() && t->getEnd()) {
       tinfoi = tinfo->getInputsStr();
       tinfoo = tinfo->getOutputsStr();
-      tinfoi.replace(QRegExp(" "), "_");
-      tinfoo.replace(QRegExp(" "), "_");
+      tinfoi.replace(QRegularExpression(" "), "_");
+      tinfoo.replace(QRegularExpression(" "), "_");
       stmp = t->getEnd();
 
       if (!tinfoi.isEmpty() && stmp) {
         sn2 = stmp->getStateName();
-        sn2.replace(QRegExp(" "), "_");
+        sn2.replace(QRegularExpression(" "), "_");
 
         if (tinfoo.isEmpty())
           tinfoo = "Do" + sn2;
 
-        *out << sn1.latin1() << " " << tinfoi.latin1() << " " << sn2.latin1()
-             << " " << tinfoo.latin1() << endl;
+        *out << sn1.toLatin1() << " " << tinfoi.toLatin1() << " " << sn2.toLatin1()
+             << " " << tinfoo.toLatin1() << endl;
       }
     }
   }
@@ -94,7 +94,7 @@ void ExportVVVV::writeMain() {
     if (s->isDeleted())
       continue;
     sn1 = s->getStateName();
-    sn1.replace(QRegExp(" "), "_");
+    sn1.replace(QRegularExpression(" "), "_");
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -103,8 +103,8 @@ void ExportVVVV::writeMain() {
 
     if (options->getVVVVReset()) {
 
-      *out << sn1.latin1() << " " << reset_event_name.latin1() << " "
-           << reset_sn.latin1() << " " << reset_action_name.latin1() << " "
+      *out << sn1.toLatin1() << " " << reset_event_name.toLatin1() << " "
+           << reset_sn.toLatin1() << " " << reset_action_name.toLatin1() << " "
            << endl;
     }
 
@@ -115,19 +115,19 @@ void ExportVVVV::writeMain() {
       if (!t->isDeleted() && t->getEnd()) {
         tinfoi = tinfo->getInputsStr();
         tinfoo = tinfo->getOutputsStr();
-        tinfoi.replace(QRegExp(" "), "_");
-        tinfoo.replace(QRegExp(" "), "_");
+        tinfoi.replace(QRegularExpression(" "), "_");
+        tinfoo.replace(QRegularExpression(" "), "_");
         stmp = t->getEnd();
 
         if (!tinfoi.isEmpty() && stmp) {
           sn2 = stmp->getStateName();
-          sn2.replace(QRegExp(" "), "_");
+          sn2.replace(QRegularExpression(" "), "_");
 
           if (tinfoo.isEmpty())
             tinfoo = "Do" + sn2;
 
-          *out << sn1.latin1() << " " << tinfoi.latin1() << " " << sn2.latin1()
-               << " " << tinfoo.latin1() << endl;
+          *out << sn1.toLatin1() << " " << tinfoi.toLatin1() << " " << sn2.toLatin1()
+               << " " << tinfoo.toLatin1() << endl;
         }
       }
     }

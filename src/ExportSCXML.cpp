@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "ExportSCXML.h"
 #include "Machine.h"
@@ -45,7 +45,7 @@ void ExportSCXML::writeMain() {
 
   *out << "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" "
           "initialstate=\""
-       << initial->getStateName().latin1() << "\">" << endl;
+       << initial->getStateName().toLatin1() << "\">" << endl;
   *out << endl;
 
   writeHeader("<!--", "-->");
@@ -75,12 +75,12 @@ void ExportSCXML::writeTransitions() {
       continue;
 
     sn1 = s->getStateName();
-    sn1.replace(QRegExp(" "), "_");
+    sn1.replace(QRegularExpression(" "), "_");
 
     if (s->isFinalState())
-      *out << "  <final id=\"" << sn1.latin1() << "\">" << endl;
+      *out << "  <final id=\"" << sn1.toLatin1() << "\">" << endl;
     else
-      *out << "  <state id=\"" << sn1.latin1() << "\">" << endl;
+      *out << "  <state id=\"" << sn1.toLatin1() << "\">" << endl;
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -94,15 +94,15 @@ void ExportSCXML::writeTransitions() {
         tinfoo_list = tinfoo.split(',');
 
         tinfoi_processed = tinfoi.trimmed();
-        tinfoi_processed.replace(QRegExp(" "), "_");
+        tinfoi_processed.replace(QRegularExpression(" "), "_");
         stmp = t->getEnd();
 
         if (!tinfoi.isEmpty() && stmp) {
           sn2 = stmp->getStateName();
-          sn2.replace(QRegExp(" "), "_");
+          sn2.replace(QRegularExpression(" "), "_");
 
-          *out << "    <transition event=\"" << tinfoi_processed.latin1()
-               << "\" target=\"" << sn2.latin1() << "\" >" << endl;
+          *out << "    <transition event=\"" << tinfoi_processed.toLatin1()
+               << "\" target=\"" << sn2.toLatin1() << "\" >" << endl;
           /*
           if (!tinfoo.isEmpty())
             *out << "      <log expr=\"\'" << tinfoo.latin1() << "\'\" />" <<
@@ -112,8 +112,8 @@ void ExportSCXML::writeTransitions() {
             sit = tinfoo_list.begin();
             while (sit != tinfoo_list.end()) {
               tinfoo_processed = (*sit).trimmed();
-              tinfoo_processed.replace(QRegExp(" "), "_");
-              *out << "      <send event=\"" << tinfoo_processed.latin1()
+              tinfoo_processed.replace(QRegularExpression(" "), "_");
+              *out << "      <send event=\"" << tinfoo_processed.toLatin1()
                    << "\" />" << endl;
               ++sit;
             }

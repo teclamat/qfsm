@@ -382,7 +382,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
  <tabstops>
   <tabstop>cb_stdlogic</tabstop>
   <tabstop>cb_iodesc</tabstop>
@@ -390,38 +389,5 @@
   <tabstop>pb_cancel</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>pb_export</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportTestbenchDlg</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_cancel</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportTestbenchDlg</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>189</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

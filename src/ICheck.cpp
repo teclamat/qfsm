@@ -117,9 +117,9 @@ int ICheck::checkMachine(Machine *m) {
   main->repaintViewport();
 
   icheckdlg->setProtocolText(protocol);
-  qDebug("Protocol:");
-  qDebug(protocol);
-  qDebug("End Protocol");
+  qDebug() << "Protocol:";
+  qDebug() << protocol;
+  qDebug() << "End Protocol";
 
   return 0;
 }

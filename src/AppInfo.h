@@ -19,61 +19,53 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef APPINFO_H
 #define APPINFO_H
 
-#include <qobject.h>
-#include <qstring.h>
+#include <QString>
+#include <QWidget>
 
-class MainWindow;
+/// @namespace qfsm
+namespace qfsm {
 
-/**
- * @class AppInfo
- * @brief Provides general information about the application.
- *
- * Stores version and author of the application and a method to
- * display a info dialogbox.
- */
+/// Provides general information about the application.
+/// Stores version and author of the application and a method to display a info dialogbox.
+class AppInfo {
+ public:
+  AppInfo() = delete;
 
-class AppInfo : public QObject {
-  Q_OBJECT
-public:
-  AppInfo(QWidget *);
+  /// Gets major version info.
+  /// @return Integer number representing major version number.
+  static int getVersionMajor() { return s_versionMajor; };
 
-  int getVersionMajor() /// returns major version number.
-  {
-    return version_major;
-  };
-  int getVersionMinor() /// returns minor version number.
-  {
-    return version_minor;
-  };
-  /// Returns the version number as a single double value
-  double getVersionDouble();
-  QString getVersion() /// returns version string.
-  {
-    return QString::number(version_major) + "." +
-           QString::number(version_minor);
-  };
-  QString getDate() /// returns date string.
-  {
-    return date;
-  };
-  QString getAuthor() /// returns author of application
-  {
-    return author;
-  };
+  /// Gets minor version info.
+  /// @return Integer number representing minor version number.
+  static int getVersionMinor() { return s_versionMinor; };
 
-  void about();
+  /// Gets version number as a single double value.
+  /// @return Floating point number where minor version number is in fractional part.
+  static double getVersionDouble();
 
-private:
-  /// Parent widget (used as parent of the about dialog)
-  QWidget *parent_widget;
-  /// Major version number
-  int version_major;
-  /// Minor version number
-  int version_minor;
-  /// Author
-  QString author;
-  /// Date
-  QString date;
+  /// Gets version number formatted as text.
+  /// @return Text with full version info.
+  static QString getVersion() { return QString{ "%1.%2" }.arg(s_versionMajor).arg(s_versionMinor); };
+
+  /// Gets current build date.
+  /// @return Text with build date in `Y-m-d` format.
+  static QString getDate() { return s_buildDate; };
+
+  /// Gets author(s) information.
+  /// @return Text with author information.
+  static QString getAuthor() { return s_author; };
+
+  /// Shows about message.
+  /// @param a_targetWidget display target for showing about message.
+  static void about(QWidget* a_targetWidget);
+
+ private:
+  static int s_versionMajor;
+  static int s_versionMinor;
+  static QString s_author;
+  static QString s_buildDate;
 };
+
+} // namespace qfsm
 
 #endif

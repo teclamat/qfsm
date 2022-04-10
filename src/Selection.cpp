@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// Constructor
 Selection::Selection(QWidget *parent, const char *name)
-    : QObject(parent, name) {
+    : QObject(parent) {
   itrans = false;
   context_object = NULL;
   co_type = 0;
@@ -113,7 +113,7 @@ void Selection::select(GState *s, bool sel /*=true*/) {
   if (sel)
     ssel_list.append(s);
   else
-    ssel_list.remove(s);
+    ssel_list.removeOne(s);
 }
 
 /// Selects/deselects the transition @a t
@@ -125,7 +125,7 @@ void Selection::select(GTransition *t, bool sel /*=true*/) {
   if (sel)
     tsel_list.append(t);
   else
-    tsel_list.remove(t);
+    tsel_list.removeOne(t);
 }
 
 /// Selects/deselects the initial transition @a t
@@ -191,7 +191,7 @@ bool Selection::selectRect(Machine *m, DRect &r, bool add) {
         if (tmp->isSelected()) {
           ssel_list.append(tmp);
         } else if (add)
-          ssel_list.remove(tmp);
+          ssel_list.removeOne(tmp);
 
         success = true;
       }
@@ -210,7 +210,7 @@ bool Selection::selectRect(Machine *m, DRect &r, bool add) {
             if (t->isSelected()) {
               tsel_list.append(t);
             } else if (add) {
-              tsel_list.remove(t);
+              tsel_list.removeOne(t);
             }
             success = true;
           }
@@ -237,7 +237,7 @@ bool Selection::selectRect(Machine *m, DRect &r, bool add) {
         if (t->isSelected()) {
           tsel_list.append(t);
         } else if (add)
-          tsel_list.remove(t);
+          tsel_list.removeOne(t);
 
         success = true;
       }
@@ -564,7 +564,7 @@ bool Selection::deselect(GState *s) {
   bool found;
 
   s->select(false);
-  found = ssel_list.remove(s);
+  found = ssel_list.removeOne(s);
   return found;
 }
 
@@ -576,7 +576,7 @@ bool Selection::deselect(GTransition *t) {
   bool found;
 
   t->select(false);
-  found = tsel_list.remove(t);
+  found = tsel_list.removeOne(t);
   return found;
 }
 

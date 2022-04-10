@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <iostream>
-#include <qregexp.h>
+#include <QRegularExpression>
 
 #include "ExportAHDL.h"
 #include "Machine.h"
@@ -74,7 +74,7 @@ void ExportAHDL::writeName() {
 
   n = machine->getName();
 
-  n = n.replace(QRegExp("\\s"), "_");
+  n = n.replace(QRegularExpression("\\s"), "_");
 
   /*
   found = n.find(" ", count);
@@ -86,7 +86,7 @@ void ExportAHDL::writeName() {
   }
   */
 
-  *out << "SUBDESIGN " << n.latin1() << endl;
+  *out << "SUBDESIGN " << n.toLatin1() << endl;
 }
 
 /// Writes the inputs/outputs to the output stream
@@ -94,13 +94,13 @@ void ExportAHDL::writeIO() {
   using namespace std;
 
   *out << "(clock, reset		:INPUT;" << endl;
-  *out << machine->getMealyInputNames().latin1() << "	:INPUT;" << endl;
-  *out << machine->getMealyOutputNames().latin1() << "	:OUTPUT;" << endl;
+  *out << machine->getMealyInputNames().toLatin1() << "	:INPUT;" << endl;
+  *out << machine->getMealyOutputNames().toLatin1() << "	:OUTPUT;" << endl;
 
   if (use_moore)
-    *out << machine->getMooreOutputNames().latin1() << "	:OUTPUT;";
+    *out << machine->getMooreOutputNames().toLatin1() << "	:OUTPUT;";
   else
-    *out << machine->getStateEncodingOutputNames().latin1()
+    *out << machine->getStateEncodingOutputNames().toLatin1()
          << "	:OUTPUT;";
 
   *out << ")" << endl << endl;
@@ -116,7 +116,7 @@ void ExportAHDL::writeVariables() {
 
   *out << "VARIABLE" << endl;
   *out << "\tfsm\t:\tMACHINE OF BITS(" << /*machine->getMooreOutputNames()*/
-      machine->getStateEncodingOutputNames().latin1() << ")" << endl;
+      machine->getStateEncodingOutputNames().toLatin1() << ")" << endl;
   *out << "\t\t\t\tWITH STATES (";
 
   QMutableListIterator<GState *> i(machine->getSList());
@@ -134,13 +134,13 @@ void ExportAHDL::writeVariables() {
     s = i.peekNext();
 
     sn = s->getStateName();
-    sn.replace(QRegExp(" "), "_");
+    sn.replace(QRegularExpression(" "), "_");
     c = s->getCodeStr(Binary);
 
     if (!first)
       *out << ",";
     *out << endl << "\t\t\t\t\t";
-    *out << sn.latin1() << " = B\"" << c.latin1() << "\"";
+    *out << sn.toLatin1() << " = B\"" << c.toLatin1() << "\"";
     first = false;
   }
 
@@ -151,13 +151,13 @@ void ExportAHDL::writeVariables() {
     s = i.next();
     if (!s->isDeleted() && s != machine->getInitialState()) {
       sn = s->getStateName();
-      sn.replace(QRegExp(" "), "_");
+      sn.replace(QRegularExpression(" "), "_");
       c = s->getCodeStr(Binary);
 
       if (!first)
         *out << ",";
       *out << endl << "\t\t\t\t\t";
-      *out << sn.latin1() << " = B\"" << c.latin1() << "\"";
+      *out << sn.toLatin1() << " = B\"" << c.toLatin1() << "\"";
       first = false;
     }
   }
@@ -166,7 +166,7 @@ void ExportAHDL::writeVariables() {
   if (sync_reset)
     *out << "\treset_async : NODE;" << endl;
   if (use_moore)
-    *out << "\t" << machine->getMooreOutputNamesAsync().latin1() << " : NODE;"
+    *out << "\t" << machine->getMooreOutputNamesAsync().toLatin1() << " : NODE;"
          << endl;
 
   *out << endl;
@@ -197,7 +197,7 @@ void ExportAHDL::writeMain() {
       name = *it;
       name_async = name + "_async";
 
-      *out << "\t" << name.latin1() << " = DFF(" << name_async.latin1()
+      *out << "\t" << name.toLatin1() << " = DFF(" << name_async.toLatin1()
            << ",clock,VCC,VCC);" << endl;
     }
     *out << endl;
@@ -231,9 +231,9 @@ void ExportAHDL::writeTransitions() {
   for (; is.hasNext();) {
     s = is.next();
     sn = s->getStateName();
-    sn.replace(QRegExp(" "), "_");
+    sn.replace(QRegularExpression(" "), "_");
     if (s->countTransitions() > 0)
-      *out << "\t\tWHEN " << sn.latin1() << " =>" << endl;
+      *out << "\t\tWHEN " << sn.toLatin1() << " =>" << endl;
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -268,7 +268,7 @@ void ExportAHDL::writeTransitions() {
                 *out << "OR ";
               *out << endl << "\t\t\t\t";
             }
-            *out << machine->getMealyInputNames().latin1();
+            *out << machine->getMealyInputNames().toLatin1();
             if (tioinfo->isInverted())
               *out << ") != B\"";
             else
@@ -279,7 +279,7 @@ void ExportAHDL::writeTransitions() {
             for (int k = slen; k < numin; k++)
               *out << "0";
 
-            *out << tinfoi.latin1() << "\" ";
+            *out << tinfoi.toLatin1() << "\" ";
             first = false;
           }
         }
@@ -290,7 +290,7 @@ void ExportAHDL::writeTransitions() {
           *out << "THEN" << endl;
         // mealy outputs
         if (!tinfoo.isEmpty()) {
-          *out << "\t\t\t\t(" << machine->getMealyOutputNames().latin1()
+          *out << "\t\t\t\t(" << machine->getMealyOutputNames().toLatin1()
                << ") = B\"";
 
           int slen = tinfoo.length();
@@ -298,16 +298,16 @@ void ExportAHDL::writeTransitions() {
           for (int l = slen; l < numout; l++)
             *out << "0";
 
-          *out << tinfoo.latin1() << "\";" << endl;
+          *out << tinfoo.toLatin1() << "\";" << endl;
         }
         // next state
         stmp = t->getEnd();
         if (stmp) {
           sn = stmp->getStateName();
-          sn.replace(QRegExp(" "), "_");
+          sn.replace(QRegularExpression(" "), "_");
         }
         if (stmp != s) {
-          *out << "\t\t\t\tfsm = " << sn.latin1() << ";" << endl;
+          *out << "\t\t\t\tfsm = " << sn.toLatin1() << ";" << endl;
 
           if (use_moore) {
             // moore outputs
@@ -315,14 +315,14 @@ void ExportAHDL::writeTransitions() {
             smooreinfo = mooreinfo->convertToBinStr();
             if (mooreinfo->getLength() > 0) {
               *out << "\t\t\t\t("
-                   << machine->getMooreOutputNamesAsync().latin1() << ") = B\"";
+                   << machine->getMooreOutputNamesAsync().toLatin1() << ") = B\"";
 
               int slen = smooreinfo.length();
               int numout = machine->getNumMooreOutputs();
               for (int l = slen; l < numout; l++)
                 *out << "0";
 
-              *out << smooreinfo.latin1() << "\";" << endl;
+              *out << smooreinfo.toLatin1() << "\";" << endl;
             }
           }
         }

@@ -29,7 +29,7 @@ TableBuilder::TableBuilder(QObject *parent, Machine *m, Options *opt)
   //  eventlist.setAutoDelete(true);
   machine->getEventList(eventlist, opt);
   //  eventlist.sort();
-  qSort(eventlist.begin(), eventlist.end(), IOInfoList::lessThan);
+  std::sort(eventlist.begin(), eventlist.end(), IOInfoList::lessThan);
   //  qDebug("%d", eventlist.count());
   options = opt;
 }

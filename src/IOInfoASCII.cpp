@@ -16,13 +16,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <qregexp.h>
+#include <QRegularExpression>
 // Added by qt3to4:
 #include "Const.h"
 #include "Convert.h"
 #include "IOInfoASCII.h"
 #include "IOInfoList.h"
-#include <Q3PtrList>
+// #include <Q3PtrList>
 
 /// Standard constructor
 IOInfoASCII::IOInfoASCII(IOType t) : IOInfo(t) {}
@@ -1219,7 +1219,7 @@ IOInfo *IOInfoASCII::getPlus1() {
 
   IOInfo *newio;
   QString s;
-  s = c;
+  s = QChar{c};
   newio = new IOInfoASCII(type, s);
   return newio;
 }
@@ -1239,7 +1239,7 @@ IOInfo *IOInfoASCII::getMinus1() {
 
   IOInfo *newio;
   QString s;
-  s = c;
+  s = QChar{c};
   newio = new IOInfoASCII(type, s);
   return newio;
 }
@@ -1288,19 +1288,19 @@ QStringList IOInfoASCII::getRagelConditions() {
 
         if (IOInfoASCII::isReadable(c1) && IOInfoASCII::isReadable(c2)) {
           QString s1 = QChar(c1), s2 = QChar(c2);
-          s1.replace(QRegExp("[\"]"), "\\\"");
-          s1.replace(QRegExp("[\']"), "\\\'");
-          s1.replace(QRegExp("[/]"), "\\/");
-          s1.replace(QRegExp("[\\[]"), "\\[");
-          s1.replace(QRegExp("[\\]]"), "\\]");
-          s1.replace(QRegExp("[\\-]"), "\\-");
-          s2.replace(QRegExp("[\"]"), "\\\"");
-          s2.replace(QRegExp("[\']"), "\\\'");
-          s2.replace(QRegExp("[/]"), "\\/");
-          s2.replace(QRegExp("[\\[]"), "\\[");
-          s2.replace(QRegExp("[\\]]"), "\\]");
-          s2.replace(QRegExp("[\\-]"), "\\-");
-          stmp.sprintf("%s-%s", s1.latin1(), s2.latin1());
+          s1.replace(QRegularExpression("[\"]"), "\\\"");
+          s1.replace(QRegularExpression("[\']"), "\\\'");
+          s1.replace(QRegularExpression("[/]"), "\\/");
+          s1.replace(QRegularExpression("[\\[]"), "\\[");
+          s1.replace(QRegularExpression("[\\]]"), "\\]");
+          s1.replace(QRegularExpression("[\\-]"), "\\-");
+          s2.replace(QRegularExpression("[\"]"), "\\\"");
+          s2.replace(QRegularExpression("[\']"), "\\\'");
+          s2.replace(QRegularExpression("[/]"), "\\/");
+          s2.replace(QRegularExpression("[\\[]"), "\\[");
+          s2.replace(QRegularExpression("[\\]]"), "\\]");
+          s2.replace(QRegularExpression("[\\-]"), "\\-");
+          stmp = QString{"%1-%2"}.arg(s1.toLatin1(), s2.toLatin1());
           single_chars += stmp;
           stmp = "";
         } else {
@@ -1316,8 +1316,8 @@ QStringList IOInfoASCII::getRagelConditions() {
           }
           */
           if (c2 > 127) {
-            stmp1.sprintf("0x%s", conv.asciiToHexStr(c1).latin1());
-            stmp2.sprintf("0x%s", conv.asciiToHexStr(127).latin1());
+            stmp1 = QString{"0x%1"}.arg(conv.asciiToHexStr(c1).toLatin1());
+            stmp2 = QString{"0x%1"}.arg(conv.asciiToHexStr(127).toLatin1());
             stmp = stmp1 + ".." + stmp2;
 
             if (invert)
@@ -1327,9 +1327,8 @@ QStringList IOInfoASCII::getRagelConditions() {
             // c2 = c1;
             c1 = (unsigned char)-128;
           }
-
-          stmp1.sprintf("0x%s", conv.asciiToHexStr(c1).latin1());
-          stmp2.sprintf("0x%s", conv.asciiToHexStr(c2).latin1());
+          stmp1 = QString{"0x%1"}.arg(conv.asciiToHexStr(c1).toLatin1());
+          stmp2 = QString{"0x%1"}.arg(conv.asciiToHexStr(c2).toLatin1());
 
           stmp = stmp1 + ".." + stmp2;
         }
@@ -1342,16 +1341,16 @@ QStringList IOInfoASCII::getRagelConditions() {
       if (IOInfoASCII::isReadable(c[0])) {
         // stmp.sprintf("%c", c[0]);
         QString s1 = QChar(c[0]);
-        s1.replace(QRegExp("[\"]"), "\\\"");
-        s1.replace(QRegExp("[\']"), "\\\'");
-        s1.replace(QRegExp("[/]"), "\\/");
-        s1.replace(QRegExp("[\\[]"), "\\[");
-        s1.replace(QRegExp("[\\]]"), "\\]");
-        s1.replace(QRegExp("[\\-]"), "\\-");
+        s1.replace(QRegularExpression("[\"]"), "\\\"");
+        s1.replace(QRegularExpression("[\']"), "\\\'");
+        s1.replace(QRegularExpression("[/]"), "\\/");
+        s1.replace(QRegularExpression("[\\[]"), "\\[");
+        s1.replace(QRegularExpression("[\\]]"), "\\]");
+        s1.replace(QRegularExpression("[\\-]"), "\\-");
         single_chars += s1;
         stmp = "";
       } else
-        stmp.sprintf("0x%s", conv.asciiToHexStr(c[0]).latin1());
+        stmp = QString{"0x%1"}.arg(conv.asciiToHexStr(c[0]).toLatin1());
     }
     if (!stmp.isEmpty()) {
       if (invert)
@@ -1367,22 +1366,24 @@ QStringList IOInfoASCII::getRagelConditions() {
     result.append(single_chars);
   }
 
-  QStringList::iterator it1, it2;
+  QStringList::size_type it1, it2;
   // replace 'upper' and 'lower' by 'alpha'
-  it1 = result.find("upper");
-  it2 = result.find("lower");
-  if (it1 != result.end() && it2 != result.end()) {
-    result.erase(it1);
-    result.erase(it2);
+  it1 = result.indexOf("upper");
+  it2 = result.indexOf("lower");
+  if (it1 != -1 && it2 != -1) {
+    result.remove(it1);
+    it2 = result.indexOf("lower");
+    result.remove(it2);
     result.append("alpha");
   }
 
   // replace 'alpha' and 'digit' by 'alnum'
-  it1 = result.find("alpha");
-  it2 = result.find("digit");
-  if (it1 != result.end() && it2 != result.end()) {
-    result.erase(it1);
-    result.erase(it2);
+  it1 = result.indexOf("alpha");
+  it2 = result.indexOf("digit");
+  if (it1 != -1 && it2 != -1) {
+    result.remove(it1);
+    it2 = result.indexOf("digit");
+    result.remove(it2);
     result.append("alnum");
   }
 

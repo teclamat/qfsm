@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <q3paintdevicemetrics.h>
+// #include <q3paintdevicemetrics.h>
 #include <qprinter.h>
 
 #include "Draw.h"
@@ -29,13 +29,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 PrintManager::PrintManager(QWidget *parent) : QObject(parent) {
   main = (MainWindow *)parent;
 
-  printer = new QPrinter();
+  // printer = new QPrinter();
   draw = new Draw(main, main->getOptions());
 }
 
 /// Destructor
 PrintManager::~PrintManager() {
-  delete printer;
+  // delete printer;
   delete draw;
 }
 
@@ -43,29 +43,32 @@ PrintManager::~PrintManager() {
  * Prints the current machine adjusting on one page.
  */
 void PrintManager::print() {
-  if (printer->setup(main)) {
-    QPainter p;
-    Machine *m = main->project->machine;
-    int w, h;
-    double scale;
-    int canvw, canvh;
-    int mleft, mtop;
-    mleft = 10;
-    mtop = 10;
-    QString name;
-    QRect textrect;
+  // if (printer->setup(main)) {
+  return;
+  QPainter p;
+  Machine* m = main->project() ? main->project()->machine : nullptr;
+  int w, h;
+  double scale;
+  int canvw, canvh;
+  int mleft, mtop;
+  mleft = 10;
+  mtop  = 10;
+  QString name;
+  QRect textrect;
 
-    name = printer->printerName();
-    //    qDebug(name);
-    if (!printer->outputToFile() && name.isEmpty()) {
-      Error::info(tr("The printer could not be initialised."));
-      return;
+  name = printer->printerName();
+  //    qDebug(name);
+  if (printer->outputFileName().isEmpty() || name.isEmpty()) {
+    Error::info(tr("The printer could not be initialised."));
+    return;
     }
     p.begin(printer);
 
-    Q3PaintDeviceMetrics metrics(printer);
-    w = metrics.width();
-    h = metrics.height();
+    // QPaintDeviceMetrics metrics(printer);
+    // w = metrics.width();
+    // h = metrics.height();
+    w = (int)printer->pageRect(QPrinter::DevicePixel).width();
+    h = (int)printer->pageRect(QPrinter::DevicePixel).height();
 
     m->getCanvasSize(canvw, canvh);
     scale = (double)w / canvw;
@@ -85,5 +88,5 @@ void PrintManager::print() {
       draw->drawHeadline(m, &p); //, scale);
 
     p.end();
-  }
+  // }
 }

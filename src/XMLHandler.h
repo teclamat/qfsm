@@ -24,11 +24,13 @@ removed setAutoDelete calls from constructor
 #ifndef QXMLHANDLER_H
 #define QXMLHANDLER_H
 
-#include <qmap.h>
-#include <qobject.h>
-#include <qxml.h>
+#include <QMap>
+#include <QObject>
+#include <QXmlStreamReader>
+#include <QList>
+// #include <qxml.h>
 // Added by qt3to4:
-#include <Q3ValueList>
+// #include <Q3ValueList>
 
 #include "GState.h"
 #include "GTransition.h"
@@ -44,16 +46,18 @@ class Selection;
  * @class XMLHandler
  * @brief XML parser that parses .fsm files
  */
-class XMLHandler : public QObject, public QXmlDefaultHandler {
+class XMLHandler : public QObject, public QXmlStreamReader {
   Q_OBJECT
 public:
-  XMLHandler(Project *newProject, Selection *sel = NULL, bool keepquiet = true,
+  XMLHandler(Project *newProject, Selection *sel = nullptr, bool keepquiet = true,
              bool createnewmachine = true);
+  bool parse();
   bool startDocument();
-  bool startElement(const QString &namespaceURI, const QString &localName,
-                    const QString &qName, const QXmlAttributes &atts);
-  bool endElement(const QString &, const QString &, const QString &);
+  bool startElement(const QString& qName,
+                    const QXmlStreamAttributes& atts);
+  bool endElement(const QString &qName);
   bool characters(const QString &ch);
+
 
   ~XMLHandler() {
     //    if(transition!=NULL)
@@ -130,7 +134,7 @@ private:
   /// End state
   QString to;
   /// List of removed states
-  Q3ValueList<int> rstatelist;
+  QList<int> rstatelist;
   /// Mapping of old state codes to new state codes
   QMap<int, int> codemap;
   /// If true the current state will be added to the machine

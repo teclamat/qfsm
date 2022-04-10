@@ -20,46 +20,63 @@ Qt 4 Port by Rainer Strobel
 
 in constructor of MainControl:
 changed request whether ins null or empty to .isEmpty()
+
+Qt 5/6 port by Mateusz Tecław
 */
 
 #ifndef MAINCONTROL_H
 #define MAINCONTROL_H
 
 #include <QObject>
-#include <q3ptrlist.h>
-#include <qstring.h>
-#include <qstringlist.h>
+#include <QString>
+#include <QStringList>
 
 class MainWindow;
 
-/**
- * @class MainControl
- * @brief Top level object that controls all open main windows.
- *
- * It also holds a list of the most recently used files.
- */
+/// @namespace qfsm
+namespace qfsm {
+
+/// Top level object that controls all open main windows.
+/// It also holds a list of the most recently used files.
 class MainControl : public QObject {
   Q_OBJECT
+ public:
+  /// Construct a new Main Control object.
+  /// @param a_language UI language to be loaded by default.
+  MainControl(const QString& a_language = {});
 
-public:
-  MainControl(QString lang);
-  void addMRUEntry(QString fileName);
-  void removeMRUEntry(QString fileName);
+  /// Destroys Main Control object.
+  ~MainControl() = default;
+
+  /// Adds an entry to the MRU file list.
+  /// @param a_fileName file name entry to be added to recents list.
+  void addMRUEntry(const QString& a_fileName);
+
+  /// Removes an entry from the MRU file list.
+  /// @param a_fileName file name entry to remove from recents list.
+  void removeMRUEntry(const QString& a_fileName);
+
   /// Returns the MRU file list
-  QStringList &getMRUList() { return mru_list; }
+  QStringList& getMRUList() { return m_recentList; }
 
-private:
-  /// Language
-  QString language;
-  /// List of main windows
-  QList<MainWindow *> window_list;
-  /// List of most recently used files
-  QStringList mru_list;
-
-public slots:
+ public slots:
+  /// Creates a new main window and opens it.
   void newWindow();
-  void newWindow(const char *fileName);
-  void quitWindow(MainWindow *);
+
+  /// Creates a new main window and opens the file named @a a_fileName in it.
+  /// @param a_fileName file name from recent files list.
+  void newWindow(const char* a_fileName);
+
+  /// Closes the main window @a a_window.
+  /// @param a_window window to close.
+  void quitWindow(MainWindow* a_window);
+
+ private:
+  QString m_language;
+
+  QStringList m_recentList{};
 };
+
+} // namespace qfsm
 
 #endif

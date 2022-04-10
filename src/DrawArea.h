@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DRAWAREA_H
 #define DRAWAREA_H
 
-#include <q3scrollview.h>
-#include <qrect.h>
+// #include <q3scrollview.h>
+#include <QRect>
 // Added by qt3to4:
 #include <QDrag>
 #include <QMouseEvent>
@@ -82,6 +82,8 @@ public:
 
   void drawTransition(GTransition *, bool clear = false);
   void drawInitialTransition(GITransition *, bool clear = false);
+
+  void setBackgroundColor(const QColor& a_color);
 
   QRect tooltipRect(const QPoint &p, QString &info);
 

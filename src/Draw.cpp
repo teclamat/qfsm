@@ -15,19 +15,21 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+#include "Draw.h"
 
-#include <float.h>
-#include <math.h>
-#include <q3ptrlist.h>
-#include <qdatetime.h>
-#include <qnamespace.h>
-#include <qpainter.h>
+// #include <float.h>
+// #include <math.h>
+// #include <q3ptrlist.h>
+#include <QDateTime>
+#include <QPainterPath>
+#include <QPolygonF>
+// #include <qnamespace.h>
+// #include <qpainter.h>
 // Added by qt3to4:
-#include <Q3PointArray>
+// #include <Q3PointArray>
 //#include <qvaluelist.h>
 
 #include "Const.h"
-#include "Draw.h"
 #include "GState.h"
 #include "Machine.h"
 #include "Options.h"
@@ -344,7 +346,8 @@ void Draw::drawTransitions(Machine *m, QPainter *p, int contx, int conty,
   GTransition *t;
   QBrush br_control(QColor(255, 0, 0));
   QBrush br_end(QColor(0, 255, 0));
-  Q3PointArray parray(4);
+  // Q3PointArray parray(4);
+  QPainterPath path{};
   int rectsize;
   //  double g1x, g1y, g2x, g2y;
 
@@ -384,12 +387,16 @@ void Draw::drawTransitions(Machine *m, QPainter *p, int contx, int conty,
           p->setPen(pen);
 
         //	p->setPen(pen);
-        parray.setPoint(0, (int)xpos, (int)ypos);
-        parray.setPoint(1, (int)c1x, (int)c1y);
-        parray.setPoint(2, (int)c2x, (int)c2y);
-        parray.setPoint(3, (int)ex, (int)ey);
+        path.clear();
+        path.moveTo(xpos, ypos);
+        path.cubicTo(c1x, c1y, c2x, c2y, ex, ey);
+        p->drawPath(path);
+        // parray.setPoint(0, (int)xpos, (int)ypos);
+        // parray.setPoint(1, (int)c1x, (int)c1y);
+        // parray.setPoint(2, (int)c2x, (int)c2y);
+        // parray.setPoint(3, (int)ex, (int)ey);
 
-        p->drawCubicBezier(parray, 0);
+        // p->drawCubicBezier(parray, 0);
 
         // Arrow
         drawArrow(t, p, pen, m->getArrowType());
@@ -444,12 +451,18 @@ void Draw::drawTransitions(Machine *m, QPainter *p, int contx, int conty,
       t->getEndPos(ex, ey);
 
       p->setPen(redpen);
-      parray.setPoint(0, (int)xpos, (int)ypos);
-      parray.setPoint(1, (int)c1x, (int)c1y);
-      parray.setPoint(2, (int)c2x, (int)c2y);
-      parray.setPoint(3, (int)ex, (int)ey);
 
-      p->drawCubicBezier(parray, 0);
+      path.clear();
+      path.moveTo(xpos, ypos);
+      path.cubicTo(c1x, c1y, c2x, c2y, ex, ey);
+      p->drawPath(path);
+
+      // parray.setPoint(0, (int)xpos, (int)ypos);
+      // parray.setPoint(1, (int)c1x, (int)c1y);
+      // parray.setPoint(2, (int)c2x, (int)c2y);
+      // parray.setPoint(3, (int)ex, (int)ey);
+
+      // p->drawCubicBezier(parray, 0);
 
       // Arrow
       drawArrow(t, p, pen, m->getArrowType());
@@ -556,11 +569,13 @@ void Draw::drawTransition(Machine *m, GTransition *t, QPainter *p, int contx,
   p->setViewport(-contx, -conty, int(window.width() * scale),
                  int(window.height() * scale));
 
-  Q3PointArray parray(4);
-  parray.setPoint(0, (int)startposx, (int)startposy);
-  parray.setPoint(1, (int)c1x, (int)c1y);
-  parray.setPoint(2, (int)c2x, (int)c2y);
-  parray.setPoint(3, (int)endposx, (int)endposy);
+  QPainterPath path{QPointF{startposx, startposy}};
+  path.cubicTo(c1x, c1y, c2x, c2y, endposx, endposy);
+  // Q3PointArray parray(4);
+  // parray.setPoint(0, (int)startposx, (int)startposy);
+  // parray.setPoint(1, (int)c1x, (int)c1y);
+  // parray.setPoint(2, (int)c2x, (int)c2y);
+  // parray.setPoint(3, (int)endposx, (int)endposy);
 
   if (dotted)
     p->setPen(dotpen);
@@ -572,7 +587,8 @@ void Draw::drawTransition(Machine *m, GTransition *t, QPainter *p, int contx,
   }
 
   // Transition
-  p->drawCubicBezier(parray, 0);
+  p->drawPath(path);
+  // p->drawCubicBezier(parray, 0);
 
   // Arrow
   drawArrow(t, p, pen, m->getArrowType());
@@ -1019,17 +1035,23 @@ void Draw::drawArrow(GTransition *t, QPainter *p, QPen pen, int type) {
 
   calcArrow(t, arrow_x1, arrow_y1, arrow_x2, arrow_y2, arrow_xm, arrow_ym);
 
-  Q3PointArray pa(3);
-  Q3PointArray pa4(4);
+  QPolygonF pa{};
+  // QPolygonF pa4();
   QBrush br(QColor(0, 0, 0));
   QBrush brwhite(QColor(255, 255, 255));
 
-  if (type == 0 || type == 1 || type == 2)
-    pa.setPoints(3, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
-                 (int)arrow_x2, (int)arrow_y2);
-  else
-    pa4.setPoints(4, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
-                  (int)arrow_x2, (int)arrow_y2, (int)arrow_xm, (int)arrow_ym);
+  // if (type == 0 || type == 1 || type == 2)
+  pa.push_back({arrow_x1, arrow_y1});
+  pa.push_back({endposx, endposy});
+  pa.push_back({arrow_x2, arrow_y2});
+  if (type > 2) {
+    pa.push_back({arrow_xm, arrow_ym});
+  }
+  // pa.setPoints(3, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
+  //              (int)arrow_x2, (int)arrow_y2);
+  // else
+  // pa4.setPoints(4, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
+  //               (int)arrow_x2, (int)arrow_y2, (int)arrow_xm, (int)arrow_ym);
 
   //  p->setRenderHint(QPainter::Antialiasing);
   p->setPen(pen);
@@ -1044,18 +1066,15 @@ void Draw::drawArrow(GTransition *t, QPainter *p, QPen pen, int type) {
     p->drawLine((int)endposx, (int)endposy, (int)arrow_x2, (int)arrow_y2);
     break;
   case 1: // filled
+    [[fallthrough]];
+  case 3:  // filled pointed
     p->drawPolygon(pa);
     break;
   case 2: // white
+    [[fallthrough]];
+  case 4:  // white pointed
     p->setBrush(brwhite);
     p->drawPolygon(pa);
-    break;
-  case 3: // filled pointed
-    p->drawPolygon(pa4);
-    break;
-  case 4: // white pointed
-    p->setBrush(brwhite);
-    p->drawPolygon(pa4);
     break;
   }
 }
@@ -1078,17 +1097,25 @@ void Draw::drawArrow(GITransition *t, QPainter *p, QPen pen, int type) {
 
   calcArrow(t, arrow_x1, arrow_y1, arrow_x2, arrow_y2, arrow_xm, arrow_ym);
 
-  Q3PointArray pa(3);
-  Q3PointArray pa4(4);
+  QPolygonF pa{};
+  // Q3PointArray pa(3);
+  // Q3PointArray pa4(4);
   QBrush br(QColor(0, 0, 0));
   QBrush brwhite(QColor(255, 255, 255));
 
-  if (type == 0 || type == 1 || type == 2)
-    pa.setPoints(3, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
-                 (int)arrow_x2, (int)arrow_y2);
-  else
-    pa4.setPoints(4, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
-                  (int)arrow_x2, (int)arrow_y2, (int)arrow_xm, (int)arrow_ym);
+  // if (type == 0 || type == 1 || type == 2)
+  //   pa.setPoints(3, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
+  //                (int)arrow_x2, (int)arrow_y2);
+  // else
+  //   pa4.setPoints(4, (int)arrow_x1, (int)arrow_y1, (int)endposx, (int)endposy,
+  //                 (int)arrow_x2, (int)arrow_y2, (int)arrow_xm, (int)arrow_ym);
+
+  pa.push_back({arrow_x1, arrow_y1});
+  pa.push_back({endposx, endposy});
+  pa.push_back({arrow_x2, arrow_y2});
+  if (type > 2) {
+    pa.push_back({arrow_xm, arrow_ym});
+  }
 
   p->setRenderHint(QPainter::Antialiasing);
   p->setPen(pen);
@@ -1103,18 +1130,15 @@ void Draw::drawArrow(GITransition *t, QPainter *p, QPen pen, int type) {
     p->drawLine((int)endposx, (int)endposy, (int)arrow_x2, (int)arrow_y2);
     break;
   case 1: // black
+    [[fallthrough]];
+  case 3:  // filled pointed
     p->drawPolygon(pa);
     break;
   case 2: // white
+    [[fallthrough]];
+  case 4:  // white pointed
     p->setBrush(brwhite);
     p->drawPolygon(pa);
-    break;
-  case 3: // filled pointed
-    p->drawPolygon(pa4);
-    break;
-  case 4: // white pointed
-    p->setBrush(brwhite);
-    p->drawPolygon(pa4);
     break;
   }
 }
@@ -1133,7 +1157,7 @@ void Draw::drawHeadline(Machine *m, QPainter *p) //, double scale)
   //    date.year()); QTime time = QTime::currentTime();
   QDateTime datetime = QDateTime::currentDateTime();
   QString datetimestr;
-  datetimestr = datetime.toString(Qt::LocalDate);
+  datetimestr = datetime.toString();
 
   QString name, version;
   name = m->getName();
@@ -1226,7 +1250,7 @@ QRect Draw::getBoundingBox(Machine *m, QPainter *p) {
                         int(boundrect.height() + 0.1 * boundrect.height()));
 
       result.setCoords(ROUND(minx), ROUND(miny), ROUND(maxx), ROUND(maxy));
-      result = result.unite(brect_tmp);
+      result = result.united(brect_tmp);
       minx = result.left();
       miny = result.top();
       maxx = result.right();
@@ -1352,7 +1376,7 @@ QRect Draw::getBoundingBox(Machine *m, QPainter *p) {
                           bound.width() + 10, bound.height() + 10);
 
         result.setCoords(ROUND(minx), ROUND(miny), ROUND(maxx), ROUND(maxy));
-        result = result.unite(brect_tmp);
+        result = result.united(brect_tmp);
         minx = result.left();
         miny = result.top();
         maxx = result.right();
@@ -1462,7 +1486,7 @@ QRect Draw::getBoundingBox(Machine *m, QPainter *p) {
                         bound.width() + 10, bound.height() + 10);
 
       result.setCoords(ROUND(minx), ROUND(miny), ROUND(maxx), ROUND(maxy));
-      result = result.unite(brect_tmp);
+      result = result.united(brect_tmp);
       minx = result.left();
       miny = result.top();
       maxx = result.right();

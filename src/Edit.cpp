@@ -16,13 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <q3textstream.h>
-#include <qmap.h>
-#include <qmessagebox.h>
-#include <qstring.h>
-#include <qxml.h>
+// #include <q3textstream.h>
+#include <QMap>
+#include <QMessageBox>
+#include <QString>
 
-#include "AppInfo.h"
+// #include "AppInfo.h"
 #include "Convert.h"
 #include "Edit.h"
 #include "Error.h"
@@ -35,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "XMLHandler.h"
 
 /// Constructor
-Edit::Edit(QWidget *parent, const char *name) : QObject(parent, name) {}
+Edit::Edit(QWidget *parent, const char *name) : QObject(parent) {}
 
 /**
  * Deletes all selected objects.
@@ -232,19 +231,20 @@ bool Edit::copy(Selection *, Project *p, Machine *m, QString &s) {
  * @returns true if successful
  */
 bool Edit::paste(Selection *sel, Project *p, Machine *m, QString data) {
-  if (!p || !m || data == QString::null || data.isEmpty())
+  if (!p || !m || data.isNull() || data.isEmpty())
     return false;
 
   //    QTextStream s(&data, IO_ReadOnly);
 
-  QXmlInputSource source;
-  source.setData(data);
+  // QXmlInputSource source;
+  // source.setData(data);
   XMLHandler handler(p, sel, false, false);
-  QXmlSimpleReader reader;
+  handler.addData(data);
+  // QXmlSimpleReader reader;
 
-  reader.setContentHandler(&handler);
+  // reader.setContentHandler(&handler);
 
-  return reader.parse(source);
+  return handler.parse();
 
   /*
   int version_major, version_minor;

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// Constructor
 StatusBar::StatusBar(QWidget *parent, const char *name)
-    : QStatusBar(parent, name) {
+    : QStatusBar(parent) {
   QFont font("Courier", 11);
 
   //  lmessage = new QLabel(this);
@@ -38,9 +38,9 @@ StatusBar::StatusBar(QWidget *parent, const char *name)
   selected->setAlignment(Qt::AlignCenter);
 
   //  addWidget(lmessage, 10, false);
-  addWidget(zoom, 2, false);
-  addWidget(selected, 1, false);
-  addWidget(position, 4, false);
+  addWidget(zoom, 2);
+  addWidget(selected, 1);
+  addWidget(position, 4);
 
   //  message(tr("Ready."), 2000);
 }
@@ -64,7 +64,7 @@ void StatusBar::setSelected(int sel) {
 void StatusBar::setPosition(double x, double y) {
   QString s;
   if (x >= 0 && y >= 0)
-    s.sprintf("X: %6.1f  Y: %6.1f", x, y);
+    s = QString::asprintf("X: %6.1f  Y: %6.1f", x, y);
   position->setText(s);
 }
 

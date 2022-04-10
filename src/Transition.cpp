@@ -125,10 +125,10 @@ int Transition::conditionValid(int type, QString string, bool input /*=true*/) {
     do {
       c = string[count++];
       if (input) {
-        if (c != '1' && c != '0' && c != '|' && c != 'x' && c != QChar::null)
+        if (c != '1' && c != '0' && c != '|' && c != 'x' && c != QChar::Null)
           return 1;
       } else {
-        if (c != '1' && c != '0' && c != QChar::null)
+        if (c != '1' && c != '0' && c != QChar::Null)
           return 1;
       }
 
@@ -145,20 +145,20 @@ int Transition::conditionValid(int type, QString string, bool input /*=true*/) {
     len = string.length();
 
     while (i < len) {
-      ctmp = string[i].latin1();
+      ctmp = string[i].toLatin1();
       if (ctmp == '\\') {
         if (i == len - 1)
           return 2;
 
-        cnext = string[i + 1].latin1();
+        cnext = string[i + 1].toLatin1();
         if (cnext == '0') {
           if (i >= len - 3)
             return 2;
 
-          QString hexStr;
+          QString hexStr = QString{"1%2"}.arg(string[i + 2].toLatin1(), string[i + 3].toLatin1());
           int ires;
-          hexStr.sprintf("%c%c", string[i + 2].latin1(),
-                         string[i + 3].latin1());
+          // hexStr.sprintf("%c%c", string[i + 2].toLatin1(),
+          //                string[i + 3].toLatin1());
 
           if (!conv.hexStrToInt(hexStr, ires) || ires > 255)
             return 5;
@@ -174,7 +174,7 @@ int Transition::conditionValid(int type, QString string, bool input /*=true*/) {
         if (i == 0 || i == len - 1)
           return 3;
 
-        cnext = string[i + 1].latin1();
+        cnext = string[i + 1].toLatin1();
         if (cnext == '-' || cprev == '-')
           return 3;
 
@@ -182,15 +182,15 @@ int Transition::conditionValid(int type, QString string, bool input /*=true*/) {
           if (i == len - 2)
             return 2;
 
-          cnext = string[i + 2].latin1();
+          cnext = string[i + 2].toLatin1();
           if (cnext == '0') {
             if (i >= len - 4)
               return 2;
-
-            QString hexStr;
+            QString hexStr = QString{"1%2"}.arg(string[i + 3].toLatin1(), string[i + 4].toLatin1());
+            // QString hexStr;
             int ires;
-            hexStr.sprintf("%c%c", string[i + 3].latin1(),
-                           string[i + 4].latin1());
+            // hexStr.sprintf("%c%c", string[i + 3].toLatin1(),
+            //                string[i + 4].toLatin1());
 
             if (!conv.hexStrToInt(hexStr, ires) || ires > 255)
               return 5;
@@ -198,7 +198,7 @@ int Transition::conditionValid(int type, QString string, bool input /*=true*/) {
             cnext = (char)ires;
             i += 2;
           } else
-            cnext = IOInfoASCII::escapeToChar(string[i + 2].latin1());
+            cnext = IOInfoASCII::escapeToChar(string[i + 2].toLatin1());
 
           i++;
         }

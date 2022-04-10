@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// Constructor.
 Machine::Machine(QObject *parent /*=NULL*/, const char *n /*=0*/)
-    : QObject(parent, n) {
+    : QObject(parent) {
   name = "";
   version = "";
   project = (Project *)parent;
@@ -721,16 +721,16 @@ QStringList Machine::translateNames(QString names) {
   QStringList ret;
   if (names.length() <= 0)
     return ret;
-  QStringList parts = names.split(",", QString::SkipEmptyParts);
+  QStringList parts = names.split(",", Qt::SkipEmptyParts);
   QStringList::const_iterator i;
   int pos1, pos2, pos3, indexstart, indexend;
   bool ok;
 
   for (i = parts.constBegin(); i != parts.constEnd(); ++i) {
     ok = false;
-    pos1 = i->find('[');
-    pos2 = i->find("..", pos1);
-    pos3 = i->find(']', pos2);
+    pos1 = i->indexOf('[');
+    pos2 = i->indexOf("..", pos1);
+    pos3 = i->indexOf(']', pos2);
 
     if (pos1 != -1 && pos2 != -1 && pos3 != -1) {
       indexstart = (i->mid(pos1 + 1, pos2 - pos1 - 1)).toInt(&ok);
@@ -740,13 +740,13 @@ QStringList Machine::translateNames(QString names) {
           ok = false;
         if (ok == true) {
           for (int c = indexstart; c >= indexend; c--)
-            ret.append((i->left(pos1)).stripWhiteSpace() + "[" +
+            ret.append((i->left(pos1)).trimmed() + "[" +
                        QString::number(c) + "]");
         }
       }
     }
     if (!ok)
-      ret.append(i->stripWhiteSpace());
+      ret.append(i->trimmed());
   }
 
   return ret;
@@ -763,8 +763,8 @@ QString Machine::retranslateNames(QStringList names) {
 
   for (i = names.constBegin(); i != names.constEnd(); ++i) {
     ok = false;
-    pos1 = i->find('[');
-    pos2 = i->find(']', pos1);
+    pos1 = i->indexOf('[');
+    pos2 = i->indexOf(']', pos1);
     oldArrayName = arrayName;
     arrayName = i->left(pos1);
 

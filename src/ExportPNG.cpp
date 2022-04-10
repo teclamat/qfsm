@@ -18,9 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QPixmap>
 #include <iostream>
-#include <qfile.h>
-#include <qpainter.h>
-#include <qregexp.h>
+#include <QFile>
+#include <QPainter>
 
 #include "ExportPNG.h"
 #include "Machine.h"

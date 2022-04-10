@@ -17,11 +17,11 @@
    <property name="spacing">
     <number>6</number>
    </property>
-   <property name="margin">
+   <property name="margin" stdset="0">
     <number>11</number>
    </property>
    <item>
-    <widget class="Q3GroupBox" name="GroupBox17">
+    <widget class="QGroupBox" name="GroupBox17">
      <property name="title">
       <string>Grid</string>
      </property>
@@ -29,7 +29,7 @@
       <property name="spacing">
        <number>6</number>
       </property>
-      <property name="margin">
+      <property name="margin" stdset="0">
        <number>11</number>
       </property>
       <item>
@@ -84,7 +84,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Q3GroupBox" name="groupBox3">
+    <widget class="QGroupBox" name="groupBox3">
      <property name="title">
       <string>Shadows</string>
      </property>
@@ -131,7 +131,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Q3ButtonGroup" name="bg_transitions">
+    <widget class="QGroupBox" name="bg_transitions">
      <property name="title">
       <string>Transitions</string>
      </property>
@@ -262,21 +262,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
- <customwidgets>
-  <customwidget>
-   <class>Q3GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>Qt3Support/Q3GroupBox</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3ButtonGroup</class>
-   <extends>Q3GroupBox</extends>
-   <header>Qt3Support/Q3ButtonGroup</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>pb_gridcolor</tabstop>
   <tabstop>sb_gridsize</tabstop>
@@ -292,182 +277,5 @@
   <tabstop>cb_shadows</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>pb_gridcolor</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>chooseGridColor()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_tooltips</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>tooltipsClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>le_start</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>startDescChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_iomark</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>ioMarkClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_shadows</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>shadowsClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_shadowcolor</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>chooseShadowColor()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_drawbox</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>drawBoxClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_ionames</sender>
-   <signal>clicked()</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>ioNamesClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>le_inversion</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>inversionDescChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>le_any</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>anyInputDescChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>le_default</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>OptDisplayDlg</receiver>
-   <slot>defaultDescChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

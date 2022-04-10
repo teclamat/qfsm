@@ -62,7 +62,7 @@ This file is necessary to create code that can be compiled.</string>
     </layout>
    </item>
    <item>
-    <widget class="Q3ButtonGroup" name="bg_lang">
+    <widget class="QGroupBox" name="bg_lang">
      <property name="title">
       <string>Language</string>
      </property>
@@ -239,136 +239,8 @@ This file is necessary to create code that can be compiled.</string>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
- <customwidgets>
-  <customwidget>
-   <class>Q3GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>Qt3Support/Q3GroupBox</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3ButtonGroup</class>
-   <extends>Q3GroupBox</extends>
-   <header>Qt3Support/Q3ButtonGroup</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>cb_actionfile</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>createActionClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>120</x>
-     <y>34</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_C</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>langCClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_java</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>langJavaClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>118</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rb_ruby</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>langRubyClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>144</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_export</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>222</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pb_cancel</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>215</x>
-     <y>222</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_adddefault</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportRagelDlg</receiver>
-   <slot>addDefaultTransClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>170</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>22</x>
-     <y>203</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>addDefaultTransClicked()</slot>
  </slots>

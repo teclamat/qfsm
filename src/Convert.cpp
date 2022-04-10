@@ -16,14 +16,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <math.h>
-#include <qregexp.h>
-#include <qstring.h>
+// #include <math.h>
+#include <QRegularExpression>
+#include <QString>
 // Added by qt3to4:
 #include "Convert.h"
 #include "IOInfoASCII.h"
 #include "IOInfoList.h"
-#include <Q3ValueList>
+#include <QList>
 
 /**
  * Standard constructor.
@@ -76,7 +76,7 @@ bool Convert::hexStrToInt(QString hex, int &ires) {
   len = hex.length();
 
   for (int i = len - 1; i >= 0; i--) {
-    dezdig = hexdig.find(tmp[i].upper());
+    dezdig = hexdig.indexOf(tmp[i].toUpper());
     if (dezdig < 0) {
       ires = 0;
       return false;
@@ -99,7 +99,7 @@ bool Convert::hexStrToInt(QString hex, int &ires) {
  */
 QString Convert::intToBinStr(int c, int len) {
   if (c > pow(2.0, len) - 1 || len == 0)
-    return QString::null;
+    return {};
 
   QString result;
   int ctmp, cm;
@@ -363,7 +363,7 @@ IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t) {
   */
   QString binString("");
   for (int c = 0; c < hex.length(); c++) {
-    switch (hex[c].latin1()) {
+    switch (hex[c].toLatin1()) {
     case '0':
       binString += "0000";
       break;
@@ -568,17 +568,15 @@ bool Convert::binStrToASCII(const QString bin, unsigned char *ascii,
   int tmplength1 = 0, tmplength2 = 0;
 
   rbin = bin;
-  rbin.replace(QRegExp("\\s"), "");
+  rbin.replace(QRegularExpression("\\s"), "");
   if (singlechar) {
-    if (rbin.find(QRegExp("[^01]")) != -1)
-      return false;
+    if (rbin.indexOf(QRegularExpression("[^01]")) != -1) return false;
   } else {
-    if (rbin.find(QRegExp("[^01xX]")) != -1)
-      return false;
+    if (rbin.indexOf(QRegularExpression("[^01xX]")) != -1) return false;
   }
 
   //  cx = rbin.contains("x", false);
-  firstxpos = rbin.find("x", 0, false);
+  firstxpos = rbin.indexOf("x", 0, Qt::CaseInsensitive);
   if (firstxpos != -1) {
     rbin.replace(firstxpos, 1, "0");
     binStrToASCII(rbin, ascii, arraymaxlen, tmplength1, singlechar,
@@ -640,7 +638,7 @@ QString Convert::hexStrToBinStr(int maxlen, const QString hex) {
   len = hex.length();
 
   for (int i = len - 1; i >= 0; i--) {
-    dezdig = hexdig.find(tmp[i].upper());
+    dezdig = hexdig.indexOf(tmp[i].toUpper());
     if (dezdig < 0)
       dezdig = 0;
     switch (dezdig) {
@@ -720,9 +718,8 @@ bool Convert::hexStrToASCII(const QString hex, unsigned char *ascii,
 
   length = 0;
   rhex = hex;
-  rhex.replace(QRegExp("\\s"), "");
-  if (rhex.find(QRegExp("[^\\da-fA-F]")) != -1)
-    return false;
+  rhex.replace(QRegularExpression("\\s"), "");
+  if (rhex.indexOf(QRegularExpression("[^\\da-fA-F]")) != -1) return false;
   hexlen = rhex.length();
   if (hexlen % 2)
     rhex = "0" + rhex;
@@ -933,9 +930,7 @@ QString Convert::asciiToHexStr(const unsigned char ascii) {
  */
 IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char *ascii,
                               int asciilen, IOType t) {
-  QString binstr;
-
-  binstr = asciiToBinStr(maxlen, ascii, asciilen);
+  QString binstr = asciiToBinStr(maxlen, ascii, asciilen);
   return binStrToX10(maxlen, binstr, t);
 }
 
@@ -978,7 +973,7 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
   while (i < len) {
     nextisdigit = false;
 
-    ctmp = estr[i].latin1();
+    ctmp = estr[i].toLatin1();
     if (ctmp == '\\') // escape sequence
     {
       if (i == len - 1)
@@ -986,7 +981,7 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
 
       unsigned char cnext;
 
-      cnext = estr[i + 1].latin1();
+      cnext = estr[i + 1].toLatin1();
       if (cnext == 'd') // digit
       {
         for (fc = '0'; fc <= '9'; fc++) {
@@ -1005,8 +1000,8 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
             break;
           }
           int ires;
-          QString hexStr;
-          hexStr.sprintf("%c%c", estr[i + 2].latin1(), estr[i + 3].latin1());
+          QString hexStr = QString{"%1%2"}.arg(estr[i + 2], estr[i + 3]);
+          // hexStr.sprintf("%c%c", estr[i + 2].toLatin1(), estr[i + 3].toLatin1());
 
           i += 2;
 
@@ -1016,7 +1011,7 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
           ctmp = (unsigned char)ires;
         } else // excape character
         {
-          ctmp = IOInfoASCII::escapeToChar(estr[i + 1].latin1());
+          ctmp = IOInfoASCII::escapeToChar(estr[i + 1].toLatin1());
           // qDebug("escape: %c", ctmp);
         }
 
@@ -1038,7 +1033,7 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
       if (i == 0 || i == len - 1)
         break;
 
-      cnext = estr[i + 1].latin1();
+      cnext = estr[i + 1].toLatin1();
       if (cnext == '\\') // last char of range is escape character
       {
         nextisescape = true;
@@ -1046,7 +1041,7 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
         if (i == len - 2)
           break;
 
-        cnext = estr[i + 2].latin1();
+        cnext = estr[i + 2].toLatin1();
 
         if (cnext == 'd') // digit
         {
@@ -1060,8 +1055,8 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
               break;
             }
             int ires;
-            QString hexStr;
-            hexStr.sprintf("%c%c", estr[i + 3].latin1(), estr[i + 4].latin1());
+            QString hexStr = QString{"%1%2"}.arg(estr[i + 3], estr[i + 4]);
+            // hexStr.sprintf("%c%c", estr[i + 3].latin1(), estr[i + 4].latin1());
 
             i += 2;
 
@@ -1070,7 +1065,7 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
 
             cnext = (unsigned char)ires;
           } else // excape character
-            cnext = IOInfoASCII::escapeToChar(estr[i + 2].latin1());
+            cnext = IOInfoASCII::escapeToChar(estr[i + 2].toLatin1());
         }
       } else
         nextisescape = false;
@@ -1208,10 +1203,12 @@ QString Convert::asciiToReadableStr(const unsigned char *asciiarray,
         stmp="\\\\";
         */
       if (IOInfoASCII::isReadable(c))
-        stmp.sprintf("%c", c);
+        // stmp.sprintf("%c", c);
+        stmp = QChar{c};
       else {
         hex = asciiToHexStr(c);
-        stmp.sprintf("\\0%s", hex.latin1());
+        stmp = QString{"\\0%1"}.arg(hex.toLatin1());
+        // stmp.sprintf("\\0%s", hex.latin1());
       }
     }
     sres += stmp;
@@ -1259,9 +1256,9 @@ void Convert::asciiToIOList(const unsigned char *asciiarray, int asciilength,
   } else
     vlist = olist;
 
-  qSort(vlist.begin(), vlist.end());
+  std::sort(vlist.begin(), vlist.end());
   asciiarray2 = new unsigned char[vlist.count()];
-  qCopy(vlist.begin(), vlist.end(), asciiarray2);
+  std::copy(vlist.begin(), vlist.end(), asciiarray2);
   asciilength2 = vlist.count();
 
   for (int i = 0; i < asciilength2; i++) {

@@ -18,9 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ExportTestbenchVHDL.h"
 
-#include <iostream>
 #include <qapplication.h>
-#include <qregexp.h>
+#include <QRegularExpression>
+#include <iostream>
 
 #include "AppInfo.h"
 #include "Convert.h"
@@ -31,7 +31,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfo.h"
 #include "Utils.h"
 
-ExportTestbenchVHDL::ExportTestbenchVHDL(Options *opt) : Export(opt) {
+ExportTestbenchVHDL::ExportTestbenchVHDL(Options* opt)
+  : Export(opt)
+{
   outb = NULL;
   outp = NULL;
   io_names = false;
@@ -50,9 +52,9 @@ ExportTestbenchVHDL::ExportTestbenchVHDL(Options *opt) : Export(opt) {
  * @a op is a pointer to the output stream opened with the standard fstream
  * methods for writing the package file.
  */
-void ExportTestbenchVHDL::init(std::ofstream *ob, std::ofstream *op, Machine *m,
-                               QString fn /*=QString::null*/,
-                               ScrollView *sv /*=NULL*/) {
+void ExportTestbenchVHDL::init(std::ofstream* ob, std::ofstream* op, Machine* m, QString fn /*=QString::null*/,
+                               ScrollView* sv /*=NULL*/)
+{
   outb = ob;
   outp = op;
   machine = m;
@@ -61,10 +63,10 @@ void ExportTestbenchVHDL::init(std::ofstream *ob, std::ofstream *op, Machine *m,
 }
 
 /// Writes all the relevant data into the vhdl file.
-void ExportTestbenchVHDL::doExport() {
-
+void ExportTestbenchVHDL::doExport()
+{
   mname = machine->getName();
-  mname.replace(QRegExp(" "), "_");
+  mname.replace(QRegularExpression(" "), "_");
   io_names = options->getTestbenchIONames();
   synchronous_reset = options->getTestbenchSynchronousReset();
   synchronous_enable = options->getTestbenchSynchronousEnable();
@@ -91,13 +93,20 @@ void ExportTestbenchVHDL::doExport() {
 }
 
 /// Returns the file filter for the file dialog
-QString ExportTestbenchVHDL::fileFilter() { return "VHDL (*.vhd *.vhdl)"; }
+QString ExportTestbenchVHDL::fileFilter()
+{
+  return "VHDL (*.vhd *.vhdl)";
+}
 
 /// Returns the default extension for the save file name
-QString ExportTestbenchVHDL::defaultExtension() { return "vhd"; }
+QString ExportTestbenchVHDL::defaultExtension()
+{
+  return "vhd";
+}
 
 /// Writes the testbench subprogram package
-void ExportTestbenchVHDL::writePackage(std::ofstream *out) {
+void ExportTestbenchVHDL::writePackage(std::ofstream* out)
+{
   using namespace std;
   QString bit_string;
 
@@ -106,9 +115,7 @@ void ExportTestbenchVHDL::writePackage(std::ofstream *out) {
   else
     bit_string = "bit";
 
-  *out << endl
-       << "PACKAGE p_" << mname.latin1() << "_tbench IS" << endl
-       << endl;
+  *out << endl << "PACKAGE p_" << mname.toLatin1() << "_tbench IS" << endl << endl;
 
   *out << "  SHARED VARIABLE errflag     : boolean := false;" << endl;
   *out << "  SHARED VARIABLE show_errors : boolean := true;" << endl << endl;
@@ -116,9 +123,7 @@ void ExportTestbenchVHDL::writePackage(std::ofstream *out) {
   *out << "--------------------------------------" << endl;
   *out << "-- convert std_ulogic_vector to string" << endl;
   *out << "--------------------------------------" << endl << endl;
-  *out << "  FUNCTION TO_string(arg      : " << bit_string.latin1()
-       << "_vector) RETURN string;" << endl
-       << endl;
+  *out << "  FUNCTION TO_string(arg      : " << bit_string.toLatin1() << "_vector) RETURN string;" << endl << endl;
 
   *out << "------------------------------------------------" << endl;
   *out << "-- read a delimiter character from stimulus file" << endl;
@@ -132,18 +137,14 @@ void ExportTestbenchVHDL::writePackage(std::ofstream *out) {
   *out << "------------------------------------------" << endl << endl;
   *out << "  PROCEDURE read_assign (" << endl;
   *out << "    VARIABLE L          : INOUT line;" << endl;
-  *out << "    SIGNAL input_vector : OUT   " << bit_string.latin1()
-       << "_vector);" << endl
-       << endl;
+  *out << "    SIGNAL input_vector : OUT   " << bit_string.toLatin1() << "_vector);" << endl << endl;
 
   *out << "------------------------------------------" << endl;
   *out << "-- read an input signal from stimulus file" << endl;
   *out << "------------------------------------------" << endl;
   *out << "  PROCEDURE read_assign (" << endl;
   *out << "    VARIABLE L          : INOUT line;" << endl;
-  *out << "    SIGNAL input_signal : OUT   " << bit_string.latin1() << ");"
-       << endl
-       << endl;
+  *out << "    SIGNAL input_signal : OUT   " << bit_string.toLatin1() << ");" << endl << endl;
 
   *out << "------------------------------" << endl;
   *out << "-- write errors to output file" << endl;
@@ -151,41 +152,33 @@ void ExportTestbenchVHDL::writePackage(std::ofstream *out) {
   *out << "  PROCEDURE write_errors(FILE f     : text;" << endl;
   *out << "                         field_name : string;" << endl;
   *out << "                         vec_num    : natural;" << endl;
-  *out << "                         exp, res   : " << bit_string.latin1()
-       << ");" << endl
-       << endl;
+  *out << "                         exp, res   : " << bit_string.toLatin1() << ");" << endl << endl;
 
   *out << "  PROCEDURE write_errors(FILE f     : text;" << endl;
   *out << "                         field_name : string;" << endl;
   *out << "                         vec_num    : natural;" << endl;
-  *out << "                         exp, res   : " << bit_string.latin1()
-       << "_vector);" << endl
-       << endl;
+  *out << "                         exp, res   : " << bit_string.toLatin1() << "_vector);" << endl << endl;
 
-  *out << "------------------------------------------------------------"
-       << endl;
-  *out << "-- compare expected versus result vector and log differences"
-       << endl;
-  *out << "------------------------------------------------------------"
-       << endl;
+  *out << "------------------------------------------------------------" << endl;
+  *out << "-- compare expected versus result vector and log differences" << endl;
+  *out << "------------------------------------------------------------" << endl;
   *out << "  PROCEDURE check_results(" << endl;
   *out << "    VARIABLE L   : INOUT line;" << endl;
-  *out << "    res          :       " << bit_string.latin1() << ";" << endl;
+  *out << "    res          :       " << bit_string.toLatin1() << ";" << endl;
   *out << "    field_name   :       string;" << endl;
   *out << "    vec_num      :       natural;" << endl;
   *out << "    FILE logfile :       text);" << endl << endl;
 
   *out << "  PROCEDURE check_results(" << endl;
   *out << "    VARIABLE L   : INOUT line;" << endl;
-  *out << "    SIGNAL res   : IN    " << bit_string.latin1() << "_vector;"
-       << endl;
+  *out << "    SIGNAL res   : IN    " << bit_string.toLatin1() << "_vector;" << endl;
   *out << "    field_name   :       string;" << endl;
   *out << "    vec_num      :       natural;" << endl;
   *out << "    FILE logfile :       text);" << endl << endl;
 
-  *out << "END p_" << mname.latin1() << "_tbench;" << endl << endl;
+  *out << "END p_" << mname.toLatin1() << "_tbench;" << endl << endl;
 
-  *out << "PACKAGE BODY p_" << mname.latin1() << "_tbench IS" << endl;
+  *out << "PACKAGE BODY p_" << mname.toLatin1() << "_tbench IS" << endl;
 
   writeConverterFunction(out);
   writeReadDelimiterProcess(out);
@@ -194,11 +187,12 @@ void ExportTestbenchVHDL::writePackage(std::ofstream *out) {
   writeErrorLogProcess(out);
   writeCheckResultProcess(out);
 
-  *out << endl << "END p_" << mname.latin1() << "_tbench;" << endl;
+  *out << endl << "END p_" << mname.toLatin1() << "_tbench;" << endl;
 }
 
 /// Writes the 'library' and 'use' lines to the output stream
-void ExportTestbenchVHDL::writeEnvironment(std::ofstream *out) {
+void ExportTestbenchVHDL::writeEnvironment(std::ofstream* out)
+{
   using namespace std;
 
   //  if (use_std_logic)
@@ -210,23 +204,25 @@ void ExportTestbenchVHDL::writeEnvironment(std::ofstream *out) {
   *out << "USE std.textio.ALL;" << endl;
 }
 
-void ExportTestbenchVHDL::writeEntity(std::ofstream *out) {
+void ExportTestbenchVHDL::writeEntity(std::ofstream* out)
+{
   using namespace std;
 
-  *out << "USE work.p_" << mname.latin1() << "_tbench.ALL;" << endl << endl;
+  *out << "USE work.p_" << mname.toLatin1() << "_tbench.ALL;" << endl << endl;
 
-  *out << "ENTITY t_" << mname.latin1() << " IS" << endl;
+  *out << "ENTITY t_" << mname.toLatin1() << " IS" << endl;
   *out << "  GENERIC(show_errors :boolean := true);  -- show errors on "
           "standard output"
        << endl;
-  *out << "END t_" << mname.latin1() << ";" << endl << endl;
+  *out << "END t_" << mname.toLatin1() << ";" << endl << endl;
 }
 
 /// Writes the testbench architecture
-void ExportTestbenchVHDL::writeArchitecture(std::ofstream *out) {
+void ExportTestbenchVHDL::writeArchitecture(std::ofstream* out)
+{
   using namespace std;
 
-  *out << "ARCHITECTURE tbench OF t_" << mname.latin1() << " IS" << endl;
+  *out << "ARCHITECTURE tbench OF t_" << mname.toLatin1() << " IS" << endl;
 
   writeComponent(outb);
   //  *out << endl << "  SHARED VARIABLE errflag : boolean := false;" << endl <<
@@ -242,7 +238,8 @@ void ExportTestbenchVHDL::writeArchitecture(std::ofstream *out) {
 }
 
 /// Writes the component definition
-void ExportTestbenchVHDL::writeComponent(std::ofstream *out) {
+void ExportTestbenchVHDL::writeComponent(std::ofstream* out)
+{
   using namespace std;
 
   QString bit_string;
@@ -256,81 +253,71 @@ void ExportTestbenchVHDL::writeComponent(std::ofstream *out) {
   else
     bit_string = "bit";
 
-  *out << "  COMPONENT " << mname.latin1() << endl;
-  *out << "    PORT (clk: IN " << bit_string.latin1() << ";" << endl;
+  *out << "  COMPONENT " << mname.toLatin1() << endl;
+  *out << "    PORT (clk: IN " << bit_string.toLatin1() << ";" << endl;
   if (synchronous_reset_t) {
     if (neg_reset)
-      *out << "          srst_n: IN " << bit_string.latin1() << ";" << endl;
+      *out << "          srst_n: IN " << bit_string.toLatin1() << ";" << endl;
     else
-      *out << "          srst_p: IN " << bit_string.latin1() << ";" << endl;
+      *out << "          srst_p: IN " << bit_string.toLatin1() << ";" << endl;
   }
   if (synchronous_enable) {
-    *out << "          sen_p: IN " << bit_string.latin1() << ";" << endl;
+    *out << "          sen_p: IN " << bit_string.toLatin1() << ";" << endl;
   }
   if (!alliance) {
     if (neg_reset)
-      *out << "          rst_n: IN " << bit_string.latin1() << ";" << endl;
+      *out << "          rst_n: IN " << bit_string.toLatin1() << ";" << endl;
     else
-      *out << "          rst_p: IN " << bit_string.latin1() << ";" << endl;
+      *out << "          rst_p: IN " << bit_string.toLatin1() << ";" << endl;
   }
 
   if (io_names_t) {
-    QStringList inputs =
-        (machine->retranslateNames(machine->getInputNameList())).split(",");
+    QStringList inputs = (machine->retranslateNames(machine->getInputNameList())).split(",");
     QStringList::iterator i;
     QString vector = "";
     int pos1 = 0, pos2 = 0;
     if (machine->getNumInputs() > 0) {
       for (i = inputs.begin(); i != inputs.end(); ++i) {
         vector = "";
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           vector = "_vector" + i->mid(pos1, pos2 - pos1 + 1);
           vector.replace("..", " DOWNTO ");
           vector.replace("[", "(");
           vector.replace("]", ")");
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "          " << i->latin1() << ": IN " << bit_string.latin1()
-             << vector.latin1() << ";\n";
+        *out << "          " << i->toLatin1() << ": IN " << bit_string.toLatin1() << vector.toLatin1() << ";\n";
       }
     }
 
     if (machine->getNumMooreOutputs() > 0) {
-      QStringList mooreOutputs =
-          (machine->retranslateNames(machine->getMooreOutputList())).split(",");
+      QStringList mooreOutputs = (machine->retranslateNames(machine->getMooreOutputList())).split(",");
       for (i = mooreOutputs.begin(); i != mooreOutputs.end(); ++i) {
         vector = "";
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           vector = "_vector" + i->mid(pos1, pos2 - pos1 + 1);
           vector.replace("..", " DOWNTO ");
           vector.replace("[", "(");
           vector.replace("]", ")");
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "          " << i->latin1() << ": OUT " << bit_string.latin1()
-             << vector.latin1();
+        *out << "          " << i->toLatin1() << ": OUT " << bit_string.toLatin1() << vector.toLatin1();
         if ((i + 1) != mooreOutputs.end() || machine->getNumOutputs() > 0)
           *out << ";\n";
       }
     }
     if (machine->getNumOutputs() > 0) {
-
-      QStringList mealyOutputs =
-          (machine->retranslateNames(machine->getOutputNameList())).split(",");
+      QStringList mealyOutputs = (machine->retranslateNames(machine->getOutputNameList())).split(",");
       for (i = mealyOutputs.begin(); i != mealyOutputs.end(); ++i) {
         vector = "";
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           vector = "_vector" + i->mid(pos1, pos2 - pos1 + 1);
           vector.replace("..", " DOWNTO ");
           vector.replace("[", "(");
           vector.replace("]", ")");
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "          " << i->latin1() << ": OUT " << bit_string.latin1()
-             << vector.latin1();
+        *out << "          " << i->toLatin1() << ": OUT " << bit_string.toLatin1() << vector.toLatin1();
         if ((i + 1) != mealyOutputs.end())
           *out << ";\n";
       }
@@ -339,16 +326,15 @@ void ExportTestbenchVHDL::writeComponent(std::ofstream *out) {
   } else // ! io_names
   {
     if (machine->getNumInputs() > 0) {
-      *out << "          a: IN " << bit_string.latin1() << "_vector("
-           << machine->getNumInputs() - 1 << " DOWNTO 0)";
+      *out << "          a: IN " << bit_string.toLatin1() << "_vector(" << machine->getNumInputs() - 1 << " DOWNTO 0)";
     }
     if (machine->getNumMooreOutputs() > 0) {
-      *out << ";\n          q: OUT " << bit_string.latin1() << "_vector("
-           << machine->getNumMooreOutputs() - 1 << " DOWNTO 0)";
+      *out << ";\n          q: OUT " << bit_string.toLatin1() << "_vector(" << machine->getNumMooreOutputs() - 1
+           << " DOWNTO 0)";
     }
     if (machine->getNumOutputs() > 0) {
-      *out << ";\n          o: OUT " << bit_string.latin1() << "_vector("
-           << machine->getNumOutputs() - 1 << " DOWNTO 0)";
+      *out << ";\n          o: OUT " << bit_string.toLatin1() << "_vector(" << machine->getNumOutputs() - 1
+           << " DOWNTO 0)";
     }
     *out << ");" << endl;
   } // end if
@@ -356,7 +342,8 @@ void ExportTestbenchVHDL::writeComponent(std::ofstream *out) {
 }
 
 /// Writes the string std_ulogic_vector to string converter function
-void ExportTestbenchVHDL::writeConverterFunction(std::ofstream *out) {
+void ExportTestbenchVHDL::writeConverterFunction(std::ofstream* out)
+{
   using namespace std;
 
   QString bit_string;
@@ -366,10 +353,8 @@ void ExportTestbenchVHDL::writeConverterFunction(std::ofstream *out) {
   else
     bit_string = "bit";
 
-  *out << "  FUNCTION TO_string(arg : " << bit_string.latin1()
-       << "_vector) RETURN string IS" << endl;
-  *out << "    ALIAS u : " << bit_string.latin1()
-       << "_vector(arg'length DOWNTO 1) IS arg;" << endl;
+  *out << "  FUNCTION TO_string(arg : " << bit_string.toLatin1() << "_vector) RETURN string IS" << endl;
+  *out << "    ALIAS u : " << bit_string.toLatin1() << "_vector(arg'length DOWNTO 1) IS arg;" << endl;
   *out << "    VARIABLE result : string(arg'length DOWNTO 1);" << endl;
   *out << "  BEGIN" << endl;
   *out << "    FOR i IN u'RANGE LOOP" << endl;
@@ -392,7 +377,8 @@ void ExportTestbenchVHDL::writeConverterFunction(std::ofstream *out) {
 }
 
 /// Writes signal and constant definitions
-void ExportTestbenchVHDL::writeDefinitions(std::ofstream *out) {
+void ExportTestbenchVHDL::writeDefinitions(std::ofstream* out)
+{
   using namespace std;
 
   QString bit_string;
@@ -407,80 +393,70 @@ void ExportTestbenchVHDL::writeDefinitions(std::ofstream *out) {
     bit_string = "bit";
 
   *out << "  -- component ports " << endl;
-  *out << "  SIGNAL clk: " << bit_string.latin1() << ";" << endl;
+  *out << "  SIGNAL clk: " << bit_string.toLatin1() << ";" << endl;
   if (synchronous_reset_t) {
     if (neg_reset)
-      *out << "  SIGNAL srst_n: " << bit_string.latin1() << ";" << endl;
+      *out << "  SIGNAL srst_n: " << bit_string.toLatin1() << ";" << endl;
     else
-      *out << "  SIGNAL srst_p: " << bit_string.latin1() << ";" << endl;
+      *out << "  SIGNAL srst_p: " << bit_string.toLatin1() << ";" << endl;
   }
   if (synchronous_enable) {
-    *out << "  SIGNAL sen_p: " << bit_string.latin1() << ";" << endl;
+    *out << "  SIGNAL sen_p: " << bit_string.toLatin1() << ";" << endl;
   }
   if (!alliance) {
     if (neg_reset)
-      *out << "  SIGNAL rst_n: " << bit_string.latin1() << ";" << endl;
+      *out << "  SIGNAL rst_n: " << bit_string.toLatin1() << ";" << endl;
     else
-      *out << " SIGNAL rst_p: " << bit_string.latin1() << ";" << endl;
+      *out << " SIGNAL rst_p: " << bit_string.toLatin1() << ";" << endl;
   }
 
   if (io_names_t) {
-    QStringList inputs =
-        (machine->retranslateNames(machine->getInputNameList())).split(",");
+    QStringList inputs = (machine->retranslateNames(machine->getInputNameList())).split(",");
     QStringList::iterator i;
     QString vector = "";
     int pos1 = 0, pos2 = 0;
     if (machine->getNumInputs() > 0) {
       for (i = inputs.begin(); i != inputs.end(); ++i) {
         vector = "";
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           vector = "_vector" + i->mid(pos1, pos2 - pos1 + 1);
           vector.replace("..", " DOWNTO ");
           vector.replace("[", "(");
           vector.replace("]", ")");
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "  SIGNAL " << i->latin1() << ": " << bit_string.latin1()
-             << vector.latin1() << ";\n";
+        *out << "  SIGNAL " << i->toLatin1() << ": " << bit_string.toLatin1() << vector.toLatin1() << ";\n";
       }
     }
 
     if (machine->getNumMooreOutputs() > 0) {
-      QStringList mooreOutputs =
-          (machine->retranslateNames(machine->getMooreOutputList())).split(",");
+      QStringList mooreOutputs = (machine->retranslateNames(machine->getMooreOutputList())).split(",");
       for (i = mooreOutputs.begin(); i != mooreOutputs.end(); ++i) {
         vector = "";
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           vector = "_vector" + i->mid(pos1, pos2 - pos1 + 1);
           vector.replace("..", " DOWNTO ");
           vector.replace("[", "(");
           vector.replace("]", ")");
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "  SIGNAL " << i->latin1() << ": " << bit_string.latin1()
-             << vector.latin1();
+        *out << "  SIGNAL " << i->toLatin1() << ": " << bit_string.toLatin1() << vector.toLatin1();
         if ((i + 1) != mooreOutputs.end() || machine->getNumOutputs() > 0)
           *out << ";\n";
       }
     }
     if (machine->getNumOutputs() > 0) {
-
-      QStringList mealyOutputs =
-          (machine->retranslateNames(machine->getOutputNameList())).split(",");
+      QStringList mealyOutputs = (machine->retranslateNames(machine->getOutputNameList())).split(",");
       for (i = mealyOutputs.begin(); i != mealyOutputs.end(); ++i) {
         vector = "";
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           vector = "_vector" + i->mid(pos1, pos2 - pos1 + 1);
           vector.replace("..", " DOWNTO ");
           vector.replace("[", "(");
           vector.replace("]", ")");
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "  SIGNAL " << i->latin1() << ": " << bit_string.latin1()
-             << vector.latin1();
+        *out << "  SIGNAL " << i->toLatin1() << ": " << bit_string.toLatin1() << vector.toLatin1();
         if ((i + 1) != mealyOutputs.end())
           *out << ";\n";
       }
@@ -488,15 +464,13 @@ void ExportTestbenchVHDL::writeDefinitions(std::ofstream *out) {
     *out << ";\n";
   } else // ! io_names
   {
-    *out << "  SIGNAL a: " << bit_string.latin1() << "_vector("
-         << machine->getNumInputs() - 1 << " DOWNTO 0);";
+    *out << "  SIGNAL a: " << bit_string.toLatin1() << "_vector(" << machine->getNumInputs() - 1 << " DOWNTO 0);";
     if (machine->getNumMooreOutputs() > 0) {
-      *out << "\n  SIGNAL q: " << bit_string.latin1() << "_vector("
-           << machine->getNumMooreOutputs() - 1 << " DOWNTO 0);";
+      *out << "\n  SIGNAL q: " << bit_string.toLatin1() << "_vector(" << machine->getNumMooreOutputs() - 1
+           << " DOWNTO 0);";
     }
     if (machine->getNumOutputs() > 0) {
-      *out << "\n  SIGNAL o: " << bit_string.latin1() << "_vector("
-           << machine->getNumOutputs() - 1 << " DOWNTO 0);";
+      *out << "\n  SIGNAL o: " << bit_string.toLatin1() << "_vector(" << machine->getNumOutputs() - 1 << " DOWNTO 0);";
     }
   } // end if
   *out << endl << "  -- definition of a clock period" << endl;
@@ -509,7 +483,8 @@ void ExportTestbenchVHDL::writeDefinitions(std::ofstream *out) {
 }
 
 /// Writes component instantiation
-void ExportTestbenchVHDL::writeInstantiation(std::ofstream *out) {
+void ExportTestbenchVHDL::writeInstantiation(std::ofstream* out)
+{
   using namespace std;
 
   bool io_names_t, synchronous_reset_t;
@@ -518,7 +493,7 @@ void ExportTestbenchVHDL::writeInstantiation(std::ofstream *out) {
   io_names_t = io_names;
 
   *out << "  -- component instantiation " << endl;
-  *out << "  MUT : " << mname.latin1() << endl;
+  *out << "  MUT : " << mname.toLatin1() << endl;
   *out << "    PORT MAP (" << endl;
   *out << "      clk => clk," << endl;
   if (synchronous_reset_t) {
@@ -538,43 +513,37 @@ void ExportTestbenchVHDL::writeInstantiation(std::ofstream *out) {
   }
 
   if (io_names_t) {
-    QStringList inputs =
-        (machine->retranslateNames(machine->getInputNameList())).split(",");
+    QStringList inputs = (machine->retranslateNames(machine->getInputNameList())).split(",");
     QStringList::iterator i;
     QString vector = "";
     int pos1 = 0, pos2 = 0;
     if (machine->getNumInputs() > 0) {
       for (i = inputs.begin(); i != inputs.end(); ++i) {
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "      " << i->latin1() << " => " << i->latin1() << ",\n";
+        *out << "      " << i->toLatin1() << " => " << i->toLatin1() << ",\n";
       }
     }
 
     if (machine->getNumMooreOutputs() > 0) {
-      QStringList mooreOutputs =
-          (machine->retranslateNames(machine->getMooreOutputList())).split(",");
+      QStringList mooreOutputs = (machine->retranslateNames(machine->getMooreOutputList())).split(",");
       for (i = mooreOutputs.begin(); i != mooreOutputs.end(); ++i) {
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "      " << i->latin1() << " => " << i->latin1();
+        *out << "      " << i->toLatin1() << " => " << i->toLatin1();
         if ((i + 1) != mooreOutputs.end() || machine->getNumOutputs() > 0)
           *out << ",\n";
       }
     }
     if (machine->getNumOutputs() > 0) {
-      QStringList mealyOutputs =
-          (machine->retranslateNames(machine->getOutputNameList())).split(",");
+      QStringList mealyOutputs = (machine->retranslateNames(machine->getOutputNameList())).split(",");
       for (i = mealyOutputs.begin(); i != mealyOutputs.end(); ++i) {
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           i->remove(pos1, pos2 - pos1 + 1);
         }
-        *out << "      " << i->latin1() << " => " << i->latin1();
+        *out << "      " << i->toLatin1() << " => " << i->toLatin1();
         if ((i + 1) != mealyOutputs.end())
           *out << ",\n";
       }
@@ -600,7 +569,8 @@ void ExportTestbenchVHDL::writeInstantiation(std::ofstream *out) {
 }
 
 /// Writes the clock process
-void ExportTestbenchVHDL::writeClockProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeClockProcess(std::ofstream* out)
+{
   using namespace std;
 
   *out << "  -- clock generation" << endl;
@@ -619,7 +589,8 @@ void ExportTestbenchVHDL::writeClockProcess(std::ofstream *out) {
 }
 
 /// Writes the observer process
-void ExportTestbenchVHDL::writeObserverProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeObserverProcess(std::ofstream* out)
+{
   using namespace std;
 
   int input_count = machine->getNumInputs();
@@ -637,17 +608,16 @@ void ExportTestbenchVHDL::writeObserverProcess(std::ofstream *out) {
   *out << "  stimuli_observer: PROCESS" << endl;
   *out << "    VARIABLE errflag : boolean := false;" << endl;
   *out << "    VARIABLE L : line;" << endl;
-  *out << "    FILE vectorfile : text OPEN read_mode IS \"./"
-       << testvector_name.latin1() << "\";";
+  *out << "    FILE vectorfile : text OPEN read_mode IS \"./" << testvector_name.toLatin1() << "\";";
 
   if (use_std_logic) {
     *out << "    VARIABLE vector : bit_vector(";
-    *out << QString::number(input_count + output_count - 1).latin1();
+    *out << QString::number(input_count + output_count - 1).toLatin1();
     *out << " DOWNTO 0);" << endl;
   }
 
-  *out << "    VARIABLE test_vector : " << bit_string.latin1() << "_vector(";
-  *out << QString::number(input_count + output_count - 1).latin1();
+  *out << "    VARIABLE test_vector : " << bit_string.toLatin1() << "_vector(";
+  *out << QString::number(input_count + output_count - 1).toLatin1();
   *out << " DOWNTO 0);" << endl;
 
   *out << "  BEGIN" << endl;
@@ -668,53 +638,50 @@ void ExportTestbenchVHDL::writeObserverProcess(std::ofstream *out) {
     QStringList::iterator i;
     for (i = inputs.begin(); i != inputs.end(); ++i) {
       stimuli_counter--;
-      if (i->find("[") != -1 && i->find("]") != -1) {
+      if (i->indexOf("[") != -1 && i->indexOf("]") != -1) {
         i->replace("[", "(");
         i->replace("]", ")");
       }
-      *out << "      " << i->latin1() << " <= test_vector("
-           << QString::number(stimuli_counter).latin1() << ");\n";
+      *out << "      " << i->toLatin1() << " <= test_vector(" << QString::number(stimuli_counter).toLatin1() << ");\n";
     }
   } else {
     for (c = machine->getNumInputs() - 1; c >= 0; c--) {
       stimuli_counter--;
 
-      *out << "      a(" << QString::number(c).latin1() << ") <= test_vector("
-           << QString::number(stimuli_counter).latin1() << ");\n";
+      *out << "      a(" << QString::number(c).toLatin1() << ") <= test_vector("
+           << QString::number(stimuli_counter).toLatin1() << ");\n";
     }
   }
   *out << "      WAIT FOR strobe;" << endl;
 
   *out << "      IF (";
   if (io_names_t) {
-
     if (machine->getNumMooreOutputs() > 0) {
       QStringList mooreOutputs = machine->getMooreOutputList();
       QStringList::iterator i;
       for (i = mooreOutputs.begin(); i != mooreOutputs.end(); ++i) {
-        if (i->find("[") != -1 && i->find("]") != -1) {
+        if (i->indexOf("[") != -1 && i->indexOf("]") != -1) {
           i->replace("[", "(");
           i->replace("]", ")");
         }
         if (i == mooreOutputs.begin())
-          *out << i->latin1();
+          *out << i->toLatin1();
         else
-          *out << " & " << i->latin1();
+          *out << " & " << i->toLatin1();
       }
     }
     if (machine->getNumOutputs() > 0) {
-
       QStringList mealyOutputs = machine->getOutputNameList();
       QStringList::iterator i;
       for (i = mealyOutputs.begin(); i != mealyOutputs.end(); ++i) {
-        if (i->find("[") != -1 && i->find("]") != -1) {
+        if (i->indexOf("[") != -1 && i->indexOf("]") != -1) {
           i->replace("[", "(");
           i->replace("]", ")");
         }
         if (i == mealyOutputs.begin() && machine->getNumMooreOutputs() == 0)
-          *out << i->latin1();
+          *out << i->toLatin1();
         else
-          *out << " & " << i->latin1();
+          *out << " & " << i->toLatin1();
       }
     }
     *out << ")";
@@ -724,9 +691,9 @@ void ExportTestbenchVHDL::writeObserverProcess(std::ofstream *out) {
       int numOutputs = machine->getNumMooreOutputs();
       for (c = numOutputs - 1; c >= 0; c--) {
         if (c == numOutputs - 1)
-          *out << "q(" << QString::number(c).latin1() << ")";
+          *out << "q(" << QString::number(c).toLatin1() << ")";
         else
-          *out << " & q(" << QString::number(c).latin1() << ")";
+          *out << " & q(" << QString::number(c).toLatin1() << ")";
       }
     }
 
@@ -734,17 +701,16 @@ void ExportTestbenchVHDL::writeObserverProcess(std::ofstream *out) {
       int numOutputs = machine->getNumOutputs();
       for (c = numOutputs - 1; c >= 0; c--) {
         if (c == numOutputs - 1 && machine->getNumMooreOutputs() == 0)
-          *out << "a(" << QString::number(c).latin1() << ")";
+          *out << "a(" << QString::number(c).toLatin1() << ")";
         else
-          *out << " & a(" << QString::number(c).latin1() << ")";
+          *out << " & a(" << QString::number(c).toLatin1() << ")";
       }
     }
     *out << ")";
   } // end if
 
   stimuli_counter--;
-  *out << " /= test_vector(" << QString::number(stimuli_counter).latin1()
-       << " DOWNTO 0) THEN" << endl;
+  *out << " /= test_vector(" << QString::number(stimuli_counter).toLatin1() << " DOWNTO 0) THEN" << endl;
   *out << "        REPORT \"Error: Wrong result!\"" << endl;
   *out << "          SEVERITY failure;" << endl;
   *out << "        errflag:=true;" << endl;
@@ -760,7 +726,8 @@ void ExportTestbenchVHDL::writeObserverProcess(std::ofstream *out) {
 }
 
 /// Write description
-void ExportTestbenchVHDL::writeDescription(std::ofstream *out) {
+void ExportTestbenchVHDL::writeDescription(std::ofstream* out)
+{
   using namespace std;
 
   *out << endl;
@@ -769,7 +736,7 @@ void ExportTestbenchVHDL::writeDescription(std::ofstream *out) {
     QStringList inputs = machine->getInputNameList();
     QStringList::const_iterator i;
     for (i = inputs.constBegin(); i != inputs.constEnd(); ++i) {
-      *out << "   " << i->latin1();
+      *out << "   " << i->toLatin1();
     }
     *out << endl;
   }
@@ -778,14 +745,14 @@ void ExportTestbenchVHDL::writeDescription(std::ofstream *out) {
     QStringList outputs = machine->getOutputNameList();
     QStringList::const_iterator i;
     for (i = outputs.constBegin(); i != outputs.constEnd(); ++i) {
-      *out << "   " << i->latin1();
+      *out << "   " << i->toLatin1();
     }
     *out << endl;
   }
 
-  QList<GState *> states = machine->getSList();
-  QList<GState *>::const_iterator is;
-  int *textLen = new int[machine->getNumMooreOutputs() + 1];
+  QList<GState*> states = machine->getSList();
+  QList<GState*>::const_iterator is;
+  int* textLen = new int[machine->getNumMooreOutputs() + 1];
   textLen[0] = 12;
 
   for (is = states.constBegin(); is != states.constEnd(); ++is) {
@@ -794,7 +761,7 @@ void ExportTestbenchVHDL::writeDescription(std::ofstream *out) {
   }
   textLen[0]++;
 
-  *out << "-- State/Output" << QString(textLen[0] - 13, ' ').latin1();
+  *out << "-- State/Output" << QString(textLen[0] - 13, ' ').toLatin1();
 
   if (machine->getNumMooreOutputs() > 0) {
     int spc = 1;
@@ -803,29 +770,27 @@ void ExportTestbenchVHDL::writeDescription(std::ofstream *out) {
     for (i = outputs.begin(); i != outputs.end(); ++i) {
       textLen[spc] = i->length() + 1;
       spc++;
-      *out << " " << i->latin1();
+      *out << " " << i->toLatin1();
     }
   }
   *out << endl;
 
-  IOInfo *mooreOutput;
+  IOInfo* mooreOutput;
   QString sMooreOutput;
 
   for (is = states.constBegin(); is != states.constEnd(); ++is) {
     if ((*is)->isDeleted())
       continue;
     int spc = 0;
-    *out
-        << "-- " << (*is)->getStateName().latin1()
-        << QString(textLen[spc] - (*is)->getStateName().length(), ' ').latin1();
+    *out << "-- " << (*is)->getStateName().toLatin1()
+         << QString(textLen[spc] - (*is)->getStateName().length(), ' ').toLatin1();
     spc++;
     if (machine->getNumMooreOutputs() > 0) {
       mooreOutput = (*is)->getMooreOutputs();
       sMooreOutput = mooreOutput->convertToBinStr();
       int c = 0;
       while (c < sMooreOutput.length()) {
-        *out << sMooreOutput[c].toLatin1()
-             << QString(textLen[spc] - 1, ' ').latin1();
+        *out << sMooreOutput[c].toLatin1() << QString(textLen[spc] - 1, ' ').toLatin1();
         c++;
         spc++;
       }
@@ -837,7 +802,8 @@ void ExportTestbenchVHDL::writeDescription(std::ofstream *out) {
 }
 
 /// Writes read_delimiter process
-void ExportTestbenchVHDL::writeReadDelimiterProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeReadDelimiterProcess(std::ofstream* out)
+{
   using namespace std;
   *out << "------------------------------------------------" << endl;
   *out << "-- read a delimiter character from stimulus file" << endl;
@@ -858,7 +824,8 @@ void ExportTestbenchVHDL::writeReadDelimiterProcess(std::ofstream *out) {
 
 /// Writes read_assign process to read an input vector from a line of the
 /// stimulus file
-void ExportTestbenchVHDL::writeReadVectorProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeReadVectorProcess(std::ofstream* out)
+{
   using namespace std;
   QString bit_string;
 
@@ -872,10 +839,8 @@ void ExportTestbenchVHDL::writeReadVectorProcess(std::ofstream *out) {
   *out << "------------------------------------------" << endl;
   *out << "PROCEDURE read_assign (" << endl;
   *out << "  VARIABLE L          : INOUT line;" << endl;
-  *out << "  SIGNAL input_vector : OUT   " << bit_string.latin1()
-       << "_vector) IS" << endl;
-  *out << "  VARIABLE vec : " << bit_string.latin1()
-       << "_vector(input_vector'length-1 DOWNTO 0);" << endl;
+  *out << "  SIGNAL input_vector : OUT   " << bit_string.toLatin1() << "_vector) IS" << endl;
+  *out << "  VARIABLE vec : " << bit_string.toLatin1() << "_vector(input_vector'length-1 DOWNTO 0);" << endl;
   *out << "BEGIN  -- read_assign" << endl;
   *out << "  read(L, vec);" << endl;
   *out << "  input_vector <= vec;" << endl;
@@ -884,7 +849,8 @@ void ExportTestbenchVHDL::writeReadVectorProcess(std::ofstream *out) {
 
 /// Writes read_assign process to read an input signal from a line of the
 /// stimulus file
-void ExportTestbenchVHDL::writeReadSignalProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeReadSignalProcess(std::ofstream* out)
+{
   using namespace std;
 
   QString bit_string;
@@ -899,9 +865,8 @@ void ExportTestbenchVHDL::writeReadSignalProcess(std::ofstream *out) {
   *out << "------------------------------------------" << endl;
   *out << "PROCEDURE read_assign (" << endl;
   *out << "  VARIABLE L          : INOUT line;" << endl;
-  *out << "  SIGNAL input_signal : OUT   " << bit_string.latin1() << ") IS"
-       << endl;
-  *out << "  VARIABLE temp : " << bit_string.latin1() << ";" << endl;
+  *out << "  SIGNAL input_signal : OUT   " << bit_string.toLatin1() << ") IS" << endl;
+  *out << "  VARIABLE temp : " << bit_string.toLatin1() << ";" << endl;
   *out << "BEGIN  -- read_assign" << endl;
   *out << "  read(L, temp);" << endl;
   *out << "  input_signal <= temp;" << endl;
@@ -909,7 +874,8 @@ void ExportTestbenchVHDL::writeReadSignalProcess(std::ofstream *out) {
 }
 
 /// Writes the write_errors procedure which generates the log file
-void ExportTestbenchVHDL::writeErrorLogProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeErrorLogProcess(std::ofstream* out)
+{
   using namespace std;
 
   QString bit_string;
@@ -925,8 +891,7 @@ void ExportTestbenchVHDL::writeErrorLogProcess(std::ofstream *out) {
   *out << "PROCEDURE write_errors(FILE f     : text;" << endl;
   *out << "                       field_name : string;" << endl;
   *out << "                       vec_num    : natural;" << endl;
-  *out << "                       exp, res   : " << bit_string.latin1()
-       << ") IS" << endl;
+  *out << "                       exp, res   : " << bit_string.toLatin1() << ") IS" << endl;
   *out << "  VARIABLE L : line;" << endl;
   *out << "BEGIN" << endl;
   *out << "  write(L, string'(\"ERROR in field \") & field_name & string'(\" "
@@ -936,21 +901,17 @@ void ExportTestbenchVHDL::writeErrorLogProcess(std::ofstream *out) {
   *out << "  write(L, string'(\" at time \"));" << endl;
   *out << "  write(L, now);" << endl;
   *out << "  writeline(f, L);" << endl;
-  *out << "  write(L, string'(\"Res: \") & " << bit_string.latin1()
-       << "'image(res));" << endl;
+  *out << "  write(L, string'(\"Res: \") & " << bit_string.toLatin1() << "'image(res));" << endl;
   *out << "  writeline(f, L);" << endl;
-  *out << "  write(L, string'(\"Exp: \") & " << bit_string.latin1()
-       << "'image(exp));" << endl;
+  *out << "  write(L, string'(\"Exp: \") & " << bit_string.toLatin1() << "'image(exp));" << endl;
   *out << "  writeline(f, L);" << endl;
-  *out << "  writeline(f, L);                    -- outputs a blank line"
-       << endl;
+  *out << "  writeline(f, L);                    -- outputs a blank line" << endl;
   *out << "END PROCEDURE write_errors;" << endl << endl;
 
   *out << "PROCEDURE write_errors(FILE f     : text;" << endl;
   *out << "                       field_name : string;" << endl;
   *out << "                       vec_num    : natural;" << endl;
-  *out << "                       exp, res   : " << bit_string.latin1()
-       << "_vector) IS" << endl;
+  *out << "                       exp, res   : " << bit_string.toLatin1() << "_vector) IS" << endl;
   *out << "  VARIABLE L : line;" << endl;
   *out << "BEGIN" << endl;
   *out << "  write(L, string'(\"ERROR in field \") & field_name & string'(\" "
@@ -964,15 +925,14 @@ void ExportTestbenchVHDL::writeErrorLogProcess(std::ofstream *out) {
   *out << "  writeline(f, L);" << endl;
   *out << "  write(L, string'(\"Exp: \") & to_string(exp));" << endl;
   *out << "  writeline(f, L);" << endl;
-  *out << "  writeline(f, L);                    -- outputs a blank line"
-       << endl;
+  *out << "  writeline(f, L);                    -- outputs a blank line" << endl;
   *out << "END PROCEDURE write_errors;" << endl << endl;
 }
 
 /// Writes the check_results procedure to compare simulated results with
 /// expected results
-void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream *out) {
-
+void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream* out)
+{
   using namespace std;
 
   QString bit_string;
@@ -982,20 +942,17 @@ void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream *out) {
   else
     bit_string = "bit";
 
-  *out << "------------------------------------------------------------"
-       << endl;
-  *out << "-- compare expected versus result vector and log differences"
-       << endl;
-  *out << "------------------------------------------------------------"
-       << endl;
+  *out << "------------------------------------------------------------" << endl;
+  *out << "-- compare expected versus result vector and log differences" << endl;
+  *out << "------------------------------------------------------------" << endl;
   *out << "PROCEDURE check_results(" << endl;
   *out << "  VARIABLE L   : INOUT line;" << endl;
-  *out << "  res          :       " << bit_string.latin1() << ";" << endl;
+  *out << "  res          :       " << bit_string.toLatin1() << ";" << endl;
   *out << "  field_name   :       string;" << endl;
   *out << "  vec_num      :       natural;" << endl;
   *out << "  FILE logfile :       text) IS" << endl;
   *out << "  VARIABLE errors_found : boolean := false;" << endl;
-  *out << "  VARIABLE exp          : " << bit_string.latin1() << ";" << endl;
+  *out << "  VARIABLE exp          : " << bit_string.toLatin1() << ";" << endl;
   *out << "BEGIN" << endl;
   *out << "  read(L, exp);" << endl;
   *out << "  -- Use the 1164 don't-care notation" << endl;
@@ -1012,8 +969,7 @@ void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream *out) {
 
   *out << "  IF errors_found THEN" << endl;
   *out << "    -- log to error file" << endl;
-  *out << "    write_errors(logfile, field_name, vec_num, exp, res);" << endl
-       << endl;
+  *out << "    write_errors(logfile, field_name, vec_num, exp, res);" << endl << endl;
 
   *out << "    -- optionally log to transcript window" << endl;
   *out << "    IF show_errors THEN" << endl;
@@ -1024,14 +980,12 @@ void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream *out) {
 
   *out << "PROCEDURE check_results(" << endl;
   *out << "  VARIABLE L   : INOUT line;" << endl;
-  *out << "  SIGNAL res   : IN    " << bit_string.latin1() << "_vector;"
-       << endl;
+  *out << "  SIGNAL res   : IN    " << bit_string.toLatin1() << "_vector;" << endl;
   *out << "  field_name   :       string;" << endl;
   *out << "  vec_num      :       natural;" << endl;
   *out << "  FILE logfile :       text) IS" << endl;
   *out << "  VARIABLE errors_found : boolean := false;" << endl;
-  *out << "  VARIABLE exp          : " << bit_string.latin1()
-       << "_vector(res'length-1 DOWNTO 0);" << endl;
+  *out << "  VARIABLE exp          : " << bit_string.toLatin1() << "_vector(res'length-1 DOWNTO 0);" << endl;
   *out << "BEGIN" << endl;
   *out << "  read(L, exp);" << endl;
   *out << "  my_loop:" << endl;
@@ -1049,8 +1003,7 @@ void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream *out) {
   *out << "  END LOOP;" << endl;
   *out << "  IF errors_found THEN" << endl;
   *out << "    -- log to error file" << endl;
-  *out << "    write_errors(logfile, field_name, vec_num, exp, res);" << endl
-       << endl;
+  *out << "    write_errors(logfile, field_name, vec_num, exp, res);" << endl << endl;
 
   *out << "    -- optionally log to transcript window" << endl;
   *out << "    IF show_errors THEN" << endl;
@@ -1065,7 +1018,8 @@ void ExportTestbenchVHDL::writeCheckResultProcess(std::ofstream *out) {
 }
 
 /// Writes the improved observer process
-void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
+void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream* out)
+{
   using namespace std;
 
   bool io_names_t = io_names;
@@ -1075,23 +1029,18 @@ void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
   *out << "    VARIABLE Li     : line;             -- pointer to file input "
           "buffer"
        << endl;
-  *out << "    FILE vectorfile : text OPEN read_mode IS \""
-       << testvector_name.latin1() << "\";" << endl;
+  *out << "    FILE vectorfile : text OPEN read_mode IS \"" << testvector_name.toLatin1() << "\";" << endl;
   *out << "    VARIABLE Lo     : line;             -- pointer to file output "
           "buffer"
        << endl;
-  *out << "    FILE resultfile : text OPEN write_mode IS \""
-       << logfile_name.latin1() << "\";" << endl;
+  *out << "    FILE resultfile : text OPEN write_mode IS \"" << logfile_name.toLatin1() << "\";" << endl;
 
   *out << "    -- following definition of corresponding temp input buffer "
           "variables"
        << endl;
-  *out << "    CONSTANT commentchar   : character := '#';  -- comment character"
-       << endl;
-  *out << "    VARIABLE vectorfirstc  : character := '#';  -- first character"
-       << endl;
-  *out << "    VARIABLE vectornum     : natural   := 0;    -- vector number"
-       << endl;
+  *out << "    CONSTANT commentchar   : character := '#';  -- comment character" << endl;
+  *out << "    VARIABLE vectorfirstc  : character := '#';  -- first character" << endl;
+  *out << "    VARIABLE vectornum     : natural   := 0;    -- vector number" << endl;
   *out << "    VARIABLE vectordelimit : character := ' ';  -- delimiter "
           "character"
        << endl;
@@ -1115,8 +1064,7 @@ void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
   *out << "        IF (vectorfirstc /= commentchar) THEN  -- check for comment "
           "character"
        << endl;
-  *out << "          read(Li, vectornum);          -- read vector no." << endl
-       << endl;
+  *out << "          read(Li, vectornum);          -- read vector no." << endl << endl;
   *out << "          -- read and assign input signals" << endl;
 
   if (synchronous_reset) {
@@ -1132,23 +1080,20 @@ void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
   }
 
   if (io_names_t) {
-    QStringList inputs =
-        (machine->retranslateNames(machine->getInputNameList())).split(",");
+    QStringList inputs = (machine->retranslateNames(machine->getInputNameList())).split(",");
     QStringList::iterator i;
     int pos1 = 0, pos2 = 0;
 
     if (machine->getNumInputs() > 0) {
       for (i = inputs.begin(); i != inputs.end(); ++i) {
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           i->remove(pos1, pos2 - pos1 + 1);
         }
         *out << "         read_delimiter(Li, vectordelimit);" << endl;
-        *out << "         read_assign(Li, " << i->latin1() << ");" << endl;
+        *out << "         read_assign(Li, " << i->toLatin1() << ");" << endl;
       }
     }
   } else {
-
     *out << "         read_assign(Li, a);" << endl;
   }
 
@@ -1162,30 +1107,25 @@ void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
     QStringList::iterator i;
     int pos1 = 0, pos2 = 0;
     if (machine->getNumMooreOutputs() > 0) {
-      QStringList mooreOutputs =
-          (machine->retranslateNames(machine->getMooreOutputList())).split(",");
+      QStringList mooreOutputs = (machine->retranslateNames(machine->getMooreOutputList())).split(",");
       for (i = mooreOutputs.begin(); i != mooreOutputs.end(); ++i) {
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           i->remove(pos1, pos2 - pos1 + 1);
         }
         *out << "          read_delimiter(Li, vectordelimit);" << endl;
-        *out << "          check_results (Li, " << i->latin1() << ", string'(\""
-             << i->latin1() << "\"), vectornum, resultfile);" << endl;
+        *out << "          check_results (Li, " << i->toLatin1() << ", string'(\"" << i->toLatin1()
+             << "\"), vectornum, resultfile);" << endl;
       }
     }
     if (machine->getNumOutputs() > 0) {
-
-      QStringList mealyOutputs =
-          (machine->retranslateNames(machine->getOutputNameList())).split(",");
+      QStringList mealyOutputs = (machine->retranslateNames(machine->getOutputNameList())).split(",");
       for (i = mealyOutputs.begin(); i != mealyOutputs.end(); ++i) {
-        if ((pos1 = i->find("[")) != -1 && i->find("..") != -1 &&
-            (pos2 = i->find("]")) != -1) {
+        if ((pos1 = i->indexOf("[")) != -1 && i->indexOf("..") != -1 && (pos2 = i->indexOf("]")) != -1) {
           i->remove(pos1, pos2 - pos1 + 1);
         }
         *out << "          read_delimiter(Li, vectordelimit);" << endl;
-        *out << "          check_results (Li, " << i->latin1() << ", string'(\""
-             << i->latin1() << "\"), vectornum, resultfile);" << endl;
+        *out << "          check_results (Li, " << i->toLatin1() << ", string'(\"" << i->toLatin1()
+             << "\"), vectornum, resultfile);" << endl;
       }
     }
   } else {
@@ -1208,8 +1148,7 @@ void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
   *out << "     END IF;  -- line is not null" << endl;
   *out << "    END LOOP;  -- while not end of file" << endl << endl;
 
-  *out << "    IF errflag THEN                     -- check global error flag"
-       << endl;
+  *out << "    IF errflag THEN                     -- check global error flag" << endl;
   *out << "      REPORT \"Error: Verification NOT successful!\" & lf &" << endl;
   *out << "        \"Check log file for details.\"" << endl;
   *out << "        SEVERITY note;" << endl;
@@ -1232,59 +1171,43 @@ void ExportTestbenchVHDL::writeNewObserverProcess(std::ofstream *out) {
 #ifdef FHA
 
 /// Writes a comment to the top of the output stream
-void ExportTestbenchVHDL::writeHeader(std::ofstream *out, QString commentstart,
-                                      QString commentend) {
+void ExportTestbenchVHDL::writeHeader(std::ofstream* out, QString commentstart, QString commentend)
+{
   QString description = machine->getDescription();
   description.replace('\n', "\n" + commentstart + "              ");
-  *out << commentstart.toLatin1().constData()
-       << "----------------------------------------------------------------"
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << " Module     : " << machine->getName().toLatin1().constData()
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << "----------------------------------------------------------------"
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << " Author     : " << machine->getAuthor().toLatin1().constData()
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << " Company    : University of Applied Sciences Augsburg"
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << "----------------------------------------------------------------"
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << " Description: " << description.toLatin1().constData()
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << "----------------------------------------------------------------"
-       << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << " Revisions : " << machine->getVersion().toLatin1().constData()
-       << " - " << commentend.toLatin1().constData() << "\n";
-  *out << commentstart.toLatin1().constData()
-       << "----------------------------------------------------------------"
-       << commentend.toLatin1().constData() << "\n";
+  *out << commentStart.constData() << "----------------------------------------------------------------"
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << " Module     : " << machine->getName().toLatin1().constData()
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << "----------------------------------------------------------------"
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << " Author     : " << machine->getAuthor().toLatin1().constData()
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << " Company    : University of Applied Sciences Augsburg" << commentEnd.constData()
+       << "\n";
+  *out << commentStart.constData() << "----------------------------------------------------------------"
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << " Description: " << description.toLatin1().constData() << commentEnd.constData()
+       << "\n";
+  *out << commentStart.constData() << "----------------------------------------------------------------"
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << " Revisions : " << machine->getVersion().toLatin1().constData() << " - "
+       << commentEnd.constData() << "\n";
+  *out << commentStart.constData() << "----------------------------------------------------------------"
+       << commentEnd.constData() << "\n";
 }
 #else
 /// Writes the header (some comments) into the file.
-void ExportTestbenchVHDL::writeHeader(std::ofstream *out, QString commentstart,
-                                      QString commentend) {
-  using namespace std;
+void ExportTestbenchVHDL::writeHeader(std::ofstream* out, QString commentstart, QString commentend)
+{
+  using Info = qfsm::AppInfo;
 
-  // Write some comment
-  QWidget *wm = qApp->mainWidget();
-  AppInfo ai(wm);
+  const std::string commentStart = commentstart.toStdString();
+  const std::string commentEnd = commentend.toStdString();
 
-  *out << commentstart.latin1() << " This file was generated by		"
-       << commentend.latin1() << endl;
-  *out << commentstart.latin1() << " Qfsm Version " << ai.getVersionMajor()
-       << "." << ai.getVersionMinor() << "			"
-       << commentend.latin1() << endl;
-  *out << commentstart.latin1() << " (C) " << ai.getAuthor().latin1()
-       << "			" << commentend.latin1() << endl
-       << endl;
+  *out << commentStart << " This file was generated by		" << commentEnd << std::endl;
+  *out << commentStart << " Qfsm Version " << Info::getVersion().toStdString() << "			" << commentEnd << std::endl;
+  *out << commentStart << " (C) " << Info::getAuthor().toStdString() << "			" << commentEnd << std::endl << std::endl;
 }
 
 #endif

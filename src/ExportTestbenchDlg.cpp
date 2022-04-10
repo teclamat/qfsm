@@ -17,9 +17,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <QDir>
-#include <qcheckbox.h>
+#include <QCheckBox>
 
-#include "ExportTestbenchDlgImpl.h"
+#include "ExportTestbenchDlg.h"
 #include "Machine.h"
 #include "Options.h"
 
@@ -32,8 +32,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 ExportTestbenchDlgImpl::ExportTestbenchDlgImpl(QWidget *parent,
                                                const char *name, bool modal,
-                                               Qt::WFlags fl)
-    : QDialog(parent) {
+                                               Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
   stdlogic = true;
   io_header = true;
   io_names = true;
@@ -50,42 +50,43 @@ ExportTestbenchDlgImpl::ExportTestbenchDlgImpl(QWidget *parent,
   file_dialog->setFileMode(QFileDialog::AnyFile);
 
   // load ui design for the current object
-  exportTestbenchDlg.setupUi(this);
+  ui.setupUi(this);
 
+  connect(ui.pb_export, &QPushButton::clicked, this, &ExportTestbenchDlgImpl::accept);
+  connect(ui.pb_cancel, &QPushButton::clicked, this, &ExportTestbenchDlgImpl::reject);
   // connects between ui elements and the current class must be done in the code
-  connect(exportTestbenchDlg.cb_stdlogic, SIGNAL(clicked()), this,
-          SLOT(useStdLogicClicked()));
-  connect(exportTestbenchDlg.cb_iodesc, SIGNAL(clicked()), this,
+  connect(ui.cb_stdlogic, SIGNAL(clicked()), this, SLOT(useStdLogicClicked()));
+  connect(ui.cb_iodesc, SIGNAL(clicked()), this,
           SLOT(ioHeaderClicked()));
-  connect(exportTestbenchDlg.cb_ionames, SIGNAL(clicked()), this,
+  connect(ui.cb_ionames, SIGNAL(clicked()), this,
           SLOT(ioNamesClicked()));
-  connect(exportTestbenchDlg.cb_syncreset, SIGNAL(clicked()), this,
+  connect(ui.cb_syncreset, SIGNAL(clicked()), this,
           SLOT(synchronousResetClicked()));
-  connect(exportTestbenchDlg.cb_negatedreset, SIGNAL(clicked()), this,
+  connect(ui.cb_negatedreset, SIGNAL(clicked()), this,
           SLOT(negatedResetClicked()));
-  connect(exportTestbenchDlg.cb_synceable, SIGNAL(clicked()), this,
+  connect(ui.cb_synceable, SIGNAL(clicked()), this,
           SLOT(synchronousEnableClicked()));
 
-  connect(exportTestbenchDlg.pb_select_basedir, SIGNAL(clicked()), this,
+  connect(ui.pb_select_basedir, SIGNAL(clicked()), this,
           SLOT(selectBasedirClicked()));
-  connect(exportTestbenchDlg.le_basedir, SIGNAL(textChanged(QString)), this,
+  connect(ui.le_basedir, SIGNAL(textChanged(QString)), this,
           SLOT(basedirPathChanged(QString)));
 
-  connect(exportTestbenchDlg.pb_select_testbench, SIGNAL(clicked()), this,
+  connect(ui.pb_select_testbench, SIGNAL(clicked()), this,
           SLOT(selectTestbenchClicked()));
-  connect(exportTestbenchDlg.pb_select_package, SIGNAL(clicked()), this,
+  connect(ui.pb_select_package, SIGNAL(clicked()), this,
           SLOT(selectPackageClicked()));
-  connect(exportTestbenchDlg.pb_select_testvector, SIGNAL(clicked()), this,
+  connect(ui.pb_select_testvector, SIGNAL(clicked()), this,
           SLOT(selectTestvectorClicked()));
-  connect(exportTestbenchDlg.pb_select_logfile, SIGNAL(clicked()), this,
+  connect(ui.pb_select_logfile, SIGNAL(clicked()), this,
           SLOT(selectLogfileClicked()));
-  connect(exportTestbenchDlg.le_testbench, SIGNAL(textChanged(QString)), this,
+  connect(ui.le_testbench, SIGNAL(textChanged(QString)), this,
           SLOT(testbenchPathChanged(QString)));
-  connect(exportTestbenchDlg.le_testvector, SIGNAL(textChanged(QString)), this,
+  connect(ui.le_testvector, SIGNAL(textChanged(QString)), this,
           SLOT(testvectorPathChanged(QString)));
-  connect(exportTestbenchDlg.le_package, SIGNAL(textChanged(QString)), this,
+  connect(ui.le_package, SIGNAL(textChanged(QString)), this,
           SLOT(packagePathChanged(QString)));
-  connect(exportTestbenchDlg.le_logfile, SIGNAL(textChanged(QString)), this,
+  connect(ui.le_logfile, SIGNAL(textChanged(QString)), this,
           SLOT(logfilePathChanged(QString)));
 
   connect(file_dialog, SIGNAL(directoryEntered(QString)), this,
@@ -103,14 +104,14 @@ ExportTestbenchDlgImpl::~ExportTestbenchDlgImpl() {
  *  Set the std logic property
  */
 void ExportTestbenchDlgImpl::useStdLogicClicked() {
-  stdlogic = exportTestbenchDlg.cb_stdlogic->isChecked();
+  stdlogic = ui.cb_stdlogic->isChecked();
 }
 
 /**
  *  Set the io header property
  */
 void ExportTestbenchDlgImpl::ioHeaderClicked() {
-  io_header = exportTestbenchDlg.cb_iodesc->isChecked();
+  io_header = ui.cb_iodesc->isChecked();
 }
 
 /**
@@ -126,7 +127,7 @@ void ExportTestbenchDlgImpl::selectBasedirClicked() {
   base_directory = QFileDialog::getExistingDirectory(this, "", base_directory);
 
   if (base_directory.length() > 0) {
-    exportTestbenchDlg.le_basedir->setText(base_directory);
+    ui.le_basedir->setText(base_directory);
 
     /*
         testbenchName="src/t_"+base_name+".vhd";
@@ -134,10 +135,10 @@ void ExportTestbenchDlgImpl::selectBasedirClicked() {
         packageName="src/p_"+base_name+".vhd";
         logfileName="log/result.log";
 
-        exportTestbenchDlg.le_testbench->setText(testbenchName);
-        exportTestbenchDlg.le_package->setText(packageName);
-        exportTestbenchDlg.le_testvector->setText(testvectorName);
-        exportTestbenchDlg.le_logfile->setText(logfileName);*/
+        ui.le_testbench->setText(testbenchName);
+        ui.le_package->setText(packageName);
+        ui.le_testvector->setText(testvectorName);
+        ui.le_logfile->setText(logfileName);*/
   }
 }
 
@@ -147,29 +148,29 @@ void ExportTestbenchDlgImpl::selectBasedirClicked() {
 void ExportTestbenchDlgImpl::basedirPathChanged(QString) {
   QDir dir;
 
-  base_directory = exportTestbenchDlg.le_basedir->text();
+  base_directory = ui.le_basedir->text();
 
   if (base_directory[base_directory.length() - 1] != '/')
     base_directory.append('/');
 
   if (dir.exists(base_directory)) {
-    exportTestbenchDlg.le_testbench->setEnabled(true);
-    exportTestbenchDlg.le_testvector->setEnabled(true);
-    exportTestbenchDlg.le_package->setEnabled(true);
-    exportTestbenchDlg.le_logfile->setEnabled(true);
-    exportTestbenchDlg.pb_select_package->setEnabled(true);
-    exportTestbenchDlg.pb_select_testbench->setEnabled(true);
-    exportTestbenchDlg.pb_select_testvector->setEnabled(true);
-    exportTestbenchDlg.pb_select_logfile->setEnabled(true);
+    ui.le_testbench->setEnabled(true);
+    ui.le_testvector->setEnabled(true);
+    ui.le_package->setEnabled(true);
+    ui.le_logfile->setEnabled(true);
+    ui.pb_select_package->setEnabled(true);
+    ui.pb_select_testbench->setEnabled(true);
+    ui.pb_select_testvector->setEnabled(true);
+    ui.pb_select_logfile->setEnabled(true);
   } else {
-    exportTestbenchDlg.le_testbench->setEnabled(false);
-    exportTestbenchDlg.le_testvector->setEnabled(false);
-    exportTestbenchDlg.le_package->setEnabled(false);
-    exportTestbenchDlg.le_logfile->setEnabled(false);
-    exportTestbenchDlg.pb_select_package->setEnabled(false);
-    exportTestbenchDlg.pb_select_testbench->setEnabled(false);
-    exportTestbenchDlg.pb_select_testvector->setEnabled(false);
-    exportTestbenchDlg.pb_select_logfile->setEnabled(false);
+    ui.le_testbench->setEnabled(false);
+    ui.le_testvector->setEnabled(false);
+    ui.le_package->setEnabled(false);
+    ui.le_logfile->setEnabled(false);
+    ui.pb_select_package->setEnabled(false);
+    ui.pb_select_testbench->setEnabled(false);
+    ui.pb_select_testvector->setEnabled(false);
+    ui.pb_select_logfile->setEnabled(false);
   }
 }
 
@@ -194,46 +195,46 @@ void ExportTestbenchDlgImpl::selectTestbenchClicked() {
   if (testbench_vhdl_path
           .right(testbench_vhdl_path.length() -
                  testbench_vhdl_path.lastIndexOf("/") - 1)
-          .find(".") < 0)
+          .indexOf(".") < 0)
     testbench_vhdl_path.append(".vhd");
 
   if (testbench_vhdl_path.length() > 0)
-    exportTestbenchDlg.le_testbench->setText(testbench_vhdl_path);
+    ui.le_testbench->setText(testbench_vhdl_path);
 }
 
 /**
  *  Sets the 'synchronous reset' property
  */
 void ExportTestbenchDlgImpl::synchronousResetClicked() {
-  synchronousreset = exportTestbenchDlg.cb_syncreset->isChecked();
+  synchronousreset = ui.cb_syncreset->isChecked();
 }
 
 /**
  *  Sets the 'synchronous enable' property
  */
 void ExportTestbenchDlgImpl::synchronousEnableClicked() {
-  synchronousenable = exportTestbenchDlg.cb_synceable->isChecked();
+  synchronousenable = ui.cb_synceable->isChecked();
 }
 
 /**
  *  Sets the 'negated reset' property
  */
 void ExportTestbenchDlgImpl::negatedResetClicked() {
-  negatedreset = exportTestbenchDlg.cb_negatedreset->isChecked();
+  negatedreset = ui.cb_negatedreset->isChecked();
 }
 
 /**
  *  Sets the 'synchronous reset' property
  */
 void ExportTestbenchDlgImpl::ioNamesClicked() {
-  io_names = exportTestbenchDlg.cb_ionames->isChecked();
+  io_names = ui.cb_ionames->isChecked();
 }
 
 /**
  *  Updates the testvector file name when the testbench file name has changed
  */
 void ExportTestbenchDlgImpl::testbenchPathChanged(QString) {
-  testbench_vhdl_path = exportTestbenchDlg.le_testbench->text();
+  testbench_vhdl_path = ui.le_testbench->text();
 }
 
 /**
@@ -247,7 +248,7 @@ void ExportTestbenchDlgImpl::selectPackageClicked() {
   if (package_vhdl_path
           .right(package_vhdl_path.length() -
                  package_vhdl_path.lastIndexOf("/") - 1)
-          .find(".") < 0)
+          .indexOf(".") < 0)
     package_vhdl_path.append(".vhd");
 }
 
@@ -255,7 +256,7 @@ void ExportTestbenchDlgImpl::selectPackageClicked() {
  *  Updates the vhdl package file name
  */
 void ExportTestbenchDlgImpl::packagePathChanged(QString) {
-  package_vhdl_path = exportTestbenchDlg.le_package->text();
+  package_vhdl_path = ui.le_package->text();
 }
 
 /**
@@ -276,7 +277,7 @@ void ExportTestbenchDlgImpl::selectTestvectorClicked() {
   if (testvector_ascii_path
           .right(testvector_ascii_path.length() -
                  testvector_ascii_path.lastIndexOf("/") - 1)
-          .find(".") < 0)
+          .indexOf(".") < 0)
     testvector_ascii_path.append(".vec");
   ;
 }
@@ -285,7 +286,7 @@ void ExportTestbenchDlgImpl::selectTestvectorClicked() {
  *  Updates the testvector file name
  */
 void ExportTestbenchDlgImpl::testvectorPathChanged(QString) {
-  testvector_ascii_path = exportTestbenchDlg.le_testvector->text();
+  testvector_ascii_path = ui.le_testvector->text();
 }
 
 /**
@@ -301,7 +302,7 @@ void ExportTestbenchDlgImpl::selectLogfileClicked() {
 
   if (logfile_path
           .right(logfile_path.length() - logfile_path.lastIndexOf("/") - 1)
-          .find(".") < 0)
+          .indexOf(".") < 0)
     logfile_path.append(".vec");
 }
 
@@ -309,7 +310,7 @@ void ExportTestbenchDlgImpl::selectLogfileClicked() {
  *  Updates the logfile name
  */
 void ExportTestbenchDlgImpl::logfilePathChanged(QString) {
-  logfile_path = exportTestbenchDlg.le_logfile->text();
+  logfile_path = ui.le_logfile->text();
 }
 
 /**
@@ -340,20 +341,20 @@ void ExportTestbenchDlgImpl::init(Options *opt, Machine *m) {
   else
     base_name = "";
 
-  exportTestbenchDlg.cb_stdlogic->setChecked(stdlogic);
-  exportTestbenchDlg.cb_iodesc->setChecked(io_header);
-  exportTestbenchDlg.cb_ionames->setChecked(io_names);
-  exportTestbenchDlg.cb_negatedreset->setChecked(negatedreset);
-  exportTestbenchDlg.cb_synceable->setChecked(synchronousenable);
-  exportTestbenchDlg.cb_syncreset->setChecked(synchronousreset);
-  //    exportTestbenchDlg.le_testbench->setText(testbench_vhdl_path);
-  //    exportTestbenchDlg.le_testvector->setText(testvector_ascii_path);
-  //    exportTestbenchDlg.le_package->setText(package_vhdl_path);
-  //    exportTestbenchDlg.le_logfile->setText(logfile_path);
+  ui.cb_stdlogic->setChecked(stdlogic);
+  ui.cb_iodesc->setChecked(io_header);
+  ui.cb_ionames->setChecked(io_names);
+  ui.cb_negatedreset->setChecked(negatedreset);
+  ui.cb_synceable->setChecked(synchronousenable);
+  ui.cb_syncreset->setChecked(synchronousreset);
+  //    ui.le_testbench->setText(testbench_vhdl_path);
+  //    ui.le_testvector->setText(testvector_ascii_path);
+  //    ui.le_package->setText(package_vhdl_path);
+  //    ui.le_logfile->setText(logfile_path);
 
-  exportTestbenchDlg.le_testbench->setText("src/t_" + base_name + ".vhd");
-  exportTestbenchDlg.le_testvector->setText("stimuli/" + base_name +
+  ui.le_testbench->setText("src/t_" + base_name + ".vhd");
+  ui.le_testvector->setText("stimuli/" + base_name +
                                             "_stimuli.vec");
-  exportTestbenchDlg.le_package->setText("src/p_" + base_name + ".vhd");
-  exportTestbenchDlg.le_logfile->setText("log/" + base_name + "_result.log");
+  ui.le_package->setText("src/p_" + base_name + ".vhd");
+  ui.le_logfile->setText("log/" + base_name + "_result.log");
 }

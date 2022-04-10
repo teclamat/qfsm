@@ -26,9 +26,9 @@ correctly
 #ifndef MIMEMACHINE_H
 #define MIMEMACHINE_H
 
-#include <q3dragobject.h>
-#include <qmime.h>
-#include <qstring.h>
+// #include <q3dragobject.h>
+#include <QMimeData>
+#include <QString>
 
 /**
  * @class MimeMachine
