@@ -9,9 +9,8 @@
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-OptPrintingDlgImpl::OptPrintingDlgImpl(QWidget *parent, const char *name,
-                                       bool modal, Qt::WindowFlags fl)
-    : QDialog(parent, fl) {
+OptPrintingDlgImpl::OptPrintingDlgImpl(QWidget *parent)
+    : QWidget(parent) {
   ui.setupUi(this);
   connect(ui.cb_print_header, &QCheckBox::clicked, this, &OptPrintingDlgImpl::printHeaderClicked);
 }

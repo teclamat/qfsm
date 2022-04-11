@@ -96,6 +96,7 @@ set(QFSM_HEADERS
   src/Import.h
   src/IOViewDlg.h
   src/MachinePropertiesDlg.h
+  src/OptionsDlg.h
   src/OptDisplayDlg.h
   src/OptGeneralDlg.h
   src/OptPrintingDlg.h
@@ -187,6 +188,7 @@ set(QFSM_SOURCES
   src/IOViewDlg.cpp
   src/Import.cpp
   src/MachinePropertiesDlg.cpp
+  src/OptionsDlg.cpp
   src/OptDisplayDlg.cpp
   src/OptGeneralDlg.cpp
   src/OptPrintingDlg.cpp

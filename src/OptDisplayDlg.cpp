@@ -17,13 +17,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "OptDisplayDlg.h"
 
+#include "Options.h"
+
 #include <QCheckBox>
 #include <QColorDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
-
-#include "Options.h"
 
 /**
  *  Constructs a OptDisplayDlgImpl which is a child of 'parent', with the
@@ -32,10 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-OptDisplayDlgImpl::OptDisplayDlgImpl(QWidget *parent, const char *name,
-                                     bool modal, Qt::WindowFlags fl)
-    : QDialog(parent, fl) {
-
+OptDisplayDlgImpl::OptDisplayDlgImpl(QWidget* parent)
+  : QWidget(parent)
+{
   ui.setupUi(this);
   ui.lb_gridcolor->setAutoFillBackground(true);
   ui.lb_shadowcolor->setAutoFillBackground(true);
@@ -56,14 +55,16 @@ OptDisplayDlgImpl::OptDisplayDlgImpl(QWidget *parent, const char *name,
 /**
  *  Destroys the object and frees any allocated resources
  */
-OptDisplayDlgImpl::~OptDisplayDlgImpl() {
+OptDisplayDlgImpl::~OptDisplayDlgImpl()
+{
   // no need to delete child widgets, Qt does it all for us
 }
 
 /**
  * Initialises the dialog according to the current options @a opt.
  */
-void OptDisplayDlgImpl::init(Options *opt) {
+void OptDisplayDlgImpl::init(Options* opt)
+{
   int gsize;
   QString stext;
   gridcolor = opt->getGridColor();
@@ -102,7 +103,8 @@ void OptDisplayDlgImpl::init(Options *opt) {
 /**
  * Lets you choose a color used to draw the grid
  */
-void OptDisplayDlgImpl::chooseGridColor() {
+void OptDisplayDlgImpl::chooseGridColor()
+{
   QColor c;
   c = QColorDialog::getColor(gridcolor, this);
 
@@ -120,7 +122,8 @@ void OptDisplayDlgImpl::chooseGridColor() {
 /**
  * Lets you choose a color used to draw the shadows
  */
-void OptDisplayDlgImpl::chooseShadowColor() {
+void OptDisplayDlgImpl::chooseShadowColor()
+{
   QColor c;
   c = QColorDialog::getColor(shadowcolor, this);
 
@@ -130,46 +133,55 @@ void OptDisplayDlgImpl::chooseShadowColor() {
   }
 }
 /// Called when the 'display shadows' checkbox is clicked
-void OptDisplayDlgImpl::shadowsClicked() {
+void OptDisplayDlgImpl::shadowsClicked()
+{
   bshadows = ui.cb_shadows->isChecked();
 }
 
 /// Called when the tooltips checkbox is clicked
-void OptDisplayDlgImpl::tooltipsClicked() {
+void OptDisplayDlgImpl::tooltipsClicked()
+{
   btooltips = ui.cb_tooltips->isChecked();
 }
 
 /// Called when the IO-mark checkbox is clicked
-void OptDisplayDlgImpl::ioMarkClicked() {
+void OptDisplayDlgImpl::ioMarkClicked()
+{
   iomark = ui.cb_iomark->isChecked();
 }
 
 /// Called when the start transition descriptor is changed
-void OptDisplayDlgImpl::startDescChanged() {
+void OptDisplayDlgImpl::startDescChanged()
+{
   initial_descriptor = ui.le_start->text();
 }
 
 /// Called when the inversion descriptor is changed
-void OptDisplayDlgImpl::inversionDescChanged() {
+void OptDisplayDlgImpl::inversionDescChanged()
+{
   inversion_descriptor = ui.le_inversion->text();
 }
 
 /// Called when the "any input" descriptor is changed
-void OptDisplayDlgImpl::anyInputDescChanged() {
+void OptDisplayDlgImpl::anyInputDescChanged()
+{
   any_input_descriptor = ui.le_any->text();
 }
 
 /// Called when the default transition descriptor is changed
-void OptDisplayDlgImpl::defaultDescChanged() {
+void OptDisplayDlgImpl::defaultDescChanged()
+{
   default_descriptor = ui.le_default->text();
 }
 
 /// Called when the 'Display I/O names' checkbox is clicked
-void OptDisplayDlgImpl::ioNamesClicked() {
+void OptDisplayDlgImpl::ioNamesClicked()
+{
   ionames = ui.cb_ionames->isChecked();
 }
 
 /// Called when the 'Draw Box' checkbox is clicked
-void OptDisplayDlgImpl::drawBoxClicked() {
+void OptDisplayDlgImpl::drawBoxClicked()
+{
   bdrawbox = ui.cb_drawbox->isChecked();
 }

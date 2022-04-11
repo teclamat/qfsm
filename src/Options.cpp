@@ -27,8 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * Constructor.
  * Initialises the options object with standard values.
  */
-Options::Options(QObject *parent /*=NULL*/, const char *name /*=0*/)
-    : QObject(parent) {
+Options::Options(QObject* parent /*=NULL*/, const char* name /*=0*/)
+  : QObject(parent)
+{
   viewStateEncoding = false;
   viewMoore = true;
   viewMealyIn = true;
@@ -104,27 +105,24 @@ Options::Options(QObject *parent /*=NULL*/, const char *name /*=0*/)
 /**
  * Applies the options from the tab dialogs with the options.
  */
-void Options::applyOptions(MainWindow *pMain) {
+void Options::applyOptions(MainWindow* pMain)
+{
   // General
   QString lang;
   QString path;
   QDir dir = QDir::home();
   path = dir.absolutePath() + "/.qfsm/language";
-
   QFile file(path);
-  QTextStream fout(&file);
-
-  if (!file.open(QIODevice::WriteOnly)) {
+  if (file.open(QIODevice::WriteOnly)) {
+    OptGeneralDlgImpl* optgen;
+    optgen = pMain->getOptGeneral();
+    lang = optgen->getLanguage();
+    QTextStream fout(&file);
+    fout << lang << Qt::endl;
+    file.close();
+  } else {
     qDebug("language could not be saved");
-    return;
   }
-
-  OptGeneralDlgImpl *optgen;
-  optgen = pMain->getOptGeneral();
-  lang = optgen->getLanguage();
-  fout << lang << Qt::endl;
-
-  file.close();
 
   // Display
   gridSize = pMain->getOptDisplay()->getGridSize();
@@ -145,7 +143,7 @@ void Options::applyOptions(MainWindow *pMain) {
   any_input_descriptor = pMain->getOptDisplay()->getAnyInputDescriptor();
   any_input_descriptor = any_input_descriptor.replace(QRegularExpression("\\s"), "_");
   default_descriptor = pMain->getOptDisplay()->getDefaultDescriptor();
-  default_descriptor   = default_descriptor.replace(QRegularExpression("\\s"), "_");
+  default_descriptor = default_descriptor.replace(QRegularExpression("\\s"), "_");
 
   // AHDL
   ahdl_sync_reset = pMain->getExportAHDL()->getSyncReset();
@@ -171,10 +169,8 @@ void Options::applyOptions(MainWindow *pMain) {
 
   // Testbench
   testbench_stdlogic = pMain->getExportTestbench()->getStdLogic();
-  testbench_synchronousreset =
-      pMain->getExportTestbench()->getSynchronousReset();
-  testbench_synchronousenable =
-      pMain->getExportTestbench()->getSynchronousEnable();
+  testbench_synchronousreset = pMain->getExportTestbench()->getSynchronousReset();
+  testbench_synchronousenable = pMain->getExportTestbench()->getSynchronousEnable();
   testbench_negatedreset = pMain->getExportTestbench()->getNegatedReset();
   testbench_io_header = pMain->getExportTestbench()->getIOheader();
   testbench_ionames = pMain->getExportTestbench()->getIONames();
@@ -191,15 +187,13 @@ void Options::applyOptions(MainWindow *pMain) {
 
   // State Table
   statetable_includeout = pMain->getExportStateTable()->getIncludeOutputs();
-  statetable_resolve_inverted =
-      pMain->getExportStateTable()->getResolveInverted();
+  statetable_resolve_inverted = pMain->getExportStateTable()->getResolveInverted();
   statetable_orientation = pMain->getExportStateTable()->getOrientation();
 
   // Ragel
   ragel_create_action = pMain->getExportRagel()->getCreateAction();
   ragel_lang_action = pMain->getExportRagel()->getLangAction();
-  ragel_default_transitions =
-      pMain->getExportRagel()->getAddDefaultTransitions();
+  ragel_default_transitions = pMain->getExportRagel()->getAddDefaultTransitions();
 
   // VVVV
   vvvv_reset = pMain->getExportVVVV()->getVVVVReset();

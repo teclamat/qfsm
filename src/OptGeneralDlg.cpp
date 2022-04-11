@@ -30,9 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-OptGeneralDlgImpl::OptGeneralDlgImpl(QWidget *parent, const char *name,
-                                     bool modal, Qt::WindowFlags fl)
-    : QDialog(parent, fl) {
+OptGeneralDlgImpl::OptGeneralDlgImpl(QWidget *parent)
+    : QWidget(parent) {
   ui.setupUi(this);
 }
 

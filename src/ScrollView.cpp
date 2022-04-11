@@ -17,14 +17,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // #include <q3scrollview.h>
-#include <QScrollBar>
 #include <qrect.h>
+#include <QScrollBar>
 // Added by qt3to4:
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMouseEvent>
 #include <QPaintEvent>
 
+#include <list>
 #include "Const.h"
 #include "DocStatus.h"
 #include "Draw.h"
@@ -41,14 +42,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "Zoom.h"
-#include <list>
 
 /// Constructor
-ScrollView::ScrollView(QWidget *parent, const char *name)
-    : QScrollArea(parent) {
-  drawArea = new DrawArea(this, (MainWindow *)parent, "");
+ScrollView::ScrollView(QWidget* parent, const char* name)
+  : QScrollArea(parent)
+{
+  drawArea = new DrawArea(this, (MainWindow*)parent, "");
   this->setWidget(drawArea);
-  main = (MainWindow *)parent;
+  main = (MainWindow*)parent;
 
   setWidgetResizable(false);
   // setWidgetResizable(true);
@@ -59,44 +60,49 @@ ScrollView::ScrollView(QWidget *parent, const char *name)
     widget()->resize(CONT_WIDTH, CONT_HEIGHT);
   parent->resize(CONT_WIDTH + 40, CONT_HEIGHT + 80);
 
-  connect(drawArea, SIGNAL(scrollWidget(int, int)), this,
-          SLOT(scrollContents(int, int)));
-  connect(drawArea, SIGNAL(scrollWidgetTo(int, int)), this,
-          SLOT(scrollContentsTo(int, int)));
+  connect(drawArea, SIGNAL(scrollWidget(int, int)), this, SLOT(scrollContents(int, int)));
+  connect(drawArea, SIGNAL(scrollWidgetTo(int, int)), this, SLOT(scrollContentsTo(int, int)));
 }
 
 /// Scroll view contents by a distance of @param dx, @param dy
-void ScrollView::scrollContents(int dx, int dy) {
+void ScrollView::scrollContents(int dx, int dy)
+{
   horizontalScrollBar()->setValue(horizontalScrollBar()->value() + dx);
   verticalScrollBar()->setValue(verticalScrollBar()->value() + dy);
 }
 
 /// Scroll view contents to @param x, @param y
-void ScrollView::scrollContentsTo(int x, int y) {
+void ScrollView::scrollContentsTo(int x, int y)
+{
   horizontalScrollBar()->setValue(x - width() / 2);
   verticalScrollBar()->setValue(y - height() / 2);
 }
 
-/// Updates the background
-void ScrollView::updateBackground() {
-  if (main) {
-    QColor bgcol;
-    if (main->project() && main->project()->machine())
-      bgcol.setRgb(255, 255, 255);
-    else
-      bgcol.setRgb(220, 220, 220);
-    // setBackgroundColor(bgcol);
-
-    drawArea->updateBackground();
+void ScrollView::setBackgroundColor(const QColor& a_color)
+{
+  if (a_color.isValid()) {
+    setStyleSheet(QString{ "background-color:%1" }.arg(QVariant{ a_color }.toString()));
   }
 }
 
-void ScrollView::resizeEvent(QResizeEvent *e) {
+/// Updates the background
+void ScrollView::updateBackground()
+{
+  const QColor color = (main && main->project() && main->project()->machine()) ? Qt::white : QColor{ 220, 220, 220 };
+  setBackgroundColor(color);
+  if (drawArea) {
+    drawArea->updateBackground(color);
+  }
+}
+
+void ScrollView::resizeEvent(QResizeEvent* e)
+{
   // qDebug("ScrollView::resizeEvent() called");
   updateSize(e);
 }
 
-void ScrollView::updateSize(QResizeEvent *e) {
+void ScrollView::updateSize(QResizeEvent* e)
+{
   double scale;
   int sx, sy;
   int x, y;

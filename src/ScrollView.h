@@ -57,7 +57,7 @@ public:
   ScrollView(QWidget *parent = 0, const char *name = 0);
 
   DrawArea *getDrawArea() { return drawArea; }
-
+  void setBackgroundColor(const QColor& a_color);
   void updateBackground();
   void updateSize(QResizeEvent *e = NULL);
 

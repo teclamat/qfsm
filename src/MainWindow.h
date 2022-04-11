@@ -79,6 +79,7 @@ All buttons must be added to the toolbar by calling addWidget.
 #include "ExportVerilogDlg.h"
 #include "IOViewDlg.h"
 #include "MachineManager.h"
+#include "OptionsDlg.h"
 #include "OptDisplayDlg.h"
 #include "OptGeneralDlg.h"
 #include "OptPrintingDlg.h"
@@ -388,9 +389,9 @@ class MainWindow : public QMainWindow {
   /// Edit object
   Edit* edit;
 
-  QDialog* tabwidgetdialog;
+  OptionsDlg* tabwidgetdialog;
   /// Tabdialog (options)
-  QTabWidget* tabdialog;
+  // QTabWidget* tabdialog;
   /// General options dialog
   OptGeneralDlgImpl* opt_general;
   /// Display options dialog

@@ -1,17 +1,19 @@
 #ifndef OPTPRINTINGDLGIMPL_H
 #define OPTPRINTINGDLGIMPL_H
+
 #include "ui_OptPrintingDlg.h"
 
 #include "Options.h"
 
-class OptPrintingDlgImpl : public QDialog {
+#include <QWidget>
+
+class OptPrintingDlgImpl : public QWidget {
   Q_OBJECT
 
   Ui::OptPrintingDlg ui;
 
 public:
-  OptPrintingDlgImpl(QWidget *parent = 0, const char *name = 0,
-                     bool modal = false, Qt::WindowFlags fl = {});
+  OptPrintingDlgImpl(QWidget *parent = 0);
   ~OptPrintingDlgImpl();
 
   bool getPrintHeader() { return print_header; };

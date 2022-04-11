@@ -21,19 +21,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ui_OptDisplayDlg.h"
 
+#include <QColor>
+#include <QString>
+#include <QWidget>
+
 class Options;
 
 /**
  * @class OptDisplayDlgImpl
  * @brief Tab dialog for the display options.
  */
-class OptDisplayDlgImpl : public QDialog {
+class OptDisplayDlgImpl : public QWidget {
   Q_OBJECT
   Ui::OptDisplayDlg ui;
 
-public:
-  OptDisplayDlgImpl(QWidget *parent = 0, const char *name = 0,
-                    bool modal = false, Qt::WindowFlags fl = {});
+ public:
+  OptDisplayDlgImpl(QWidget* parent = nullptr);
   ~OptDisplayDlgImpl();
 
   /// Returns the color used to draw the grid
@@ -88,9 +91,9 @@ public:
   /// Sets the default transition decsriptor to @a ad
   void setDefaultDesriptor(QString dd) { default_descriptor = dd; };
 
-  void init(Options *);
+  void init(Options*);
 
-public slots:
+ public slots:
   void chooseGridColor();
   void tooltipsClicked();
   void ioMarkClicked();
@@ -103,7 +106,7 @@ public slots:
   void ioNamesClicked();
   void drawBoxClicked();
 
-private:
+ private:
   /// Initial transition descriptor
   QString initial_descriptor;
   /// Inversion descriptor

@@ -340,26 +340,29 @@ MainWindow::MainWindow(QObject* a_parent)
   fileio->loadOptions(&doc_options);
   fileio->loadMRU(m_control->getMRUList());
 
-  tabwidgetdialog = new QDialog(this);
-  tabwidgetdialog->resize(400, 300);
-  tabwidgetdialog->setWindowTitle(tr("Qfsm Options"));
+  tabwidgetdialog = new OptionsDlg(this);
+  // tabwidgetdialog->resize(400, 300);
+  // tabwidgetdialog->setWindowTitle(tr("Qfsm Options"));
   // optionsDialog->setOkButton();
   // optionsDialog->setCancelButton();
 
-  tabdialog = new QTabWidget(tabwidgetdialog);
+  // tabdialog = new QTabWidget(tabwidgetdialog);
 
-  opt_general = new OptGeneralDlgImpl(tabdialog);
+  opt_general = new OptGeneralDlgImpl(tabwidgetdialog);
   opt_general->init();
 
-  opt_display = new OptDisplayDlgImpl(tabdialog);
+  opt_display = new OptDisplayDlgImpl(tabwidgetdialog);
   opt_display->init(&doc_options);
 
-  opt_printing = new OptPrintingDlgImpl(tabdialog);
+  opt_printing = new OptPrintingDlgImpl(tabwidgetdialog);
   opt_printing->init(&doc_options);
 
-  tabdialog->addTab(opt_general, tr("&General"));
-  tabdialog->addTab(opt_display, tr("&Display"));
-  tabdialog->addTab(opt_printing, tr("&Printing"));
+  tabwidgetdialog->ui.tabs->addTab(opt_general, tr("&General"));
+  tabwidgetdialog->ui.tabs->addTab(opt_display, tr("&Display"));
+  tabwidgetdialog->ui.tabs->addTab(opt_printing, tr("&Printing"));
+  // tabdialog->adjustSize();
+
+  // tabwidgetdialog->adjustSize();
 
   ahdl_export = new ExportAHDLDlgImpl(this);
   ahdl_export->init(&doc_options);
@@ -435,7 +438,7 @@ MainWindow::~MainWindow()
   delete printmanager;
   delete fileio;
   delete statusbar;
-  delete tabdialog;
+  // delete tabdialog;
   delete simulator;
   delete edit;
   delete ichecker;
@@ -2597,6 +2600,7 @@ void MainWindow::editOptions()
   if (tabwidgetdialog->exec()) {
     doc_options.applyOptions(this);
     fileio->saveOptions(&doc_options);
+    updateAll();
     m_mainView->widget()->repaint();
   }
 }

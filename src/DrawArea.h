@@ -63,7 +63,7 @@ public:
 
   void resetState();
   void reset();
-  void updateBackground();
+  void updateBackground(const QColor& a_color = {});
   /// Sets the state to dragging multiple objects
   void setDragMultiple(bool dm = true) { dragMultiple = dm; }
   /// Returns true if user drags several objects at once otherwise false

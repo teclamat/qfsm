@@ -16,11 +16,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "DrawArea.h"
 #include <list>
 #include "Const.h"
 #include "DocStatus.h"
 #include "Draw.h"
-#include "DrawArea.h"
 #include "GState.h"
 #include "Grid.h"
 #include "Machine.h"
@@ -34,17 +34,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UndoBuffer.h"
 #include "Zoom.h"
 
-#include <QRect>
 #include <QApplication>
 #include <QMouseEvent>
 #include <QPaintEvent>
+#include <QRect>
 #include <QToolTip>
 
 DrawArea::DrawArea(QWidget* parent, MainWindow* m, const char* name)
   : QWidget(parent)
 {
   main = m;
-  setBackgroundColor(m->palette().window().color());
+
+  // setBackgroundColor(main->palette().window().color());
   oldCursor = QCursor(Qt::ArrowCursor);
 
   setMouseTracking(true);
@@ -62,9 +63,9 @@ DrawArea::DrawArea(QWidget* parent, MainWindow* m, const char* name)
 
 void DrawArea::setBackgroundColor(const QColor& a_color)
 {
-  // QVariant variant = a_color;
-  // QString colcode  = variant.toString();
-  // setStyleSheet("background-color:" + colcode);
+  if (a_color.isValid()) {
+    setStyleSheet(QString{ "background-color:%1" }.arg(QVariant{ a_color }.toString()));
+  }
 }
 
 /// Resets all variables storing the state of the view
@@ -97,16 +98,14 @@ void DrawArea::reset()
 }
 
 /// Updates the background
-void DrawArea::updateBackground()
+void DrawArea::updateBackground(const QColor& a_color)
 {
-  if (main) {
-    QColor bgcol;
-    if (main->project() && main->project()->machine())
-      bgcol.setRgb(255, 255, 255);
-    else
-      bgcol.setRgb(220, 220, 220);
-    setBackgroundColor(bgcol);
+  if (a_color.isValid()) {
+    setBackgroundColor(a_color);
+  } else if (main && main->project() && main->project()->machine()) {
+    setBackgroundColor(Qt::white);
   }
+  setBackgroundColor(QColor{ 220, 220, 220 });
 }
 
 /// Destructor

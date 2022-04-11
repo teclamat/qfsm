@@ -25,20 +25,21 @@ if(!QString) replaced by if(QString.isEmpty())
 #define OPTGENERALDLGIMPL_H
 
 #include "ui_OptGeneralDlg.h"
-#include <qcombobox.h>
+
+#include <QWidget>
+#include <QString>
 
 /**
  * @class OptGeneralDlgImpl
  * @brief Tab dialog for the general options.
  */
-class OptGeneralDlgImpl : public QDialog {
+class OptGeneralDlgImpl : public QWidget {
   Q_OBJECT
 
   Ui::OptGeneralDlg ui;
 
 public:
-  OptGeneralDlgImpl(QWidget *parent = 0, const char *name = 0,
-                    bool modal = false, Qt::WindowFlags fl = {});
+  OptGeneralDlgImpl(QWidget *parent = 0);
   ~OptGeneralDlgImpl();
 
   void init();
