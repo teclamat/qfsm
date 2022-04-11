@@ -100,15 +100,9 @@ public:
   /// Sets the state to edit
   void setState(GState *s) { state = s; };
   /// Sets the color of the the state
-  void setColor(QColor c) {
-    color = c;
-    QVariant variant = color;
-    QString colcode  = variant.toString();
-    ui.lb_colorpreview->setStyleSheet("QLabel { background-color :" + colcode + " }");
-    // ui.lb_colorpreview->setBackgroundColor(c);
-  };
+  void setColor(const QColor& a_color);
   /// Returns the color
-  QColor getColor() { return color; };
+  QColor getColor() { return m_outlineColor; };
 
   /// Sets the maximum length of the code
   void setCodeMaxLength(int l) { ui.le_code->setMaxLength(l); };
@@ -129,6 +123,10 @@ public:
     ui.le_name->setFocus();
   };
 
+public slots:
+  void chooseFGColor();
+  void validate();
+
 private:
   /// Mode of the dialog (see DialogMode)
   int mode;
@@ -141,11 +139,8 @@ private:
   /// Pointer to the main window
   MainWindow *main;
   /// Color
-  QColor color;
+  QColor m_outlineColor;
 
-public slots:
-  void chooseFGColor();
-  void validate();
 };
 
 #endif // STATEPROPERTIESDLGIMPL_H

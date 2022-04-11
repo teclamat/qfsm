@@ -36,10 +36,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-StatePropertiesDlgImpl::StatePropertiesDlgImpl(QWidget *parent,
-                                               const char *name, bool modal,
-                                               Qt::WindowFlags fl)
-    : QDialog(parent, fl) {
+StatePropertiesDlgImpl::StatePropertiesDlgImpl(QWidget* parent, const char* name, bool modal, Qt::WindowFlags fl)
+  : QDialog(parent, fl)
+{
   ui.setupUi(this);
 
   valRadius = new QIntValidator(5, 500, this);
@@ -47,7 +46,7 @@ StatePropertiesDlgImpl::StatePropertiesDlgImpl(QWidget *parent,
 
   ui.le_radius->setValidator(valRadius);
   ui.le_linewidth->setValidator(valLineWidth);
-  ui.lb_colorpreview->setAutoFillBackground(true);
+  // ui.lb_colorpreview->setAutoFillBackground(true);
 
   connect(ui.pb_ok, &QPushButton::clicked, this, &StatePropertiesDlgImpl::validate);
   connect(ui.pb_cancel, &QPushButton::clicked, this, &StatePropertiesDlgImpl::reject);
@@ -57,7 +56,8 @@ StatePropertiesDlgImpl::StatePropertiesDlgImpl(QWidget *parent,
 /**
  *  Destroys the object and frees any allocated resources
  */
-StatePropertiesDlgImpl::~StatePropertiesDlgImpl() {
+StatePropertiesDlgImpl::~StatePropertiesDlgImpl()
+{
   delete valRadius;
   delete valLineWidth;
 }
@@ -67,11 +67,12 @@ StatePropertiesDlgImpl::~StatePropertiesDlgImpl() {
  * Displays and error box if no name is given, if the code is not in binary
  * format, if the values are out of range or if the code already exists
  */
-void StatePropertiesDlgImpl::validate() {
+void StatePropertiesDlgImpl::validate()
+{
   Error err;
   QString r, l, c;
   int icode;
-  Machine *m = main->project()->machine();
+  Machine* m = main->project()->machine();
   Convert conv;
   int mtype = m->getType();
 
@@ -91,8 +92,7 @@ void StatePropertiesDlgImpl::validate() {
     err.info(tr("You must specify a name."));
   else if (!State::codeValid(m->getType(), c))
     err.info(tr("Code is not in binary format."));
-  else if (!State::mooreOutputValid(m->getType(),
-                                    ui.le_mooreoutputs->text()))
+  else if (!State::mooreOutputValid(m->getType(), ui.le_mooreoutputs->text()))
     err.info(tr("Moore outputs are not in the correct format."));
   // else if (!Utils::binStringValid(le_mooreoutputs->text()))
   // err.info(tr("Moore outputs are not in binary format."));
@@ -104,18 +104,27 @@ void StatePropertiesDlgImpl::validate() {
     accept();
 }
 
+void StatePropertiesDlgImpl::setColor(const QColor& a_color)
+{
+  if (!a_color.isValid() || (m_outlineColor == a_color)) {
+    return;
+  }
+  m_outlineColor = a_color;
+
+  const QString colorText{QVariant{ m_outlineColor }.toString()};
+  QString styleSheetText{};
+  if (m_outlineColor != Qt::black) {
+    styleSheetText = QString{ "background-color:%1" }.arg(colorText);
+  }
+
+  ui.lb_colorpreview->setStyleSheet(styleSheetText);
+  ui.lb_colorpreview->setText(colorText);
+};
+
 /**
  * Lets you choose a foreground color for the state
  */
-void StatePropertiesDlgImpl::chooseFGColor() {
-  QColor c;
-  c = QColorDialog::getColor(color, this);
-
-  if (c.isValid()) {
-    // ui.lb_colorpreview->setBackgroundColor(c);
-    QPalette palette;
-    palette.setColor(ui.lb_colorpreview->backgroundRole(), c);
-    ui.lb_colorpreview->setPalette(palette);
-    color = c;
-  }
+void StatePropertiesDlgImpl::chooseFGColor()
+{
+  setColor(QColorDialog::getColor(m_outlineColor, this));
 }
