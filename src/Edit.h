@@ -31,7 +31,9 @@ replaced Qt 3 interator through Qt 4 iterators
 
 class Selection;
 class Machine;
+namespace qfsm {
 class Project;
+}
 
 /**
  * @class Edit
@@ -40,12 +42,12 @@ class Project;
  */
 class Edit : public QObject {
   Q_OBJECT
-public:
-  Edit(QWidget *parent = 0, const char *name = 0);
+ public:
+  Edit(QWidget* parent = 0, const char* name = 0);
 
-  void deleteSelection(Selection *, Machine *);
-  bool copy(Selection *, Project *, Machine *, QString &data);
-  bool paste(Selection *, Project *, Machine *, QString data);
+  void deleteSelection(Selection*, Machine*);
+  bool copy(Selection*, qfsm::Project*, Machine*, QString& data);
+  bool paste(Selection*, qfsm::Project*, Machine*, QString data);
 };
 
 #endif

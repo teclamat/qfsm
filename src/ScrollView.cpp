@@ -38,7 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ScrollView.h"
 #include "Selection.h"
 #include "StatusBar.h"
-#include "ToolTipSV.h"
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "Zoom.h"
@@ -82,7 +81,7 @@ void ScrollView::scrollContentsTo(int x, int y) {
 void ScrollView::updateBackground() {
   if (main) {
     QColor bgcol;
-    if (main->project() && main->project()->machine)
+    if (main->project() && main->project()->machine())
       bgcol.setRgb(255, 255, 255);
     else
       bgcol.setRgb(220, 220, 220);
@@ -115,10 +114,10 @@ void ScrollView::updateSize(QResizeEvent *e) {
   if(!main->project->machine)
     return;
   */
-  if (!main->project() || !main->project()->machine)
+  if (!main->project() || !main->project()->machine())
     return;
 
-  main->project()->machine->getCanvasSize(x, y);
+  main->project()->machine()->getCanvasSize(x, y);
   scale = drawArea->getScale();
 
   sx = (int)((double)x * scale);

@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "Project.h"
+#include <qapplication.h>
 #include "AppInfo.h"
 #include "DrawArea.h"
 #include "GObject.h"
@@ -24,27 +25,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "MainWindow.h"
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
-#include <qapplication.h>
 
-/// Constructor
-Project::Project(QObject *parent /*=NULL*/, const char *name /*=0*/)
-    : QObject(parent) {
-  main = (MainWindow *)parent;
-  machine = NULL;
-  undobuffer = new UndoBuffer(this);
-  changed = false;
-}
+namespace qfsm {
 
-/// Destructor
-Project::~Project() {
-  if (machine)
-    delete machine;
-  delete undobuffer;
+Project::Project(QObject* a_parent)
+  : QObject{ a_parent }
+  , m_mainWindow{ qobject_cast<MainWindow*>(a_parent) }
+  , m_undoBuffer{ new UndoBuffer{ this } }
+  , m_machine{ nullptr }
+{
 }
 
 /**
- * Adds a machine to the project.
- * @param n machine name
+ * Adds a m_machine to the project.
+ * @param n m_machine name
  * @param nb number of bits to code the states
  * @param ni number of input bits
  * @param no number of output bits
@@ -52,42 +46,60 @@ Project::~Project() {
  * @param tf font used for drawing the transition names
  * @param atype arrow type (0: unfilled, 1: filled)
  */
-void Project::addMachine(QString n, QString v, QString a, QString d, int type,
-                         int nb, QString onamesm, int ni, QString inames,
-                         int no, QString onames, QFont sf, QFont tf, int atype,
-                         bool draw_it) {
-  machine = new Machine(this, n, v, a, d, type, nb, onamesm, ni, inames, no,
-                        onames, sf, tf, atype);
-  machine->setDrawITrans(draw_it);
+void Project::addMachine(QString n, QString v, QString a, QString d, int type, int nb, QString onamesm, int ni,
+                         QString inames, int no, QString onames, QFont sf, QFont tf, int atype, bool draw_it)
+{
+  removeMachine();
 
-  connect(machine, SIGNAL(newCanvasSize(int, int)),
-          main->getScrollView()->getDrawArea(),
-          SLOT(resizeContentsNotSmaller(int, int)));
-  connect(main->getScrollView()->getDrawArea(),
-          SIGNAL(updateCanvasSize(int, int, double)), machine,
-          SLOT(updateCanvasSize(int, int, double))); // re-added 19/01/2015
-  connect(machine, SIGNAL(repaint()), main, SLOT(repaintViewport()));
+  m_machine = new Machine{ this, n, v, a, d, type, nb, onamesm, ni, inames, no, onames, sf, tf, atype };
+  m_machine->setDrawITrans(draw_it);
 
-  main->updateIOView(machine);
+  connectMachine();
+
+  m_mainWindow->updateIOView(m_machine);
 }
 
-/// Adds machine @a m to the project
-void Project::addMachine(Machine *m) {
-  if (!m)
+Machine* Project::createMachine()
+{
+  removeMachine();
+  m_machine = new Machine{ this };
+  connectMachine();
+
+  return m_machine;
+}
+
+void Project::removeMachine()
+{
+  if (m_machine == nullptr) {
     return;
+  }
+  m_machine->deleteLater();
+  m_machine = nullptr;
+}
 
-  machine = m;
-  machine->setProject(this);
+/// Adds m_machine @a m to the project
+void Project::addMachine(Machine* a_machine)
+{
+  if (a_machine == nullptr) {
+    return;
+  }
 
-  connect(machine, SIGNAL(newCanvasSize(int, int)),
-          main->getScrollView()->getDrawArea(),
-          SLOT(resizeContentsNotSmaller(int, int)));
-  connect(main->getScrollView()->getDrawArea(),
-          SIGNAL(updateCanvasSize(int, int, double)), machine,
-          SLOT(updateCanvasSize(int, int, double))); // re-added 19/01/2015
-  connect(machine, SIGNAL(repaint()), main, SLOT(repaintViewport()));
+  if (m_machine != a_machine) {
+    removeMachine();
+    m_machine = a_machine;
+    m_machine->setProject(this);
+    connectMachine();
+  }
 
-  main->updateIOView(machine);
+  m_mainWindow->updateIOView(m_machine);
+}
+
+void Project::connectMachine()
+{
+  DrawArea* drawArea = m_mainWindow->getScrollView()->getDrawArea();
+  connect(m_machine, &Machine::newCanvasSize, drawArea, &DrawArea::resizeContentsNotSmaller);
+  connect(drawArea, &DrawArea::updateCanvasSize, m_machine, qOverload<int, int, double>(&Machine::updateCanvasSize));
+  connect(m_machine, &Machine::repaint, m_mainWindow, &MainWindow::repaintViewport);
 }
 
 /**
@@ -98,25 +110,26 @@ void Project::addMachine(Machine *m) {
  * @param obj If != NULL, only @a obj is used from the project
  * @returns The DOM document
  */
-QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
-                                     GObject *obj /*=NULL*/) {
-  Machine *m = machine;
+QDomDocument Project::getDomDocument(bool onlyselected /*=false*/, GObject* obj /*=NULL*/)
+{
+  Machine* m = m_machine;
   m->correctCodes();
-  QString prolog = "<?xml version=\"1.0\"?>\n"
-                   "<!DOCTYPE qfsmproject SYSTEM \"qfsm.dtd\">\n\n"
-                   "<qfsmproject>\n"
-                   "</qfsmproject>\n";
+  QString prolog =
+      "<?xml version=\"1.0\"?>\n"
+      "<!DOCTYPE qfsmproject SYSTEM \"qfsm.dtd\">\n\n"
+      "<qfsmproject>\n"
+      "</qfsmproject>\n";
 
   QDomDocument domdoc;
   QDomElement root, me, one, ine, onme, itranse;
   QDomText ontext, intext, onmtext;
   QString stmp;
   int inits;
-  GState *s;
-  GITransition *initt;
-  GTransition *t;
-  QList<GState *> slist;
-  QList<GTransition *> tlist;
+  GState* s;
+  GITransition* initt;
+  GTransition* t;
+  QList<GState*> slist;
+  QList<GTransition*> tlist;
   double xpos, ypos, endx, endy, c1x, c1y, c2x, c2y;
 
   domdoc.setContent(prolog);
@@ -191,12 +204,11 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
   // States
 
   slist = m->getSList();
-  QListIterator<GState *> sit(slist);
+  QListIterator<GState*> sit(slist);
 
   for (; sit.hasNext();) {
     s = sit.next();
-    if (!s->isDeleted() &&
-        (!onlyselected || s->isSelected() || (s == obj && s != NULL))) {
+    if (!s->isDeleted() && (!onlyselected || s->isSelected() || (s == obj && s != NULL))) {
       s->getPos(xpos, ypos);
       QDomElement se = domdoc.createElement("state");
       QDomText st = domdoc.createTextNode(s->getStateName());
@@ -224,13 +236,12 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
   sit.toFront();
   for (; sit.hasNext();) {
     s = sit.next();
-    QListIterator<GTransition *> tit(s->tlist);
-    GState *send;
+    QListIterator<GTransition*> tit(s->tlist);
+    GState* send;
 
     for (; tit.hasNext();) {
       t = tit.next();
-      if (!t->isDeleted() &&
-          (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
+      if (!t->isDeleted() && (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
         t->getPos(xpos, ypos);
         t->getEndPos(endx, endy);
         t->getCPoint1(c1x, c1y);
@@ -249,7 +260,7 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
         te.setAttribute("straight", t->isStraight());
         te.setAttribute("description", t->getDescription());
 
-        send = (GState *)t->getEnd();
+        send = (GState*)t->getEnd();
 
         if (!onlyselected || s->isSelected()) {
           QDomElement from = domdoc.createElement("from");
@@ -261,7 +272,7 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
 
         if (send && (!onlyselected || send->isSelected())) {
           QDomElement to = domdoc.createElement("to");
-          QString sto    = QString::number(send->getEncoding());
+          QString sto = QString::number(send->getEncoding());
           // sto.sprintf("%d", send->getEncoding());
           QDomText tot = domdoc.createTextNode(sto);
           to.appendChild(tot);
@@ -272,11 +283,9 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
         QDomText inputt, outputt;
 
         inpute = domdoc.createElement("inputs");
-        inpute.setAttribute("invert",
-                            t->getInfo()->getInputInfo()->isInverted());
+        inpute.setAttribute("invert", t->getInfo()->getInputInfo()->isInverted());
         inpute.setAttribute("any", t->getInfo()->getInputInfo()->getAnyInput());
-        inpute.setAttribute("default",
-                            t->getInfo()->getInputInfo()->isDefault());
+        inpute.setAttribute("default", t->getInfo()->getInputInfo()->isDefault());
         outpute = domdoc.createElement("outputs");
 
         inputt = domdoc.createTextNode(t->getInfo()->getInputsStr(NULL));
@@ -296,13 +305,12 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
   // Phantom State
 
   s = m->getPhantomState();
-  QListIterator<GTransition *> tit(s->tlist);
-  GState *send;
+  QListIterator<GTransition*> tit(s->tlist);
+  GState* send;
 
   for (; tit.hasNext();) {
     t = tit.next();
-    if (!t->isDeleted() &&
-        (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
+    if (!t->isDeleted() && (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
       t->getPos(xpos, ypos);
       t->getEndPos(endx, endy);
       t->getCPoint1(c1x, c1y);
@@ -320,10 +328,10 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
       te.setAttribute("c2y", c2y);
       te.setAttribute("straight", t->isStraight());
 
-      send = (GState *)t->getEnd();
+      send = (GState*)t->getEnd();
       if (send && (!onlyselected || send->isSelected())) {
         QDomElement to = domdoc.createElement("to");
-        QString sto    = QString::number(send->getEncoding());
+        QString sto = QString::number(send->getEncoding());
         QDomText tot = domdoc.createTextNode(sto);
         to.appendChild(tot);
         te.appendChild(to);
@@ -350,3 +358,5 @@ QDomDocument Project::getDomDocument(bool onlyselected /*=false*/,
 
   return domdoc;
 }
+
+} // namespace qfsm

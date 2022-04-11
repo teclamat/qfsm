@@ -34,7 +34,9 @@ removed setAutoDelete calls in constructor of class Undo
 // #include <q3ptrlist.h>
 #include <QStringList>
 
+namespace qfsm {
 class Project;
+}
 
 /**
  * @enum UndoAction
@@ -76,49 +78,50 @@ struct dtlist {
  */
 class Undo {
 public:
-  Undo(Project *);
-  ~Undo();
+ Undo(qfsm::Project*);
+ ~Undo();
 
-  /// Sets the undo action.
-  void setAction(int a) { action = a; };
-  /// Returns the undo action.
-  int getAction() { return action; };
-  /// Sets the modified flag.
-  void setModified(bool m) { modified = m; };
-  /// Returns the modified flag.
-  bool getModified() { return modified; };
-  /// Sets the state.
-  void setState(GState *s) { state = s; };
-  /// Returns the state.
-  GState *getState() { return state; };
-  /// Sets the second state.
-  void setState2(GState *s) { state2 = s; };
-  /// Returns the second state.
-  GState *getState2() { return state2; };
-  /// Sets the initial state
-  void setInitialState(GState *s) { istate = s; };
-  /// Returns the initial state
-  GState *getInitialState() { return istate; };
-  /// Sets the transition
-  void setTransition(GTransition *t) { transition = t; };
-  /// Returns the transition
-  GTransition *getTransition() { return transition; };
-  /// Sets the second transition
-  void setTransition2(GTransition *t) { transition2 = t; };
-  /// Returns the second transition
-  GTransition *getTransition2() { return transition2; };
-  /// Sets the initial transition
-  void setInitialTransition(GITransition *t) { itrans = t; };
-  /// Returns the initial transition
-  GITransition *getInitialTransition() { return itrans; };
-  /// Sets the second initial transition
-  void setInitialTransition2(GITransition *t) { itrans2 = t; };
-  /// Returns the second initial transition
-  GITransition *getInitialTransition2() { return itrans2; };
-  /// Gets the coordinates which store the distance objects were moved by
-  void getMovedBy(double &x, double &y) {
-    x = movedbyx;
-    y = movedbyy;
+ /// Sets the undo action.
+ void setAction(int a) { action = a; };
+ /// Returns the undo action.
+ int getAction() { return action; };
+ /// Sets the modified flag.
+ void setModified(bool m) { modified = m; };
+ /// Returns the modified flag.
+ bool getModified() { return modified; };
+ /// Sets the state.
+ void setState(GState* s) { state = s; };
+ /// Returns the state.
+ GState* getState() { return state; };
+ /// Sets the second state.
+ void setState2(GState* s) { state2 = s; };
+ /// Returns the second state.
+ GState* getState2() { return state2; };
+ /// Sets the initial state
+ void setInitialState(GState* s) { istate = s; };
+ /// Returns the initial state
+ GState* getInitialState() { return istate; };
+ /// Sets the transition
+ void setTransition(GTransition* t) { transition = t; };
+ /// Returns the transition
+ GTransition* getTransition() { return transition; };
+ /// Sets the second transition
+ void setTransition2(GTransition* t) { transition2 = t; };
+ /// Returns the second transition
+ GTransition* getTransition2() { return transition2; };
+ /// Sets the initial transition
+ void setInitialTransition(GITransition* t) { itrans = t; };
+ /// Returns the initial transition
+ GITransition* getInitialTransition() { return itrans; };
+ /// Sets the second initial transition
+ void setInitialTransition2(GITransition* t) { itrans2 = t; };
+ /// Returns the second initial transition
+ GITransition* getInitialTransition2() { return itrans2; };
+ /// Gets the coordinates which store the distance objects were moved by
+ void getMovedBy(double& x, double& y)
+ {
+   x = movedbyx;
+   y = movedbyy;
   };
   /// Returns the coordinates which store the distance objects were moved by
   void setMovedBy(double x, double y) {
@@ -146,7 +149,7 @@ public:
   int getNumOutputs() { return numout; };
 
   /// Returns the project.
-  Project *getProject() { return project; };
+  qfsm::Project* getProject() { return project; };
   /// Returns the list of transitions which contain copied information.
   QList<GTransition *> *getCopyList() { return &copylist; };
   /// Returns the list of states.
@@ -166,7 +169,7 @@ private:
   /// Action this undo object can undo
   int action;
   /// Pointer to the project
-  Project *project;
+  qfsm::Project *project;
   /// true if the project was modified before the action
   bool modified;
   /// State

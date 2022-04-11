@@ -111,9 +111,9 @@ public:
 
 private:
   /// Pointer to the project
-  Project *project;
-  /// List of undo objects
-  QList<Undo *> undolist;
+ qfsm::Project* project;
+ /// List of undo objects
+ QList<Undo*> undolist;
 };
 
 #endif

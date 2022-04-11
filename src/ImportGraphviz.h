@@ -36,7 +36,7 @@ public:
   //~ImportGraphviz();
 
   /// Does the actual exporting
-  Project *doImport();
+  qfsm::Project* doImport();
   /// Returns the appropriate filter string for the file dialog.
   QString fileFilter() { return "Graphviz dot file (*.gv)"; };
   /// Returns the default file extension

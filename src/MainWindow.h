@@ -89,7 +89,6 @@ All buttons must be added to the toolbar by calling addWidget.
 
 // class QTranslator;
 class QToolBar;
-class Project;
 class FileIO;
 class StatusBar;
 class PrintManager;
@@ -99,7 +98,8 @@ class QAction;
 
 namespace qfsm {
 class MainControl;
-}
+class Project;
+} // namespace qfsm
 
 /**
  * @class MainWindow
@@ -120,7 +120,7 @@ class MainWindow : public QMainWindow {
   ScrollView* getScrollView() { return m_mainView; }
   /// Returns the status bar.
   StatusBar* getStatusBar() { return statusbar; }
-  Project* project() { return m_project; }
+  qfsm::Project* project() { return m_project; }
   /// Returns the tab dialog for the general options
   OptGeneralDlgImpl* getOptGeneral() { return opt_general; }
   /// Returns the tab dialog for the display options
@@ -195,7 +195,7 @@ class MainWindow : public QMainWindow {
   /// Main Menu bar.
   QMenuBar* m_menuBar;
   /// The project this window contains.
-  Project* m_project;
+  qfsm::Project* m_project;
 
  private:
   /// File menu

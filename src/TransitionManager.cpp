@@ -61,7 +61,7 @@ bool TransitionManager::addTransition(GState *from, GState *to, int numin,
                                       int numout, double sx, double sy,
                                       double ex, double ey, double c1x,
                                       double c1y, double c2x, double c2y) {
-  Machine *m = main->project()->machine;
+  Machine *m = main->project()->machine();
   int mtype;
 
   mtype = m->getType();
@@ -150,7 +150,7 @@ void TransitionManager::straightenSelection(QList<GTransition *> *l) {
   GTransition *t;
 
   if (ti.hasNext())
-    main->project()->getUndoBuffer()->changeTransitions(l);
+    main->project()->undoBuffer()->changeTransitions(l);
 
   for (; ti.hasNext();) {
     t = ti.next();
@@ -214,7 +214,7 @@ void TransitionManager::editTransition(Machine *m, GTransition *t) {
   trans_props->setType(type); // once more to properly enable/disable fields
 
   if (trans_props->exec()) {
-    main->project()->getUndoBuffer()->changeTransition(t);
+    main->project()->undoBuffer()->changeTransition(t);
 
     sin = trans_props->getInputs();
     sout = trans_props->getOutputs();

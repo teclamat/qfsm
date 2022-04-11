@@ -28,7 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
  * Standard constructor.
  */
-GTransition::GTransition() : GObject(0, 0), Transition(NULL, NULL, NULL) {
+GTransition::GTransition()
+  : GObject(0, 0)
+  , Transition(NULL, NULL, NULL)
+{
   control1x = control1y = control2x = control2y = 0;
   endx = endy = 0;
   straight = true;
@@ -52,10 +55,11 @@ GTransition::GTransition() : GObject(0, 0), Transition(NULL, NULL, NULL) {
  * @param str if true declares the transition as straight otherwise declares it
  * as not straight
  */
-GTransition::GTransition(State *s, State *e, TransitionInfo *i, double startx,
-                         double starty, double ex, double ey, QString d,
-                         bool str /*=true*/)
-    : GObject(startx, starty), Transition(s, e, i) {
+GTransition::GTransition(State* s, State* e, TransitionInfo* i, double startx, double starty, double ex, double ey,
+                         QString d, bool str /*=true*/)
+  : GObject(startx, starty)
+  , Transition(s, e, i)
+{
   control1x = startx + (ex - startx) / 3;
   control1y = starty + (ey - starty) / 3;
   control2x = startx + (ex - startx) * 2 / 3;
@@ -86,11 +90,11 @@ GTransition::GTransition(State *s, State *e, TransitionInfo *i, double startx,
  * @param str if true declares the transition as straight otherwise declares it
  * as not straight
  */
-GTransition::GTransition(State *s, State *e, TransitionInfo *i, double startx,
-                         double starty, double c1x, double c1y, double c2x,
-                         double c2y, double ex, double ey, QString d,
-                         bool str /*=true*/)
-    : GObject(startx, starty), Transition(s, e, i) {
+GTransition::GTransition(State* s, State* e, TransitionInfo* i, double startx, double starty, double c1x, double c1y,
+                         double c2x, double c2y, double ex, double ey, QString d, bool str /*=true*/)
+  : GObject(startx, starty)
+  , Transition(s, e, i)
+{
   control1x = c1x;
   control1y = c1y;
   control2x = c2x;
@@ -122,7 +126,8 @@ GTransition::GTransition(const GTransition& t)
  * Sets the start position of the transition.
  * If the transition is straight the control points are set accordingly.
  */
-void GTransition::setStartPos(double x, double y) {
+void GTransition::setStartPos(double x, double y)
+{
   xpos = x;
   ypos = y;
 
@@ -138,7 +143,8 @@ void GTransition::setStartPos(double x, double y) {
  * Sets the end point of the transition.
  * If the transition is straight the control points are set accordingly.
  */
-void GTransition::setEndPos(double x, double y) {
+void GTransition::setEndPos(double x, double y)
+{
   endx = x;
   endy = y;
 
@@ -151,7 +157,8 @@ void GTransition::setEndPos(double x, double y) {
 }
 
 /// Sets the x coordinate of the position of the end point
-void GTransition::setEndPosX(double x) {
+void GTransition::setEndPosX(double x)
+{
   endx = x;
 
   if (straight) {
@@ -163,7 +170,8 @@ void GTransition::setEndPosX(double x) {
 }
 
 /// Sets the y coordinate of the position of the end point
-void GTransition::setEndPosY(double y) {
+void GTransition::setEndPosY(double y)
+{
   endy = y;
 
   if (straight) {
@@ -178,7 +186,8 @@ void GTransition::setEndPosY(double y) {
  * Moves the transition with all its points by @a x rightwards and @a y
  * downwards.
  */
-void GTransition::move(double x, double y) {
+void GTransition::move(double x, double y)
+{
   xpos += x;
   ypos += y;
   control1x += x;
@@ -201,9 +210,9 @@ void GTransition::move(double x, double y) {
  * @param move_cont_both if true both control points are moved otherwise only
  *   the first one is moved
  */
-void GTransition::moveStart(double x, double y, bool move_cont_rel /*=true*/,
-                            bool move_cont /*=false*/,
-                            bool move_cont_both /*=true*/) {
+void GTransition::moveStart(double x, double y, bool move_cont_rel /*=true*/, bool move_cont /*=false*/,
+                            bool move_cont_both /*=true*/)
+{
   xpos += x;
   ypos += y;
 
@@ -237,9 +246,9 @@ void GTransition::moveStart(double x, double y, bool move_cont_rel /*=true*/,
  * @param move_cont_both if true both control points are moved otherwise only
  *   the second one is moved
  */
-void GTransition::moveEnd(double x, double y, bool move_cont_rel /*=true*/,
-                          bool move_cont /*=false*/,
-                          bool move_cont_both /*=true*/) {
+void GTransition::moveEnd(double x, double y, bool move_cont_rel /*=true*/, bool move_cont /*=false*/,
+                          bool move_cont_both /*=true*/)
+{
   endx += x;
   endy += y;
 
@@ -264,7 +273,8 @@ void GTransition::moveEnd(double x, double y, bool move_cont_rel /*=true*/,
 /**
  * Moves the first control point.
  */
-void GTransition::moveCPoint1(double x, double y) {
+void GTransition::moveCPoint1(double x, double y)
+{
   control1x += x;
   control1y += y;
   straight = false;
@@ -273,7 +283,8 @@ void GTransition::moveCPoint1(double x, double y) {
 /**
  * Moves the second control point.
  */
-void GTransition::moveCPoint2(double x, double y) {
+void GTransition::moveCPoint2(double x, double y)
+{
   control2x += x;
   control2y += y;
 
@@ -284,7 +295,8 @@ void GTransition::moveCPoint2(double x, double y) {
  * Returns true if the point with the coordinates @a x and @a y lies on the
  * transition.
  */
-bool GTransition::contains(double x, double y) {
+bool GTransition::contains(double x, double y)
+{
   double bx1, by1, bx2, by2;
   double dx, dy, m;
   double t = -0.0;
@@ -295,10 +307,8 @@ bool GTransition::contains(double x, double y) {
 
   otminy = ypos < endy ? ypos : endy;
   otmaxy = ypos > endy ? ypos : endy;
-  if (fabs(xpos - endx) < ot && fabs(xpos - control1x) < ot &&
-      fabs(xpos - control2x) < ot && control1y > otminy && control1y < otmaxy &&
-      control2y > otminy && control2y < otmaxy && y > otminy && y < otmaxy &&
-      fabs(xpos - x) < ot)
+  if (fabs(xpos - endx) < ot && fabs(xpos - control1x) < ot && fabs(xpos - control2x) < ot && control1y > otminy &&
+      control1y < otmaxy && control2y > otminy && control2y < otmaxy && y > otminy && y < otmaxy && fabs(xpos - x) < ot)
     return true; // orthogonal line
 
   bezierCurve(t, bx2, by2);
@@ -329,9 +339,7 @@ bool GTransition::contains(double x, double y) {
 
       if (fabs(x - bx1) < 5 && y > ymin && y > ymax)
         return true;
-    } else if ((fabs(y - (m * (x - bx1) + by1)) < 6 ||
-                fabs(x - ((y - by1) / m + bx1)) < 4) &&
-               x > xmin && x < xmax)
+    } else if ((fabs(y - (m * (x - bx1) + by1)) < 6 || fabs(x - ((y - by1) / m + bx1)) < 4) && x > xmin && x < xmax)
       return true;
 
   } while (t <= 0.9);
@@ -345,11 +353,10 @@ bool GTransition::contains(double x, double y) {
  * @param x resulting x coordinate
  * @param y resulting y coordinate
  */
-void GTransition::bezierCurve(double t, double &x, double &y) {
-  x = pow(1 - t, 3) * xpos + 3 * pow(1 - t, 2) * t * control1x +
-      3 * (1 - t) * t * t * control2x + pow(t, 3) * endx;
-  y = pow(1 - t, 3) * ypos + 3 * pow(1 - t, 2) * t * control1y +
-      3 * (1 - t) * t * t * control2y + pow(t, 3) * endy;
+void GTransition::bezierCurve(double t, double& x, double& y)
+{
+  x = pow(1 - t, 3) * xpos + 3 * pow(1 - t, 2) * t * control1x + 3 * (1 - t) * t * t * control2x + pow(t, 3) * endx;
+  y = pow(1 - t, 3) * ypos + 3 * pow(1 - t, 2) * t * control1y + 3 * (1 - t) * t * t * control2y + pow(t, 3) * endy;
 }
 
 /**
@@ -360,24 +367,21 @@ void GTransition::bezierCurve(double t, double &x, double &y) {
  * 3: second control point
  * 4: end point
  */
-int GTransition::onControlPoint(double x, double y, double scale) {
+int GTransition::onControlPoint(double x, double y, double scale)
+{
   int rectsize;
   rectsize = int((double)CPOINT_SIZE / scale) + 1;
 
   if (rectsize == 0)
     rectsize = 1;
 
-  if (x > xpos - rectsize && x < xpos + rectsize && y > ypos - rectsize &&
-      y < ypos + rectsize)
+  if (x > xpos - rectsize && x < xpos + rectsize && y > ypos - rectsize && y < ypos + rectsize)
     return 1;
-  else if (x > control1x - rectsize && x < control1x + rectsize &&
-           y > control1y - rectsize && y < control1y + rectsize)
+  else if (x > control1x - rectsize && x < control1x + rectsize && y > control1y - rectsize && y < control1y + rectsize)
     return 2;
-  else if (x > control2x - rectsize && x < control2x + rectsize &&
-           y > control2y - rectsize && y < control2y + rectsize)
+  else if (x > control2x - rectsize && x < control2x + rectsize && y > control2y - rectsize && y < control2y + rectsize)
     return 3;
-  else if (x > endx - rectsize && x < endx + rectsize && y > endy - rectsize &&
-           y < endy + rectsize)
+  else if (x > endx - rectsize && x < endx + rectsize && y > endy - rectsize && y < endy + rectsize)
     return 4;
 
   return 0;
@@ -387,7 +391,8 @@ int GTransition::onControlPoint(double x, double y, double scale) {
  * Straightens the transition.
  * If start and end state are the same a loop is generated.
  */
-void GTransition::straighten() {
+void GTransition::straighten()
+{
   if (start != end) {
     control1x = xpos + (endx - xpos) / 3;
     control1y = ypos + (endy - ypos) / 3;
@@ -397,16 +402,14 @@ void GTransition::straighten() {
     double x, y;
     int rad;
     double loopendx, loopendy;
-    GState *tmp = (GState *)start;
+    GState* tmp = (GState*)start;
 
     tmp->getPos(x, y);
     rad = tmp->getRadius();
 
-    GState::circleEdge(x, y, tmp->getRadius(), xpos, ypos, loopendx, loopendy,
-                       40);
+    GState::circleEdge(x, y, tmp->getRadius(), xpos, ypos, loopendx, loopendy, 40);
 
-    tmp->calcLoop(x, y, rad, xpos, ypos, control1x, control1y, control2x,
-                  control2y);
+    tmp->calcLoop(x, y, rad, xpos, ypos, control1x, control1y, control2x, control2y);
 
     endx = loopendx;
     endy = loopendy;
@@ -415,49 +418,40 @@ void GTransition::straighten() {
   straight = true;
 }
 
-QString GTransition::getToolTipInfo(Machine *m /*=NULL*/,
-                                    Options *opt /*=NULL*/) {
-  QString sin, sout;
-  QString sep;
-  QString res;
-  if (m == NULL || opt == NULL) {
-    res = info->getInputsStr(NULL) + "/" + info->getOutputsStr(NULL);
-    return res;
+QString GTransition::getToolTipInfo(Machine* a_machine, Options* a_options)
+{
+  if ((a_machine == nullptr) || (a_options == nullptr)) {
+    return QString{ "%1/%2" }.arg(info->getInputsStr(), info->getOutputsStr());
   }
 
-  sin = info->getCompleteInputsStr(m, opt);
-  sout = info->getOutputsStr(m, opt);
+  const QString inputs = info->getCompleteInputsStr(a_machine, a_options);
+  const QString outputs = info->getOutputsStr(a_machine, a_options);
 
-  sep = info->getSeparator(opt);
+  QString toolTipContent{};
+  QTextStream stream{ &toolTipContent };
 
-  //  if (opt->getDisplayIONames())
-  {
-    if (sin.isEmpty())
-      res = sout;
-    if (sout.isEmpty())
-      res = sin;
-    else if (!sin.isEmpty())
-      res = sin + sep + sout;
+  stream << inputs;
+  if (!inputs.isEmpty() && !outputs.isEmpty()) {
+    stream << info->getSeparator(a_options);
   }
-  /*
-  else
-    res = sin + sep + sout;
-    */
+  stream << outputs;
   if (!description.isEmpty()) {
-    res += "\n" + description;
+    stream << Qt::endl << description;
   }
 
-  return res;
+  return toolTipContent;
 }
 
-QRect GTransition::getToolTipRect(const QPoint &p) {
+QRect GTransition::getToolTipRect(const QPoint& p)
+{
   return QRect(p.x() - 3, p.y() - 3, 6, 6);
 }
 
 /// Sets the testbench export mark
-void GTransition::setMarkMax() {
+void GTransition::setMarkMax()
+{
   IOInfoList list;
-  info->getInputInfo()->split(list, (GState *)start);
+  info->getInputInfo()->split(list, (GState*)start);
   mark_max = list.size();
   //  qDebug("Mark max of "+start->getStateName()+":
   //  "+QString::number(mark_max));

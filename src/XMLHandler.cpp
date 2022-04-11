@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "XMLHandler.h"
 
 /// Constructor
-XMLHandler::XMLHandler(Project* newProject, Selection* sel /*=nullptr*/, bool keepquiet /*=true*/,
+XMLHandler::XMLHandler(qfsm::Project* newProject, Selection* sel /*=nullptr*/, bool keepquiet /*=true*/,
                        bool createnewmachine /*=true*/)
   : QObject((QObject*)newProject)
   , QXmlStreamReader{}
@@ -146,7 +146,7 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     //   }
     // }
   } else if (qName == "machine") {
-    machine = project->machine;
+    machine = project->machine();
     if (create_new_machine || !machine)
       machine = new Machine(project);
     if (machine->getInitialState())
@@ -171,11 +171,6 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     rstatelist.clear();
     codemap.clear();
 
-    int len = atts.length();
-
-    // for (int i = 0; i < len; i++) {
-    // aname = atts.qName(i);
-
     if (create_new_machine) {
       // if (aname == "name")
       machine->setName(atts.value("name").toString());
@@ -190,8 +185,7 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
       machine->setType(atts.value("type").toInt());
       // } else if (aname == "statefont") {
       QFont ftmp = machine->getSFont();
-      ftmp.setStyleHint(QFont::Helvetica);
-      // ftmp.setStyleStrategy(QFont::PreferBitmap);
+      ftmp.setStyleHint(QFont::SansSerif);
       ftmp.setFamily(atts.value("statefont").toString());
       ftmp.setPointSize(atts.value("statefontsize").toInt());
       ftmp.setWeight((QFont::Weight)atts.value("statefontweight").toInt());
@@ -210,8 +204,7 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
       //   machine->setSFont(ftmp);
       // } else if (aname == "transfont") {
       ftmp = machine->getTFont();
-      ftmp.setStyleHint(QFont::Helvetica);
-      // ftmp.setStyleStrategy(QFont::PreferBitmap);
+      ftmp.setStyleHint(QFont::SansSerif);
       ftmp.setFamily(atts.value("transfont").toString());
       ftmp.setPointSize(atts.value("transfontsize").toInt());
       ftmp.setWeight((QFont::Weight)atts.value("transfontweight").toInt());
@@ -305,7 +298,6 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
       // for (int i = 0; i < atts.length(); i++) {
       // aname = atts.qName(i);
       if (atts.hasAttribute("code")) {
-        // int code;
         int code = atts.value("code").toInt();
 
         if (machine->getState(code)) {
@@ -322,10 +314,10 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
           state->setMooreOutputs(iotmp);
         }
       }
+
       if (atts.hasAttribute("moore_outputs")) {
-        Convert conv;
         IOInfo* iotmp;
-        if (machine->getType() == Binary || version <= 0.41) {
+        if ((machine->getType() == Binary) || version <= 0.41) {
           iotmp = new IOInfoBin(IO_MooreOut);
           iotmp->setBin(atts.value("moore_outputs").toString(), machine->getNumMooreOutputs());
         } else if (machine->getType() == Ascii) {
@@ -333,37 +325,22 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
         } else {
           iotmp = new IOInfoText(IO_MooreOut, atts.value("moore_outputs").toString());
         }
-        // iotmp = conv.binStrToX10(machine->getNumMooreOutputs(),
-        // atts.value(i));
         state->setMooreOutputs(iotmp);
       }
-      // else if (aname == "description")
+
       state->setDescription(atts.value("description").toString());
-      // else if (aname == "xpos")
       state->setXPos(atts.value("xpos").toDouble());
-      // else if (aname == "ypos")
       state->setYPos(atts.value("ypos").toDouble());
-      // else if (aname == "radius")
       state->setRadius(atts.value("radius").toInt());
-      // else if (aname == "finalstate" || aname == "endstate")
+      state->setColor(QRgb{ atts.value("pencolor").toUInt() });
+      state->setLineWidth(atts.value("linewidth").toInt());
+      state->setEntryActions(atts.value("entry_actions").toString());
+      state->setExitActions(atts.value("exit_actions").toString());
       if (atts.hasAttribute("finalstate")) {
         state->setFinalState(atts.value("finalstate").toInt());
       } else if (atts.hasAttribute("endstate")) {
         state->setFinalState(atts.value("endstate").toInt());
       }
-      // state->setFinalState(atts.value(i).toInt());
-      // else if (aname == "brushcolor") {
-      QBrush b(QColor(atts.value("brushcolor").toInt()));
-      state->setBrush(b);
-      // } else if (aname == "pencolor")
-      state->setColor(QColor(QRgb(atts.value("pencolor").toInt())));
-      // else if (aname == "linewidth")
-      state->setLineWidth(atts.value("linewidth").toInt());
-      // else if (aname == "entry_actions")
-      state->setEntryActions(atts.value("entry_actions").toString());
-      // else if (aname == "exit_actions")
-      state->setExitActions(atts.value("exit_actions").toString());
-      // }
 
       sname = "";
       snamecont = true;
@@ -378,35 +355,20 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     hasfrom = false;
     hasto = false;
     if (machine) {
-      QString aname;
-      transition = new GTransition();
-      ttype = 1;
+      transition = new GTransition{};
 
-      // for (int i = 0; i < atts.length(); i++) {
-      // aname = atts.qName(i);
-      // if (aname == "type")
-      ttype = atts.value("type").toInt();
-      // else if (aname == "description")
+      ttype = atts.hasAttribute("type") ? atts.value("type").toInt() : 1;
+
       transition->setDescription(atts.value("description").toString());
-      // else if (aname == "xpos")
       transition->setXPos(atts.value("xpos").toDouble());
-      // else if (aname == "ypos")
       transition->setYPos(atts.value("ypos").toDouble());
-      // else if (aname == "endx")
       transition->setEndPosX(atts.value("endx").toDouble());
-      // else if (aname == "endy")
       transition->setEndPosY(atts.value("endy").toDouble());
-      // else if (aname == "c1x")
       transition->setCPoint1X(atts.value("c1x").toDouble());
-      // else if (aname == "c1y")
       transition->setCPoint1Y(atts.value("c1y").toDouble());
-      // else if (aname == "c2x")
       transition->setCPoint2X(atts.value("c2x").toDouble());
-      // else if (aname == "c2y")
       transition->setCPoint2Y(atts.value("c2y").toDouble());
-      // else if (aname == "straight")
       transition->setStraight(atts.value("straight").toDouble());
-      // }
     }
   } else if (qName == "from") {
     hasfrom = true;
@@ -437,21 +399,12 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     toutcont = true;
   } else if (qName == "itransition") {
     if (machine) {
-      QString aname;
-      itransition = new GITransition();
+      itransition = new GITransition{};
       itransition->setStart(machine->getPhantomState());
-
-      // for (int i = 0; i < atts.length(); i++) {
-      // aname = atts.qName(i);
-      // if (aname == "xpos")
       itransition->setXPos(atts.value("xpos").toDouble());
-      // if (aname == "ypos")
       itransition->setYPos(atts.value("ypos").toDouble());
-      // if (aname == "endx")
       itransition->setEndPosX(atts.value("endx").toDouble());
-      // if (aname == "endy")
       itransition->setEndPosY(atts.value("endy").toDouble());
-      // }
     }
   }
   return true;
@@ -499,8 +452,8 @@ bool XMLHandler::endElement(const QString& qName)
       newinitialstate = machine->getInitialState();
       newinitialtrans = machine->getInitialTransition();
 
-      project->getUndoBuffer()->paste(&undostatelist, &undotranslist, oldinitialstate, newinitialstate, oldinitialtrans,
-                                      newinitialtrans, oldnummooreout, oldnumin, oldnumout);
+      project->undoBuffer()->paste(&undostatelist, &undotranslist, oldinitialstate, newinitialstate, oldinitialtrans,
+                                   newinitialtrans, oldnummooreout, oldnumin, oldnumout);
     }
   } else if (qName == "inputnames") {
     if (machine)

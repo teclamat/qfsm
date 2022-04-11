@@ -26,51 +26,54 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Selection.h"
 
 /// Constructor
-UndoBuffer::UndoBuffer(QObject *parent) {
-  project = (Project *)parent;
+UndoBuffer::UndoBuffer(QObject* parent)
+{
+  project = (qfsm::Project*)parent;
   //  undolist.setAutoDelete(true);
 }
 
 /// Destructor
-UndoBuffer::~UndoBuffer() {
+UndoBuffer::~UndoBuffer()
+{
   tidyUp();
   undolist.clear();
   //  while (undolist.removeLast());
 }
 
 /// Tidys up old undo actions.
-void UndoBuffer::tidyUp() {
-  QListIterator<Undo *> i(undolist);
+void UndoBuffer::tidyUp()
+{
+  QListIterator<Undo*> i(undolist);
 
-  Undo *u;
-  GTransition *t;
-  GITransition *it;
-  QList<GTransition *> *l;
+  Undo* u;
+  GTransition* t;
+  GITransition* it;
+  QList<GTransition*>* l;
 
   while (i.hasNext()) {
     u = i.next();
 
     switch (u->getAction()) {
-    case ChangeState:
-      delete u->getState();
-      break;
-    case ChangeTransition:
-      delete u->getTransition();
-      break;
-    case ChangeInitialTransition:
-      delete u->getInitialTransition();
-      break;
-    case ChangeTransitions:
-      l = u->getTList();
-      t = l->first();
-      //	while (l->remove());
-      while (!l->isEmpty())
-        delete l->takeFirst();
-      break;
-    case SetInitialState:
-      it = u->getInitialTransition();
-      if (it)
-        delete it;
+      case ChangeState:
+        delete u->getState();
+        break;
+      case ChangeTransition:
+        delete u->getTransition();
+        break;
+      case ChangeInitialTransition:
+        delete u->getInitialTransition();
+        break;
+      case ChangeTransitions:
+        l = u->getTList();
+        t = l->first();
+        //	while (l->remove());
+        while (!l->isEmpty())
+          delete l->takeFirst();
+        break;
+      case SetInitialState:
+        it = u->getInitialTransition();
+        if (it)
+          delete it;
     }
   }
 }
@@ -79,8 +82,9 @@ void UndoBuffer::tidyUp() {
  * Adds undo information about adding a state.
  * @param s state which was added
  */
-void UndoBuffer::addState(Machine *m, GState *s) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::addState(Machine* m, GState* s)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(AddState);
   undo->setState(s);
@@ -97,8 +101,9 @@ void UndoBuffer::addState(Machine *m, GState *s) {
  * Adds undo information about adding a transition.
  * @param t transition which was added
  */
-void UndoBuffer::addTransition(GTransition *t) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::addTransition(GTransition* t)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
 
   undo->setAction(AddTransition);
@@ -113,20 +118,21 @@ void UndoBuffer::addTransition(GTransition *t) {
  * @param newSt state containing new information
  * @param oldit information about the old initial transition
  */
-void UndoBuffer::changeState(GState *old, GState *newSt, GITransition *oldit) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::changeState(GState* old, GState* newSt, GITransition* oldit)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(ChangeState);
 
-  GState *tmp = new GState(project->machine);
-  GITransition *it;
+  GState* tmp = new GState(project->machine());
+  GITransition* it;
 
   tmp->copyAttributes(old);
   tmp->copyTransitions(old);
 
-  QListIterator<GTransition *> i(newSt->tlist);
-  QListIterator<GTransition *> j(newSt->reflist);
-  QList<GTransition *> *ulist;
+  QListIterator<GTransition*> i(newSt->tlist);
+  QListIterator<GTransition*> j(newSt->reflist);
+  QList<GTransition*>* ulist;
 
   ulist = undo->getCopyList();
 
@@ -135,7 +141,7 @@ void UndoBuffer::changeState(GState *old, GState *newSt, GITransition *oldit) {
   for (; j.hasNext();)
     ulist->append(j.next());
 
-  if (newSt == project->machine->getInitialState())
+  if (newSt == project->machine()->getInitialState())
     it = new GITransition(*oldit);
   else
     it = NULL;
@@ -154,21 +160,22 @@ void UndoBuffer::changeState(GState *old, GState *newSt, GITransition *oldit) {
  * Adds undo information about changing a transition.
  * @param t transition containing old information
  */
-void UndoBuffer::changeTransition(GTransition *t) {
+void UndoBuffer::changeTransition(GTransition* t)
+{
   if (!t)
     return;
 
-  Undo *undo = new Undo(project);
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(ChangeTransition);
 
   GState *oldstart = NULL, *oldend = NULL;
   if (t) {
-    oldstart = (GState *)t->getStart();
-    oldend = (GState *)t->getEnd();
+    oldstart = (GState*)t->getStart();
+    oldend = (GState*)t->getEnd();
   }
 
-  GTransition *tmp = new GTransition();
+  GTransition* tmp = new GTransition();
   *tmp = *t;
 
   undo->setTransition(tmp);
@@ -183,14 +190,15 @@ void UndoBuffer::changeTransition(GTransition *t) {
  * Adds undo information about changing several transitions
  * @param tl list containing transitions with old information
  */
-void UndoBuffer::changeTransitions(QList<GTransition *> *tl) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::changeTransitions(QList<GTransition*>* tl)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(ChangeTransitions);
 
-  QListIterator<GTransition *> i(*tl);
+  QListIterator<GTransition*> i(*tl);
 
-  GTransition *tmp;
+  GTransition* tmp;
 
   for (; i.hasNext();) {
     tmp = new GTransition();
@@ -207,12 +215,13 @@ void UndoBuffer::changeTransitions(QList<GTransition *> *tl) {
  * Adds undo information about changing the initial transition.
  * @param t initial transition containing old information
  */
-void UndoBuffer::changeInitialTransition(GITransition *t) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::changeInitialTransition(GITransition* t)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(ChangeInitialTransition);
 
-  GITransition *tmp = new GITransition();
+  GITransition* tmp = new GITransition();
   *tmp = *t;
 
   undo->setInitialTransition(tmp);
@@ -227,12 +236,12 @@ void UndoBuffer::changeInitialTransition(GITransition *t) {
  * @param movedbyx x value the objects were moved by
  * @param movedbyy y value the objects were moved by
  */
-void UndoBuffer::moveMultiple(QList<GState *> *sl, QList<GTransition *> *tl,
-                              double movedbyx, double movedbyy) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::moveMultiple(QList<GState*>* sl, QList<GTransition*>* tl, double movedbyx, double movedbyy)
+{
+  Undo* undo = new Undo(project);
   //  QList<GObject>* sellist= undo->getSelList();
-  QList<GState *> ssellist;
-  QList<GTransition *> tsellist;
+  QList<GState*> ssellist;
+  QList<GTransition*> tsellist;
   //  ssellist.setAutoDelete(false);
   //  tsellist.setAutoDelete(false);
 
@@ -241,26 +250,18 @@ void UndoBuffer::moveMultiple(QList<GState *> *sl, QList<GTransition *> *tl,
 
   undo->setMovedBy(movedbyx, movedbyy);
 
-  ssellist = project->getMain()
-                 ->getScrollView()
-                 ->getDrawArea()
-                 ->getSelection()
-                 ->getSList();
-  tsellist = project->getMain()
-                 ->getScrollView()
-                 ->getDrawArea()
-                 ->getSelection()
-                 ->getTList();
+  ssellist = project->mainWindow()->getScrollView()->getDrawArea()->getSelection()->getSList();
+  tsellist = project->mainWindow()->getScrollView()->getDrawArea()->getSelection()->getTList();
 
-  QListIterator<GState *> si(ssellist);
-  QListIterator<GTransition *> ti(tsellist);
+  QListIterator<GState*> si(ssellist);
+  QListIterator<GTransition*> ti(tsellist);
   for (; si.hasNext();)
     undo->getSList2()->append(si.next());
   for (; ti.hasNext();)
     undo->getTList2()->append(ti.next());
 
-  QListIterator<GState *> i(*sl);
-  QListIterator<GTransition *> j(*tl);
+  QListIterator<GState*> i(*sl);
+  QListIterator<GTransition*> j(*tl);
 
   for (; i.hasNext();)
     undo->getSList()->append(i.next());
@@ -275,28 +276,28 @@ void UndoBuffer::moveMultiple(QList<GState *> *sl, QList<GTransition *> *tl,
  * @param sl list of deleted states
  * @param tl list of deleted transitions
  */
-void UndoBuffer::deleteSelection(QList<GState *> *sl,
-                                 QList<GTransition *> *tl) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::deleteSelection(QList<GState*>* sl, QList<GTransition*>* tl)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(DeleteSelection);
 
   //  QListIterator<GState> si(*undo->getSList());
   //  QListIterator<GTransition> ti(*undo->getTList());
-  QListIterator<GState *> si(*sl);
-  QListIterator<GTransition *> ti(*tl);
-  GTransition *t;
-  GITransition *it = NULL;
+  QListIterator<GState*> si(*sl);
+  QListIterator<GTransition*> ti(*tl);
+  GTransition* t;
+  GITransition* it = NULL;
 
   // delete states
   for (; si.hasNext();) {
-    GState *s;
+    GState* s;
 
     s = si.next();
 
-    QListIterator<GTransition *> i(s->tlist);
-    QListIterator<GTransition *> j(s->reflist);
-    dtlist *dl = new dtlist;
+    QListIterator<GTransition*> i(s->tlist);
+    QListIterator<GTransition*> j(s->reflist);
+    dtlist* dl = new dtlist;
 
     for (; i.hasNext();) {
       t = i.next();
@@ -309,8 +310,8 @@ void UndoBuffer::deleteSelection(QList<GState *> *sl,
     undo->getSList()->append(s);
     undo->getDoubleTList()->append(dl);
 
-    if (s == project->machine->getInitialState()) {
-      it = new GITransition(*project->machine->getInitialTransition());
+    if (s == project->machine()->getInitialState()) {
+      it = new GITransition(*project->machine()->getInitialTransition());
       undo->setInitialState(s);
     }
   }
@@ -328,19 +329,20 @@ void UndoBuffer::deleteSelection(QList<GState *> *sl,
 }
 
 /// Adds undo information about deleting the state @a s
-void UndoBuffer::deleteState(GState *s) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::deleteState(GState* s)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(DeleteState);
 
   //  QListIterator<GState> si(*sl);
   //  QListIterator<GTransition> ti(*tl);
-  GTransition *t;
-  GITransition *it = NULL;
+  GTransition* t;
+  GITransition* it = NULL;
 
-  QListIterator<GTransition *> i(s->tlist);
-  QListIterator<GTransition *> j(s->reflist);
-  dtlist *dl = new dtlist;
+  QListIterator<GTransition*> i(s->tlist);
+  QListIterator<GTransition*> j(s->reflist);
+  dtlist* dl = new dtlist;
 
   for (; i.hasNext();) {
     t = i.next();
@@ -354,8 +356,8 @@ void UndoBuffer::deleteState(GState *s) {
   undo->setState(s);
   undo->getDoubleTList()->append(dl);
 
-  if (s == project->machine->getInitialState()) {
-    it = new GITransition(*project->machine->getInitialTransition());
+  if (s == project->machine()->getInitialState()) {
+    it = new GITransition(*project->machine()->getInitialTransition());
     undo->setInitialState(s);
   }
 
@@ -365,8 +367,9 @@ void UndoBuffer::deleteState(GState *s) {
 }
 
 /// Adds undo information about deleting the transition @a t
-void UndoBuffer::deleteTransition(GTransition *t) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::deleteTransition(GTransition* t)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(DeleteTransition);
 
@@ -380,12 +383,13 @@ void UndoBuffer::deleteTransition(GTransition *t) {
  * Adds undo information about setting the initial state
  * @param t old initial transition
  */
-void UndoBuffer::setInitialState(GITransition *t) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::setInitialState(GITransition* t)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(SetInitialState);
 
-  GITransition *tmp;
+  GITransition* tmp;
 
   if (t) {
     tmp = new GITransition();
@@ -402,8 +406,9 @@ void UndoBuffer::setInitialState(GITransition *t) {
  * Adds undo information about setting/resetting the end state
  * @param s state that is to toggle its state
  */
-void UndoBuffer::setFinalStates(const QList<GState *> &sl) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::setFinalStates(const QList<GState*>& sl)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(SetFinalStates);
 
@@ -417,8 +422,9 @@ void UndoBuffer::setFinalStates(const QList<GState *> &sl) {
  * Adds undo information about changing the properties of the machine.
  * @param m machine containing the old properties
  */
-void UndoBuffer::changeMachine(Machine *m) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::changeMachine(Machine* m)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
   undo->setAction(ChangeMachine);
 
@@ -438,8 +444,7 @@ void UndoBuffer::changeMachine(Machine *m) {
   at = m->getArrowType();
   dit = m->getDrawITrans();
 
-  undo->setMachineInfo(m, n, t, nb, m->getMooreOutputList(), ni,
-                       m->getInputNameList(), no, m->getOutputNameList(), sf,
+  undo->setMachineInfo(m, n, t, nb, m->getMooreOutputList(), ni, m->getInputNameList(), no, m->getOutputNameList(), sf,
                        tf, at, dit);
 
   undolist.append(undo);
@@ -458,11 +463,10 @@ void UndoBuffer::changeMachine(Machine *m) {
  * @param numin Old number of inputs
  * @param numout Old number of outputs
  */
-void UndoBuffer::paste(QList<GState *> *sl, QList<GTransition *> *tl,
-                       GState *oldistate, GState *newistate,
-                       GITransition *olditrans, GITransition *newitrans,
-                       int numbits, int numin, int numout) {
-  Undo *undo = new Undo(project);
+void UndoBuffer::paste(QList<GState*>* sl, QList<GTransition*>* tl, GState* oldistate, GState* newistate,
+                       GITransition* olditrans, GITransition* newitrans, int numbits, int numin, int numout)
+{
+  Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
 
   undo->setAction(Paste);
@@ -482,55 +486,56 @@ void UndoBuffer::paste(QList<GState *> *sl, QList<GTransition *> *tl,
 }
 
 /// Undo the last action.
-void UndoBuffer::undo() {
-  Undo *u;
+void UndoBuffer::undo()
+{
+  Undo* u;
 
   u = undolist.last();
 
   if (u) {
     switch (u->getAction()) {
-    case AddState:
-      undoAddState(u);
-      break;
-    case AddTransition:
-      undoAddTransition(u);
-      break;
-    case ChangeState:
-      undoChangeState(u);
-      break;
-    case ChangeTransition:
-      undoChangeTransition(u);
-      break;
-    case ChangeInitialTransition:
-      undoChangeInitialTransition(u);
-      break;
-    case ChangeTransitions:
-      undoChangeTransitions(u);
-      break;
-    case MoveMultiple:
-      undoMoveMultiple(u);
-      break;
-    case DeleteSelection:
-      undoDeleteSelection(u);
-      break;
-    case DeleteState:
-      undoDeleteState(u);
-      break;
-    case DeleteTransition:
-      undoDeleteTransition(u);
-      break;
-    case SetInitialState:
-      undoSetInitialState(u);
-      break;
-    case SetFinalStates:
-      undoSetFinalStates(u);
-      break;
-    case ChangeMachine:
-      undoChangeMachine(u);
-      break;
-    case Paste:
-      undoPaste(u);
-      break;
+      case AddState:
+        undoAddState(u);
+        break;
+      case AddTransition:
+        undoAddTransition(u);
+        break;
+      case ChangeState:
+        undoChangeState(u);
+        break;
+      case ChangeTransition:
+        undoChangeTransition(u);
+        break;
+      case ChangeInitialTransition:
+        undoChangeInitialTransition(u);
+        break;
+      case ChangeTransitions:
+        undoChangeTransitions(u);
+        break;
+      case MoveMultiple:
+        undoMoveMultiple(u);
+        break;
+      case DeleteSelection:
+        undoDeleteSelection(u);
+        break;
+      case DeleteState:
+        undoDeleteState(u);
+        break;
+      case DeleteTransition:
+        undoDeleteTransition(u);
+        break;
+      case SetInitialState:
+        undoSetInitialState(u);
+        break;
+      case SetFinalStates:
+        undoSetFinalStates(u);
+        break;
+      case ChangeMachine:
+        undoChangeMachine(u);
+        break;
+      case Paste:
+        undoPaste(u);
+        break;
     }
     project->setChanged(u->getModified());
     //   undolist.remove();
@@ -539,55 +544,58 @@ void UndoBuffer::undo() {
 }
 
 /// Undo adding a state
-void UndoBuffer::undoAddState(Undo *u) {
-  Project *p;
+void UndoBuffer::undoAddState(Undo* u)
+{
+  qfsm::Project* p;
   int i;
   // QList <GState*> l;
   p = u->getProject();
 
   if (u->getInitialTransition()) {
-    delete p->machine->getInitialTransition(); // u->getInitialTransition();
-    p->machine->setInitialTransition(NULL);
+    delete p->machine()->getInitialTransition(); // u->getInitialTransition();
+    p->machine()->setInitialTransition(NULL);
     u->setInitialTransition(NULL);
   }
 
-  p->getMain()->getScrollView()->getDrawArea()->getSelection()->select(
-      u->getState(), false);
-  //  p->machine->getSList().removeRef(u->getState());
-  // l=p->machine->getSList();
-  i = p->machine->getSList().indexOf(u->getState());
+  p->mainWindow()->getScrollView()->getDrawArea()->getSelection()->select(u->getState(), false);
+  //  p->machine()->getSList().removeRef(u->getState());
+  // l=p->machine()->getSList();
+  i = p->machine()->getSList().indexOf(u->getState());
   if (i != -1)
-    delete p->machine->getSList().takeAt(i);
+    delete p->machine()->getSList().takeAt(i);
 }
 
 /// Undo adding a transition.
-void UndoBuffer::undoAddTransition(Undo *u) {
-  Project *p;
+void UndoBuffer::undoAddTransition(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
-  GTransition *t;
+  GTransition* t;
   GState *from, *to;
   t = u->getTransition();
 
-  from = (GState *)t->getStart();
-  to = (GState *)t->getEnd();
+  from = (GState*)t->getStart();
+  to = (GState*)t->getEnd();
 
-  p->getMain()->getScrollView()->getDrawArea()->getSelection()->select(t,
-                                                                       false);
+  p->mainWindow()->getScrollView()->getDrawArea()->getSelection()->select(t, false);
   //  if (t->isSelected())
   //    t->select(false);
 
-  if (to) to->reflist.removeOne(t);
-  if (from) from->tlist.removeOne(t);
+  if (to)
+    to->reflist.removeOne(t);
+  if (from)
+    from->tlist.removeOne(t);
 }
 
 /// Undo changing a state.
-void UndoBuffer::undoChangeState(Undo *u) {
-  Project *p;
+void UndoBuffer::undoChangeState(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
   GState *olds, *news;
-  GITransition *oldit;
+  GITransition* oldit;
   bool sel;
 
   olds = u->getState();
@@ -601,14 +609,14 @@ void UndoBuffer::undoChangeState(Undo *u) {
 
   oldit = u->getInitialTransition();
   if (oldit) {
-    GITransition *t;
-    t = project->machine->getInitialTransition();
+    GITransition* t;
+    t = project->machine()->getInitialTransition();
     if (t)
       *t = *oldit;
     delete oldit;
   }
 
-  news->setTransitionsToRadius(project->machine, news->getRadius());
+  news->setTransitionsToRadius(project->machine(), news->getRadius());
 
   //  news->tlist.setAutoDelete(true);
   //  olds->tlist.setAutoDelete(true);
@@ -617,8 +625,9 @@ void UndoBuffer::undoChangeState(Undo *u) {
 }
 
 /// Undo changing a transition
-void UndoBuffer::undoChangeTransition(Undo *u) {
-  Project *p;
+void UndoBuffer::undoChangeTransition(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
   bool result;
   bool sel;
@@ -629,8 +638,8 @@ void UndoBuffer::undoChangeTransition(Undo *u) {
   oldt = u->getTransition();
   newt = u->getTransition2();
 
-  newstart = (GState *)newt->getStart();
-  newend = (GState *)newt->getEnd();
+  newstart = (GState*)newt->getStart();
+  newend = (GState*)newt->getEnd();
   oldstart = u->getState();
   oldend = u->getState2();
 
@@ -654,14 +663,15 @@ void UndoBuffer::undoChangeTransition(Undo *u) {
 }
 
 /// Undo changing several transitions.
-void UndoBuffer::undoChangeTransitions(Undo *u) {
-  Project *p;
+void UndoBuffer::undoChangeTransitions(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
   bool sel;
 
   GTransition *oldt, *newt;
-  QListIterator<GTransition *> oldti(*u->getTList());
-  QListIterator<GTransition *> newti(*u->getTList2());
+  QListIterator<GTransition*> oldti(*u->getTList());
+  QListIterator<GTransition*> newti(*u->getTList2());
 
   for (; oldti.hasNext();) {
     oldt = oldti.next();
@@ -676,15 +686,16 @@ void UndoBuffer::undoChangeTransitions(Undo *u) {
 }
 
 /// Undo changing the initial transition.
-void UndoBuffer::undoChangeInitialTransition(Undo *u) {
-  Project *p;
+void UndoBuffer::undoChangeInitialTransition(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
-  GITransition *old;
-  GITransition *t;
+  GITransition* old;
+  GITransition* t;
 
   old = u->getInitialTransition();
-  t = project->machine->getInitialTransition();
+  t = project->machine()->getInitialTransition();
 
   if (old && t) {
     *t = *old;
@@ -693,8 +704,9 @@ void UndoBuffer::undoChangeInitialTransition(Undo *u) {
 }
 
 /// Undo moving several objects.
-void UndoBuffer::undoMoveMultiple(Undo *u) {
-  Project *p;
+void UndoBuffer::undoMoveMultiple(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
   //  QListIterator<GState> i(*u->getSList());
@@ -703,26 +715,26 @@ void UndoBuffer::undoMoveMultiple(Undo *u) {
   //  GTransition* t;
   double x, y;
   //  QList<GObject>* sellist;
-  Selection *sel;
-  QList<GState *> *ssellist;
-  QList<GTransition *> *tsellist;
+  Selection* sel;
+  QList<GState*>* ssellist;
+  QList<GTransition*>* tsellist;
   //  bool dragmultiple;
-  ScrollView *sv;
+  ScrollView* sv;
 
   u->getMovedBy(x, y);
 
-  sv = project->getMain()->getScrollView();
+  sv = project->mainWindow()->getScrollView();
   sel = sv->getDrawArea()->getSelection();
-  sel->deselectAll(project->machine);
+  sel->deselectAll(project->machine());
 
   ssellist = u->getSList2();
   tsellist = u->getTList2();
 
-  QListIterator<GState *> sit(*ssellist);
+  QListIterator<GState*> sit(*ssellist);
   for (; sit.hasNext();)
     sel->select(sit.next());
 
-  QListIterator<GTransition *> tit(*tsellist);
+  QListIterator<GTransition*> tit(*tsellist);
   for (; tit.hasNext();)
     sel->select(tit.next());
 
@@ -730,17 +742,16 @@ void UndoBuffer::undoMoveMultiple(Undo *u) {
   for(; i.current(); ++i)
   {
     s = i.current();
-    s->move(-x, -y, project->getMain()->getScrollView(), project->machine,
+    s->move(-x, -y, project->getMain()->getScrollView(), project->machine(),
   false);
   }
   */
   //  dragmultiple = sv->getDragMultiple();
 
-  sel->move(-x, -y, project->getMain()->getScrollView()->getDrawArea(),
-            p->machine);
+  sel->move(-x, -y, project->mainWindow()->getScrollView()->getDrawArea(), p->machine());
 
   /*
-  s = project->machine->getPhantomState();
+  s = project->machine()->getPhantomState();
   QListIterator<GTransition> j(s->tlist);
 
   for(; j.current(); ++j)
@@ -755,30 +766,31 @@ void UndoBuffer::undoMoveMultiple(Undo *u) {
   for(;sit.current(); ++sit)
     sel->deselect(sit.current());
     */
-  sel->deselectAll(p->machine);
+  sel->deselectAll(p->machine());
 }
 
 /// Undo deleting the selection.
-void UndoBuffer::undoDeleteSelection(Undo *u) {
-  Project *p;
+void UndoBuffer::undoDeleteSelection(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
   GState *s, *ph;
-  GTransition *t;
-  GITransition *it = NULL;
+  GTransition* t;
+  GITransition* it = NULL;
 
-  QListIterator<GState *> si(*u->getSList());
-  QListIterator<dtlist *> i(*u->getDoubleTList());
-  QListIterator<GTransition *> j(*u->getTList());
+  QListIterator<GState*> si(*u->getSList());
+  QListIterator<dtlist*> i(*u->getDoubleTList());
+  QListIterator<GTransition*> j(*u->getTList());
 
-  ph = p->machine->getPhantomState();
+  ph = p->machine()->getPhantomState();
 
   // undo delete states
   for (; si.hasNext();) {
     s = si.next();
 
-    QListIterator<GTransition *> ti1(i.peekNext()->tlist);
-    QListIterator<GTransition *> ti2(i.next()->rlist);
+    QListIterator<GTransition*> ti1(i.peekNext()->tlist);
+    QListIterator<GTransition*> ti2(i.next()->rlist);
 
     for (; ti1.hasNext();) {
       t = ti1.next();
@@ -806,31 +818,32 @@ void UndoBuffer::undoDeleteSelection(Undo *u) {
 
   it = u->getInitialTransition();
   if (it) {
-    project->machine->setInitialTransition(it);
-    project->machine->setInitialState(u->getInitialState());
+    project->machine()->setInitialTransition(it);
+    project->machine()->setInitialState(u->getInitialState());
     //    delete it;
   }
 }
 
 /// Undo deleting a state
-void UndoBuffer::undoDeleteState(Undo *u) {
-  Project *p;
+void UndoBuffer::undoDeleteState(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
   GState *s, *ph;
-  GTransition *t;
-  GITransition *it = NULL;
+  GTransition* t;
+  GITransition* it = NULL;
 
-  QListIterator<GState *> si(*u->getSList());
-  QListIterator<dtlist *> i(*u->getDoubleTList());
-  QListIterator<GTransition *> j(*u->getTList());
+  QListIterator<GState*> si(*u->getSList());
+  QListIterator<dtlist*> i(*u->getDoubleTList());
+  QListIterator<GTransition*> j(*u->getTList());
 
-  ph = p->machine->getPhantomState();
+  ph = p->machine()->getPhantomState();
 
   s = u->getState();
 
-  QListIterator<GTransition *> ti1(i.peekNext()->tlist);
-  QListIterator<GTransition *> ti2(i.next()->rlist);
+  QListIterator<GTransition*> ti1(i.peekNext()->tlist);
+  QListIterator<GTransition*> ti2(i.next()->rlist);
 
   for (; ti1.hasNext();) {
     t = ti1.next();
@@ -850,18 +863,19 @@ void UndoBuffer::undoDeleteState(Undo *u) {
 
   it = u->getInitialTransition();
   if (it) {
-    project->machine->setInitialTransition(it);
-    project->machine->setInitialState(u->getInitialState());
+    project->machine()->setInitialTransition(it);
+    project->machine()->setInitialState(u->getInitialState());
   }
 }
 
 /// Undo deleting a transition
-void UndoBuffer::undoDeleteTransition(Undo *u) {
-  Project *p;
+void UndoBuffer::undoDeleteTransition(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
   //  GState *s, *ph;
-  GTransition *t;
+  GTransition* t;
   //  GITransition* it=NULL;
 
   t = u->getTransition();
@@ -869,15 +883,16 @@ void UndoBuffer::undoDeleteTransition(Undo *u) {
 }
 
 /// Undo setting the initial state.
-void UndoBuffer::undoSetInitialState(Undo *u) {
-  Project *p;
+void UndoBuffer::undoSetInitialState(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
-  GITransition *old;
-  GITransition *t;
+  GITransition* old;
+  GITransition* t;
 
   old = u->getInitialTransition();
-  t = project->machine->getInitialTransition();
+  t = project->machine()->getInitialTransition();
 
   if (old && t) {
     *t = *old;
@@ -888,29 +903,31 @@ void UndoBuffer::undoSetInitialState(Undo *u) {
   }
 
   if (old)
-    project->machine->setInitialState((GState *)old->getEnd());
+    project->machine()->setInitialState((GState*)old->getEnd());
   else {
-    project->machine->setInitialState(NULL);
-    project->machine->setInitialTransition(NULL);
+    project->machine()->setInitialState(NULL);
+    project->machine()->setInitialTransition(NULL);
   }
 }
 
 /// Undo setting/resetting the end state
-void UndoBuffer::undoSetFinalStates(Undo *u) {
+void UndoBuffer::undoSetFinalStates(Undo* u)
+{
   //  GState* s;
 
-  QListIterator<GState *> it(*(u->getSList()));
+  QListIterator<GState*> it(*(u->getSList()));
 
   for (; it.hasNext();)
     it.next()->toggleFinalState();
 }
 
 /// Undo changing the machine properties.
-void UndoBuffer::undoChangeMachine(Undo *u) {
-  Project *p;
+void UndoBuffer::undoChangeMachine(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
-  Machine *m;
+  Machine* m;
   QString n;
   int nb, ni, no;
   QFont sf, tf;
@@ -935,12 +952,13 @@ void UndoBuffer::undoChangeMachine(Undo *u) {
 }
 
 /// Undo pasting of objects
-void UndoBuffer::undoPaste(Undo *u) {
-  Project *p;
+void UndoBuffer::undoPaste(Undo* u)
+{
+  qfsm::Project* p;
   p = u->getProject();
 
-  QListIterator<GState *> i(*u->getSList());
-  QListIterator<GTransition *> j(*u->getTList());
+  QListIterator<GState*> i(*u->getSList());
+  QListIterator<GTransition*> j(*u->getTList());
 
   GState *oldistate, *newistate;
   GITransition *olditrans, *newitrans;
@@ -952,42 +970,42 @@ void UndoBuffer::undoPaste(Undo *u) {
   newitrans = u->getInitialTransition2();
 
   if (oldistate != newistate) {
-    p->machine->setInitialState(oldistate);
+    p->machine()->setInitialState(oldistate);
     anyobject = true;
   }
   if (olditrans != newitrans) {
-    p->machine->setInitialTransition(olditrans);
+    p->machine()->setInitialTransition(olditrans);
     if (newitrans)
       delete newitrans;
     anyobject = true;
   }
 
   for (; j.hasNext();) {
-    GState *start;
-    start = (GState *)j.peekNext()->getStart();
+    GState* start;
+    start = (GState*)j.peekNext()->getStart();
     //    start->tlist.removeRef(j.current());
     delete j.peekNext();
     start->tlist.removeAll(j.next());
-    //    p->machine->getTList().removeRef(j.current());
+    //    p->machine()->getTList().removeRef(j.current());
     anyobject = true;
   }
 
   for (; i.hasNext();) {
-    //    p->machine->getSList().removeRef(i.current());
+    //    p->machine()->getSList().removeRef(i.current());
     delete i.peekNext();
-    p->machine->getSList().removeAll(i.next());
+    p->machine()->getSList().removeAll(i.next());
     anyobject = true;
   }
 
-  if (p->machine->getNumMooreOutputs() != u->getNumMooreOutputs())
-    p->machine->setNumMooreOutputs(u->getNumMooreOutputs());
-  if (p->machine->getNumInputs() != u->getNumInputs())
-    p->machine->setNumInputs(u->getNumInputs());
-  if (p->machine->getNumOutputs() != u->getNumOutputs())
-    p->machine->setNumOutputs(u->getNumOutputs());
+  if (p->machine()->getNumMooreOutputs() != u->getNumMooreOutputs())
+    p->machine()->setNumMooreOutputs(u->getNumMooreOutputs());
+  if (p->machine()->getNumInputs() != u->getNumInputs())
+    p->machine()->setNumInputs(u->getNumInputs());
+  if (p->machine()->getNumOutputs() != u->getNumOutputs())
+    p->machine()->setNumOutputs(u->getNumOutputs());
 
   if (anyobject) {
-    p->getMain()->getScrollView()->getDrawArea()->reset();
-    p->getMain()->updateAll();
+    p->mainWindow()->getScrollView()->getDrawArea()->reset();
+    p->mainWindow()->updateAll();
   }
 }

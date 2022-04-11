@@ -55,14 +55,14 @@ bool StateManager::addState(double x, double y) {
   int mtype;
   QString ena = "", exa = "";
 
-  if (!main->project() || !main->project()->machine)
+  if (!main->project() || !main->project()->machine())
     return false;
 
-  mtype = main->project()->machine->getType();
+  mtype = main->project()->machine()->getType();
 
   state_props->setColor(QColor(0, 0, 0));
   state_props->selectFirst();
-  // state_props->setCodeMaxLength(main->project()->machine->getNumBits());
+  // state_props->setCodeMaxLength(main->project()->machine()->getNumBits());
   state_props->setMode(StatePropertiesDlgImpl::StateAdd);
   state_props->setName(getNewName());
   state_props->setDescription(""); //"Enter your description here...");
@@ -81,7 +81,7 @@ bool StateManager::addState(double x, double y) {
   }
   state_props->setMooreOutputs("");
   state_props->setMooreOutputsMaxLength(
-      main->project()->machine->getNumMooreOutputs());
+      main->project()->machine()->getNumMooreOutputs());
 
   int result = state_props->exec();
 
@@ -98,8 +98,8 @@ bool StateManager::addState(double x, double y) {
     if (mtype == Binary) {
       code = conv.binStrToInt(scode);
       mooreout = new IOInfoBin(IO_MooreOut);
-      mooreout->setBin(smooreout, main->project()->machine->getNumMooreOutputs());
-      // conv.binStrToX10(main->project()->machine->getNumMooreOutputs(),
+      mooreout->setBin(smooreout, main->project()->machine()->getNumMooreOutputs());
+      // conv.binStrToX10(main->project()->machine()->getNumMooreOutputs(),
       // smooreout);
     } else if (mtype == Ascii) {
       code = scode.toInt();
@@ -117,7 +117,7 @@ bool StateManager::addState(double x, double y) {
     lw = slw.toInt();
     pen.setWidth(lw);
 
-    main->project()->machine->addState(
+    main->project()->machine()->addState(
         name, description, code, mooreout, x, y, radius,
         main->getScrollView()->getDrawArea()->getScale(), pen, false, true, ena,
         exa);
@@ -146,7 +146,7 @@ void StateManager::setInitialState(Machine *m, GState *s) {
 
   it = m->getInitialTransition();
   is = m->getInitialState();
-  main->project()->getUndoBuffer()->setInitialState(it);
+  main->project()->undoBuffer()->setInitialState(it);
 
   if (is) {
     is->getPos(oldx, oldy);
@@ -175,7 +175,7 @@ void StateManager::setFinalStates(Machine *m, const QList<GState *> &sl) {
   if (!m || sl.isEmpty())
     return;
 
-  main->project()->getUndoBuffer()->setFinalStates(sl);
+  main->project()->undoBuffer()->setFinalStates(sl);
 
   QListIterator<GState *> it(sl);
   for (; it.hasNext();) {
@@ -196,16 +196,16 @@ void StateManager::editState(GState *s) {
   int mtype;
   int code = 0;
 
-  mtype = main->project()->machine->getType();
+  mtype = main->project()->machine()->getType();
 
   state_props->selectFirst();
-  // state_props->setCodeMaxLength(main->project()->machine->getNumBits());
+  // state_props->setCodeMaxLength(main->project()->machine()->getNumBits());
   state_props->setName(s->getStateName());
   state_props->setDescription(s->getDescription());
   state_props->setCode(s->getCodeStr());
   state_props->setMooreOutputs(s->getMooreOutputsStr());
   state_props->setMooreOutputsMaxLength(
-      main->project()->machine->getNumMooreOutputs());
+      main->project()->machine()->getNumMooreOutputs());
   sradius.setNum(s->getRadius());
   state_props->setRadius(sradius);
   slw.setNum(s->getLineWidth());
@@ -230,7 +230,7 @@ void StateManager::editState(GState *s) {
     if (mtype == Binary) {
       code = conv.binStrToInt(scode);
       mooreout = new IOInfoBin(IO_MooreOut);
-      mooreout->setBin(smooreout, main->project()->machine->getNumMooreOutputs());
+      mooreout->setBin(smooreout, main->project()->machine()->getNumMooreOutputs());
     } else if (mtype == Ascii) {
       code = scode.toInt();
       mooreout = new IOInfoASCII(IO_MooreOut, smooreout);
@@ -239,14 +239,14 @@ void StateManager::editState(GState *s) {
       mooreout = new IOInfoText(IO_MooreOut, smooreout);
     }
 
-    // mooreout = conv.binStrToX10(main->project()->machine->getNumMooreOutputs(),
+    // mooreout = conv.binStrToX10(main->project()->machine()->getNumMooreOutputs(),
     // smoore);
 
     radius = sradius.toInt();
     lw = slw.toInt();
 
-    main->project()->getUndoBuffer()->changeState(
-        s, s, main->project()->machine->getInitialTransition());
+    main->project()->undoBuffer()->changeState(
+        s, s, main->project()->machine()->getInitialTransition());
 
     s->setStateName(name);
     s->setDescription(description);
@@ -255,7 +255,7 @@ void StateManager::editState(GState *s) {
     s->setMooreOutputs(mooreout);
 
     s->setRadius(radius);
-    s->setTransitionsToRadius(main->project()->machine, radius);
+    s->setTransitionsToRadius(main->project()->machine(), radius);
 
     s->setLineWidth(lw);
     s->setColor(col);
@@ -274,7 +274,7 @@ QString StateManager::getNewName() {
   Machine *m;
   QString s;
 
-  m = main->project()->machine;
+  m = main->project()->machine();
 
   numstates = m->getNumStates();
 
@@ -288,7 +288,7 @@ QString StateManager::getNewName() {
 int StateManager::getNewCode() {
   Machine *m;
 
-  m = main->project()->machine;
+  m = main->project()->machine();
 
   return m->getNewCode();
 }

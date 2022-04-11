@@ -46,7 +46,7 @@ void PrintManager::print() {
   // if (printer->setup(main)) {
   return;
   QPainter p;
-  Machine* m = main->project() ? main->project()->machine : nullptr;
+  Machine* m = main->project() ? main->project()->machine() : nullptr;
   int w, h;
   double scale;
   int canvw, canvh;

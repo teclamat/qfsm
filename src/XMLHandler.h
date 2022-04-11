@@ -49,124 +49,117 @@ class Selection;
 class XMLHandler : public QObject, public QXmlStreamReader {
   Q_OBJECT
 public:
-  XMLHandler(Project *newProject, Selection *sel = nullptr, bool keepquiet = true,
-             bool createnewmachine = true);
-  bool parse();
-  bool startDocument();
-  bool startElement(const QString& qName,
-                    const QXmlStreamAttributes& atts);
-  bool endElement(const QString &qName);
-  bool characters(const QString &ch);
-
-
-  ~XMLHandler() {
-    //    if(transition!=NULL)
-    //      delete transition;
-  }
+ XMLHandler(qfsm::Project* newProject, Selection* sel = nullptr, bool keepquiet = true, bool createnewmachine = true);
+ ~XMLHandler() = default;
+ bool parse();
+ bool startDocument();
+ bool startElement(const QString& qName, const QXmlStreamAttributes& atts);
+ bool endElement(const QString& qName);
+ bool characters(const QString& ch);
 
 private:
   /// Pointer to the project
-  Project *project;
-  /// Pointer to the machine
-  Machine *machine;
-  /// If true, no error messages are print (or dialog boxes opened) during
-  /// parsing
-  bool quiet;
-  /// If true a new machine is created, otherwise an existing one is used
-  bool create_new_machine;
-  /// Pointer to the selection object
-  Selection *selection;
+ qfsm::Project* project;
+ /// Pointer to the machine
+ Machine* machine;
+ /// If true, no error messages are print (or dialog boxes opened) during
+ /// parsing
+ bool quiet;
+ /// If true a new machine is created, otherwise an existing one is used
+ bool create_new_machine;
+ /// Pointer to the selection object
+ Selection* selection;
 
-  /// Version of Qfsm that created the document
-  double version;
-  /// Current state
-  GState *state;
-  /// Current transition
-  GTransition *transition;
-  /// Current initial transition
-  GITransition *itransition;
-  /// Code of the initial state (that has to be saved during parsing)
-  int saveinitialstate;
-  /// Input names
-  QString inames;
-  /// Output names
-  QString onames;
-  /// Moore output names
-  QString monames;
-  /// State name
-  QString sname;
-  /// deprecated
-  bool inamescont;
-  /// deprecated
-  bool onamescont;
-  /// deprecated
-  bool monamescont;
-  /// deprecated
-  bool snamecont;
-  /// true is the current state has a code
-  bool hascode;
-  /// Transition tyoe
-  int ttype;
-  /// Input info
-  QString iinfo;
-  /// Output info
-  QString oinfo;
-  /// Invert input info
-  bool invert;
-  /// any input info
-  bool any;
-  /// default transition
-  bool def;
-  /// deprecated
-  bool fromcont;
-  /// deprecated
-  bool tocont;
-  /// deprecated
-  bool tincont;
-  /// deprecated
-  bool toutcont;
-  /// true if the transition has a starting state
-  bool hasfrom;
-  /// true if the transition has an end state
-  bool hasto;
-  /// Starting state
-  QString from;
-  /// End state
-  QString to;
-  /// List of removed states
-  QList<int> rstatelist;
-  /// Mapping of old state codes to new state codes
-  QMap<int, int> codemap;
-  /// If true the current state will be added to the machine
-  bool addstate;
-  /// true if there is ann initial state
-  bool hasinitialstate;
-  /// List of added states (used for undo)
-  QList<GState *> undostatelist;
-  /// List of added transitions (used for undo)
-  QList<GTransition *> undotranslist;
-  /// Old initial state (used for undo)
-  GState *oldinitialstate;
-  /// New initial state (used for undo)
-  GState *newinitialstate;
-  /// Old initial transition (used for undo)
-  GITransition *oldinitialtrans;
-  /// New initial transition (used for undo)
-  GITransition *newinitialtrans;
-  // Number of moore output bits
-  int nummooreout;
-  // Number of mealy input bits
-  int numin;
-  // Number of mealy output bits
-  int numout;
-  /// Number of bits for state encoding
-  int state_code_size;
-  /// Old number of moore output bits (used for undo)
-  int oldnummooreout;
-  /// Old number of input bits (used for undo)
-  int oldnumin;
-  /// Old number of output bits (used for undo)
-  int oldnumout;
+ /// Version of Qfsm that created the document
+ double version;
+ /// Current state
+ GState* state;
+ /// Current transition
+ GTransition* transition;
+ /// Current initial transition
+ GITransition* itransition;
+ /// Code of the initial state (that has to be saved during parsing)
+ int saveinitialstate;
+ /// Input names
+ QString inames;
+ /// Output names
+ QString onames;
+ /// Moore output names
+ QString monames;
+ /// State name
+ QString sname;
+ /// deprecated
+ bool inamescont;
+ /// deprecated
+ bool onamescont;
+ /// deprecated
+ bool monamescont;
+ /// deprecated
+ bool snamecont;
+ /// true is the current state has a code
+ bool hascode;
+ /// Transition tyoe
+ int ttype;
+ /// Input info
+ QString iinfo;
+ /// Output info
+ QString oinfo;
+ /// Invert input info
+ bool invert;
+ /// any input info
+ bool any;
+ /// default transition
+ bool def;
+ /// deprecated
+ bool fromcont;
+ /// deprecated
+ bool tocont;
+ /// deprecated
+ bool tincont;
+ /// deprecated
+ bool toutcont;
+ /// true if the transition has a starting state
+ bool hasfrom;
+ /// true if the transition has an end state
+ bool hasto;
+ /// Starting state
+ QString from;
+ /// End state
+ QString to;
+ /// List of removed states
+ QList<int> rstatelist;
+ /// Mapping of old state codes to new state codes
+ QMap<int, int> codemap;
+ /// If true the current state will be added to the machine
+ bool addstate;
+ /// true if there is ann initial state
+ bool hasinitialstate;
+ /// List of added states (used for undo)
+ QList<GState*> undostatelist;
+ /// List of added transitions (used for undo)
+ QList<GTransition*> undotranslist;
+ /// Old initial state (used for undo)
+ GState* oldinitialstate;
+ /// New initial state (used for undo)
+ GState* newinitialstate;
+ /// Old initial transition (used for undo)
+ GITransition* oldinitialtrans;
+ /// New initial transition (used for undo)
+ GITransition* newinitialtrans;
+ // Number of moore output bits
+ int nummooreout;
+ // Number of mealy input bits
+ int numin;
+ // Number of mealy output bits
+ int numout;
+ /// Number of bits for state encoding
+ int state_code_size;
+ /// Old number of moore output bits (used for undo)
+ int oldnummooreout;
+ /// Old number of input bits (used for undo)
+ int oldnumin;
+ /// Old number of output bits (used for undo)
+ int oldnumout;
 };
 
 #endif

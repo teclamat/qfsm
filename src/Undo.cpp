@@ -21,7 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Project.h"
 
 /// Constructor
-Undo::Undo(Project *p) {
+Undo::Undo(qfsm::Project* p)
+{
   project = p;
   //  copylist.setAutoDelete(false);
   //  slist.setAutoDelete(false);

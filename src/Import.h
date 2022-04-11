@@ -23,7 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fstream>
 #include <qstring.h>
 
+namespace qfsm {
 class Project;
+}
 class Options;
 class ScrollView;
 class MainWindow;
@@ -44,7 +46,7 @@ public:
   void init(std::istream *, MainWindow *main, QString fn = {},
             ScrollView *sv = nullptr);
   /// Does the actual exporting
-  virtual Project *doImport() = 0;
+  virtual qfsm::Project* doImport() = 0;
   /// Returns the appropriate filter string for the file dialog.
   virtual QString fileFilter() = 0;
   /// Verifies if the machine is in a valid form for exporting
@@ -56,7 +58,7 @@ protected:
   /// Input stream
   std::istream *in;
   /// Pointer to the project that is imported
-  Project *project;
+  qfsm::Project* project;
   /// Application options
   Options *options;
   /// Input filename

@@ -72,7 +72,6 @@ set(QFSM_HEADERS
 	src/TableBuilderASCII.h
 	src/TableBuilderHTML.h
 	src/TableBuilderLatex.h
-	src/ToolTipSV.h
 	src/Transition.h
 	src/TransitionInfo.h
 	src/TransitionInfoASCII.h
@@ -165,7 +164,6 @@ set(QFSM_SOURCES
 	src/TableBuilderASCII.cpp
 	src/TableBuilderHTML.cpp
 	src/TableBuilderLatex.cpp
-	src/ToolTipSV.cpp
 	src/Transition.cpp
 	src/TransitionInfo.cpp
 	src/TransitionInfoASCII.cpp

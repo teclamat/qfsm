@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ScrollView.h"
 #include "Selection.h"
 #include "StatusBar.h"
-#include "ToolTipSV.h"
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "Zoom.h"
@@ -48,7 +47,6 @@ class Draw;
 class GTransition;
 class MainWindow;
 class Grid;
-class ToolTipSV;
 class Selection;
 
 /**
@@ -202,8 +200,6 @@ private:
   Draw *draw;
   /// Grid object
   Grid *grid;
-  /// Tooltip window
-  ToolTipSV *tooltip;
 
   void mousePressEvent(QMouseEvent *);
   void mouseMoveEvent(QMouseEvent *);

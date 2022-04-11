@@ -24,7 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // class DMachineProperties;
 class MachinePropertiesDlgImpl;
 class MainWindow;
+namespace qfsm {
 class Project;
+}
 
 /**
  * @class MachineManager
@@ -32,18 +34,18 @@ class Project;
  */
 class MachineManager : public QObject {
   Q_OBJECT
-public:
-  MachineManager(QObject *parent = NULL, const char *name = 0);
+ public:
+  MachineManager(QObject* parent = NULL, const char* name = 0);
   ~MachineManager();
 
-  int addMachine(Project *);
-  void editMachine(Project *);
+  int addMachine(qfsm::Project*);
+  void editMachine(qfsm::Project*);
 
-private:
+ private:
   /// Pointer to the main window
-  MainWindow *main;
+  MainWindow* main;
   /// Machine properties dialog
-  MachinePropertiesDlgImpl *machine_props;
+  MachinePropertiesDlgImpl* machine_props;
 };
 
 #endif

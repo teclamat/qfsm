@@ -27,20 +27,22 @@ replaced setSelection() by selectFile()
 #ifndef FILEIO_H
 #define FILEIO_H
 
-#include <QMessageBox>
 #include <qdir.h>
 #include <qmap.h>
 #include <qobject.h>
+#include <QMessageBox>
 
 class QFileDialog;
 class QWidget;
-class Project;
 class MainWindow;
 class Options;
 class Import;
 class Export;
 class ScrollView;
 
+namespace qfsm {
+class Project;
+}
 /**
  * @class FileIO
  * @brief This class is responsible for all file input and output.
@@ -50,19 +52,19 @@ class ScrollView;
  */
 class FileIO : public QObject {
   Q_OBJECT
-public:
-  FileIO(QWidget *);
+ public:
+  FileIO(QWidget*);
   ~FileIO();
 
   // Project* openFile(QString mrufile=QString::null);  // deprecated
-  Project *openFileXML(QString mrufile = {});
-  bool saveFile(Project *);
-  bool saveFileAs(Project *);
-  Project *importFile(Import *, ScrollView *sv = NULL);
-  bool exportFile(Project *, Export *, ScrollView *sv = NULL);
-  int saveOptions(Options *);
-  int loadOptions(Options *);
-  bool loadMRU(QStringList &);
+  qfsm::Project* openFileXML(QString mrufile = {});
+  bool saveFile(qfsm::Project*);
+  bool saveFileAs(qfsm::Project*);
+  qfsm::Project* importFile(Import*, ScrollView* sv = NULL);
+  bool exportFile(qfsm::Project*, Export*, ScrollView* sv = NULL);
+  int saveOptions(Options*);
+  int loadOptions(Options*);
+  bool loadMRU(QStringList&);
   bool saveMRU(QStringList);
 
   void setActFilePath(QString file) /// Sets actual file name.
@@ -74,21 +76,24 @@ public:
     return act_file;
   }
   /// Returns the current file name
-  QString getActFileName() {
+  QString getActFileName()
+  {
     QFileInfo fi(act_file);
     return fi.fileName();
   }
   /// Gets actual import file name.
   QString getActImportFilePath() { return act_importfile; }
   /// Returns the current import file name
-  QString getActImportFileName() {
+  QString getActImportFileName()
+  {
     QFileInfo fi(act_importfile);
     return fi.fileName();
   }
   /// Returns the current import directory
   QString getImportDir() { return act_import_dir; }
   /// Returns the current export file name
-  QString getActExportFileName() {
+  QString getActExportFileName()
+  {
     QFileInfo fi(act_exportfile);
     return fi.fileName();
   }
@@ -98,7 +103,7 @@ public:
   /// options file
   QString getEmptyFieldString() { return "<none>"; }
 
-signals:
+ signals:
   /// Sets a statusbar message
   void sbMessage(QString);
   /// Sets the hourglass cursor
@@ -106,15 +111,15 @@ signals:
   /// Resets the cursor to the previous one
   void setPreviousCursor();
 
-private:
+ private:
   /// Creates the .qfsm directory
   QDir createQfsmDir();
 
   /// Pointer to the main window
-  MainWindow *main;
+  MainWindow* main;
   /// Messagebox that is opend when the user wants to save a file with abiguous
   /// state codes
-  QMessageBox *mb_statecode;
+  QMessageBox* mb_statecode;
   /// Current directory
   QDir act_dir;
   /// Current import directory
@@ -128,15 +133,15 @@ private:
   /// Current export file name
   QString act_exportfile;
   /// File dialog
-  QFileDialog *filedlg;
+  QFileDialog* filedlg;
   /// File dialog (import)
-  QFileDialog *importdlg;
+  QFileDialog* importdlg;
   /// File dialog (export)
-  QFileDialog *exportdlg;
+  QFileDialog* exportdlg;
 
-  bool doSave(Project *);
-  bool doSaveXML(Project *);
-  void setOptions(QMap<QString, QString> *map, Options *opt);
+  bool doSave(qfsm::Project*);
+  bool doSaveXML(qfsm::Project*);
+  void setOptions(QMap<QString, QString>* map, Options* opt);
 };
 
 #endif

@@ -94,7 +94,7 @@ void ExportRagel::doExport()
 
   // remove the added default transitions (using the undo buffer)
   if (options->getRagelDefaultTransitions()) {
-    UndoBuffer* u = machine->getProject()->getUndoBuffer();
+    UndoBuffer* u = machine->getProject()->undoBuffer();
     for (int i = 0; i < machine->getNumStates(); i++)
       u->undo();
     machine->updateDefaultTransitions();

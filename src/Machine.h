@@ -129,9 +129,9 @@ public:
   /// Sets the arrow type (0: unfilled, 1: filled)
   void setArrowType(int t) { arrow_type = t; };
   /// Returns a pointer to the current project
-  void setProject(Project *p) { project = p; };
+  void setProject(qfsm::Project* p) { project = p; };
   /// Returns a pointer to the project
-  Project *getProject() { return project; };
+  qfsm::Project *getProject() { return project; };
   int countStates();
   int getNewCode();
   void correctCodes();
@@ -193,49 +193,49 @@ public:
 
 private:
   /// Pointer to the project this machine belongs to
-  Project *project;
-  /// Name of the machine
-  QString name;
-  /// Version of the machine
-  QString version;
-  /// Author of the machine
-  QString author;
-  /// Description of the machine
-  QString description;
-  /// Type: 0: Binary / 1: ASCII / 2: Free Text
-  int type;
-  /// Number of bits for the Moore outputs
-  int num_moore_output;
-  /// Number of bits for the input conditions
-  int num_input;
-  /// Number of bits for the outputs
-  int num_output;
-  /// Names of the input bits
-  QStringList input_names;
-  /// Names of the output bits
-  QStringList output_names;
-  /// Names of the moore outputs (state coding)
-  QStringList output_names_moore;
-  /// Font for the state name
-  QFont state_font;
-  /// Font for the transition
-  QFont transition_font;
-  /// Arrow type: 0: line arrow / 1: solid arrow
-  int arrow_type;
-  /// List of states
-  QList<GState *> state_list;
-  /// Pointer to the start state (initial state)
-  GState *initial_state;
-  /// Phantom state
-  GState *phantom_state;
-  /// Start transition (initial transition)
-  GITransition *initial_transition;
-  /// Size of the drawingarea
-  QSize canvas_size;
-  /// Pointer to the integrity checker
-  ICheck *checker;
+ qfsm::Project* project;
+ /// Name of the machine
+ QString name;
+ /// Version of the machine
+ QString version;
+ /// Author of the machine
+ QString author;
+ /// Description of the machine
+ QString description;
+ /// Type: 0: Binary / 1: ASCII / 2: Free Text
+ int type;
+ /// Number of bits for the Moore outputs
+ int num_moore_output;
+ /// Number of bits for the input conditions
+ int num_input;
+ /// Number of bits for the outputs
+ int num_output;
+ /// Names of the input bits
+ QStringList input_names;
+ /// Names of the output bits
+ QStringList output_names;
+ /// Names of the moore outputs (state coding)
+ QStringList output_names_moore;
+ /// Font for the state name
+ QFont state_font;
+ /// Font for the transition
+ QFont transition_font;
+ /// Arrow type: 0: line arrow / 1: solid arrow
+ int arrow_type;
+ /// List of states
+ QList<GState*> state_list;
+ /// Pointer to the start state (initial state)
+ GState* initial_state;
+ /// Phantom state
+ GState* phantom_state;
+ /// Start transition (initial transition)
+ GITransition* initial_transition;
+ /// Size of the drawingarea
+ QSize canvas_size;
+ /// Pointer to the integrity checker
+ ICheck* checker;
 
-  bool drawITrans;
+ bool drawITrans;
 
 signals:
   /// Emited when the canvas size needs to be set to a new value

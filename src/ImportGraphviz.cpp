@@ -63,7 +63,8 @@ ImportGraphviz::~ImportGraphviz()
 }
 */
 
-Project *ImportGraphviz::doImport() {
+qfsm::Project* ImportGraphviz::doImport()
+{
 #ifndef GRAPHVIZ_FOUND
   return NULL;
 #else

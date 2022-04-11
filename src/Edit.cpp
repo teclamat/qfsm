@@ -57,7 +57,7 @@ void Edit::deleteSelection(Selection *sel, Machine *m) {
     switch (type) {
     case StateT:
       s = (GState *)obj;
-      m->getProject()->getUndoBuffer()->deleteState(s);
+      m->getProject()->undoBuffer()->deleteState(s);
 
       if (s == m->getInitialState())
         sel->selectITrans(false);
@@ -66,7 +66,7 @@ void Edit::deleteSelection(Selection *sel, Machine *m) {
 
     case TransitionT:
       t = (GTransition *)obj;
-      m->getProject()->getUndoBuffer()->deleteTransition(t);
+      m->getProject()->undoBuffer()->deleteTransition(t);
 
       s = (GState *)t->getStart();
       s->removeTransition(t);
@@ -76,7 +76,7 @@ void Edit::deleteSelection(Selection *sel, Machine *m) {
       break;
     }
   } else {
-    m->getProject()->getUndoBuffer()->deleteSelection(&sel->getSList(),
+    m->getProject()->undoBuffer()->deleteSelection(&sel->getSList(),
                                                       &sel->getTList());
 
     // delete Transitions
@@ -108,7 +108,8 @@ void Edit::deleteSelection(Selection *sel, Machine *m) {
  * @param s String that contains the XML data
  * @returns true if successful
  */
-bool Edit::copy(Selection *, Project *p, Machine *m, QString &s) {
+bool Edit::copy(Selection*, qfsm::Project* p, Machine* m, QString& s)
+{
   if (!p || !m)
     return false;
 
@@ -230,7 +231,8 @@ bool Edit::copy(Selection *, Project *p, Machine *m, QString &s) {
  * @param data XML string (produced by Edit::copy())
  * @returns true if successful
  */
-bool Edit::paste(Selection *sel, Project *p, Machine *m, QString data) {
+bool Edit::paste(Selection* sel, qfsm::Project* p, Machine* m, QString data)
+{
   if (!p || !m || data.isNull() || data.isEmpty())
     return false;
 

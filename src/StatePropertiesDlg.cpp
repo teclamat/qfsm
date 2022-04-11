@@ -71,7 +71,7 @@ void StatePropertiesDlgImpl::validate() {
   Error err;
   QString r, l, c;
   int icode;
-  Machine *m = main->project()->machine;
+  Machine *m = main->project()->machine();
   Convert conv;
   int mtype = m->getType();
 

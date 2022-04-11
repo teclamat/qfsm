@@ -58,8 +58,10 @@ but sometimes it may be needed to call delete during runtime.
 class DrawArea;
 class Machine;
 class TransitionInfo;
-class Project;
 class IOInfo;
+namespace qfsm {
+class Project;
+}
 
 /**
  * @class GState
@@ -109,11 +111,10 @@ public:
   void copyAttributes(GState *);
   void debugTransitions(/*int, int numout */);
 
-  void addTransition(Project *, GState *, TransitionInfo *, double sx,
-                     double sy, double ex, double ey, double c1x = 0,
-                     double c1y = 0, double c2x = 0, double c2y = 0,
-                     QString = "", bool straight = true, bool withundo = true);
-  void addTransition(Project *, GTransition *t, bool withundo = true);
+  void addTransition(qfsm::Project*, GState*, TransitionInfo*, double sx, double sy, double ex, double ey,
+                     double c1x = 0, double c1y = 0, double c2x = 0, double c2y = 0, QString = "", bool straight = true,
+                     bool withundo = true);
+  void addTransition(qfsm::Project *, GTransition *t, bool withundo = true);
   void move(double, double, DrawArea *, Machine *m, bool redraw = true,
             bool firstRedraw = false);
   void removeTransition(GTransition *);

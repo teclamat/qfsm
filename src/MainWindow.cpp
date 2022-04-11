@@ -236,8 +236,8 @@ MainWindow::MainWindow(QObject* a_parent)
   menu_view->addSeparator();
   id_ioview = menu_view->addAction(tr("&IO View"), this, SLOT(viewIOView()));
   menu_view->addSeparator();
-  id_pan = menu_view->addAction(*panset, tr("&Pan view"), this, SLOT(viewPan()), Qt::CTRL | Qt::SHIFT| Qt::Key_P );
-  id_zoom = menu_view->addAction(*zoomset, tr("&Zoom"), this, SLOT(viewZoom()), Qt::CTRL| Qt::SHIFT| Qt::Key_Z);
+  id_pan = menu_view->addAction(*panset, tr("&Pan view"), this, SLOT(viewPan()), Qt::CTRL | Qt::SHIFT | Qt::Key_P);
+  id_zoom = menu_view->addAction(*zoomset, tr("&Zoom"), this, SLOT(viewZoom()), Qt::CTRL | Qt::SHIFT | Qt::Key_Z);
   id_zoomin = menu_view->addAction(*pzoomin, tr("Zoom &In"), this, SLOT(viewZoomIn()), Qt::CTRL | Qt::Key_I);
   id_zoomout = menu_view->addAction(*pzoomout, tr("Zoom &Out"), this, SLOT(viewZoomOut()), Qt::CTRL | Qt::Key_U);
   id_zoom100 = menu_view->addAction(tr("Zoom &100%"), this, SLOT(viewZoom100()), Qt::CTRL | Qt::Key_R);
@@ -248,7 +248,7 @@ MainWindow::MainWindow(QObject* a_parent)
   id_machineedit = menu_machine->addAction(tr("&Edit..."), this, SLOT(machineEdit()));
   id_correctcodes = menu_machine->addAction(tr("&Auto correct State Codes..."), this, SLOT(machineCorrectCodes()));
   id_machinesim = menu_machine->addAction(*machinesimset, tr("&Simulate..."), this, SLOT(machineSimulate()),
-                                          Qt::CTRL | Qt::SHIFT| Qt::Key_I);
+                                          Qt::CTRL | Qt::SHIFT | Qt::Key_I);
   id_machineicheck = menu_machine->addAction(tr("&Integrity Check"), this, SLOT(machineICheck()));
 
   // State
@@ -256,7 +256,7 @@ MainWindow::MainWindow(QObject* a_parent)
   // menu_state->setCheckable(true);
   menu_state->setMouseTracking(true);
   id_newstate =
-      menu_state->addAction(*statenewset, tr("&New"), this, SLOT(stateNew()), Qt::CTRL| Qt::SHIFT| Qt::Key_N );
+      menu_state->addAction(*statenewset, tr("&New"), this, SLOT(stateNew()), Qt::CTRL | Qt::SHIFT | Qt::Key_N);
   id_editstate = menu_state->addAction(tr("&Edit..."), this, SLOT(stateEdit()));
   id_setinitial = menu_state->addAction(tr("Set &Initial State"), this, SLOT(stateSetInitial()));
   id_setend = menu_state->addAction(tr("&Toggle Final State"), this, SLOT(stateSetFinal()), Qt::CTRL | Qt::Key_E);
@@ -737,13 +737,13 @@ void MainWindow::dropEvent(QDropEvent* e)
       return;
     if (!m_project)
       return;
-    if (!m_project->machine)
+    if (!m_project->machine())
       return;
 
-    m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine);
+    m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
     data = QString(mm->data("text/qfsm-objects"));
 
-    if (edit->paste(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine, data)) {
+    if (edit->paste(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data)) {
       emit objectsPasted();
       m_project->setChanged();
     }
@@ -908,11 +908,11 @@ void MainWindow::updateMenuBar()
     id_newstate->setEnabled(true);
     id_newtrans->setEnabled(true);
     // id_newtrans->setEnabled(true);
-    if (m_project->machine && m_project->machine->getType() == Ascii)
+    if (m_project->machine() && m_project->machine()->getType() == Ascii)
       id_export_ragel->setEnabled(true);
     else
       id_export_ragel->setEnabled(false);
-    if (m_project->machine && m_project->machine->getType() == Text) {
+    if (m_project->machine() && m_project->machine()->getType() == Text) {
       id_export_ahdl->setEnabled(false);
       id_export_vhdl->setEnabled(false);
       id_export_verilog->setEnabled(false);
@@ -999,8 +999,8 @@ void MainWindow::updateMenuBar()
   numtrans = m_mainView->getDrawArea()->getSelection()->countTransitions();
   numstates = m_mainView->getDrawArea()->getSelection()->countStates();
 
-  if (m_project && m_project->machine && m_project->machine->getType() != Text &&
-      m_project->machine->getNumStates() > 0) {
+  if (m_project && m_project->machine() && m_project->machine()->getType() != Text &&
+      m_project->machine()->getNumStates() > 0) {
     id_machinesim->setEnabled(true);
     tbmachinesim->setEnabled(true);
   } else {
@@ -1104,7 +1104,7 @@ void MainWindow::updateMenuBar()
   else
     id_viewshadows->setChecked(false);
 
-  if (m_project && !m_project->getUndoBuffer()->isEmpty()) {
+  if (m_project && !m_project->undoBuffer()->isEmpty()) {
     id_undo->setEnabled(true);
     id_csundo->setEnabled(true);
     id_ctundo->setEnabled(true);
@@ -1319,7 +1319,7 @@ void MainWindow::fileNew()
         break;
     }
   }
-  Project* p = new Project(this);
+  qfsm::Project* p = new qfsm::Project{ this };
 
   result = machinemanager->addMachine(p);
   if (result) {
@@ -1333,7 +1333,7 @@ void MainWindow::fileNew()
     m_project = p;
     fileio->setActFilePath(QString{});
 
-    statusbar->showMessage(m_project->machine->getName() + " " + tr("created."), 2000);
+    statusbar->showMessage(m_project->machine()->getName() + " " + tr("created."), 2000);
   } else {
     return;
   }
@@ -1348,7 +1348,7 @@ void MainWindow::fileNew()
 /// Opens an existing file.
 void MainWindow::fileOpen()
 {
-  Project* p;
+  qfsm::Project* p;
 
   if (m_project && m_project->hasChanged()) {
     switch (mb_changed->exec()) {
@@ -1364,14 +1364,6 @@ void MainWindow::fileOpen()
     }
   }
 
-  /*
-  QCursor oldcursor1 = cursor();
-  QCursor oldcursor2 = m_mainView->viewport()->cursor();
-  setCursor(waitCursor);
-  m_mainView->viewport()->setCursor(waitCursor);
-  */
-  // qApp->setOverrideCursor(waitCursor);
-
   p = fileio->openFileXML();
   if (p) {
     if (m_project) {
@@ -1380,7 +1372,7 @@ void MainWindow::fileOpen()
     }
     statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
     m_project = p;
-    p->getUndoBuffer()->clear();
+    p->undoBuffer()->clear();
 
     updateAll();
     m_mainView->updateBackground();
@@ -1388,7 +1380,7 @@ void MainWindow::fileOpen()
     // m_mainView->getDrawArea()->updateCanvasSize();
     m_mainView->updateSize();
     if (doc_status.getMode() == DocStatus::Simulating) {
-      if (!simulator->startSimulation(m_project->machine))
+      if (!simulator->startSimulation(m_project->machine()))
         setMode(DocStatus::Select);
     } else
       m_mainView->widget()->repaint();
@@ -1413,7 +1405,7 @@ void MainWindow::fileOpen()
 /// Opens a file from the MRU file list with the name @a fileName
 void MainWindow::fileOpenRecent(QString fileName)
 {
-  Project* p;
+  qfsm::Project* p;
 
   if (m_project && m_project->hasChanged()) {
     switch (mb_changed->exec()) {
@@ -1444,7 +1436,7 @@ void MainWindow::fileOpenRecent(QString fileName)
     }
     statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
     m_project = p;
-    p->getUndoBuffer()->clear();
+    p->undoBuffer()->clear();
 
     updateAll();
     m_mainView->updateBackground();
@@ -1452,7 +1444,7 @@ void MainWindow::fileOpenRecent(QString fileName)
     // m_mainView->getDrawArea()->updateCanvasSize();
     m_mainView->updateSize();
     if (doc_status.getMode() == DocStatus::Simulating) {
-      if (!simulator->startSimulation(m_project->machine))
+      if (!simulator->startSimulation(m_project->machine()))
         setMode(DocStatus::Select);
     } else
       m_mainView->widget()->repaint();
@@ -1567,7 +1559,7 @@ bool MainWindow::fileSave()
 
     if (result) {
       statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
-      m_project->getUndoBuffer()->clear();
+      m_project->undoBuffer()->clear();
       if (saveas) {
         m_control->addMRUEntry(fileio->getActFilePath());
         fileio->saveMRU(m_control->getMRUList());
@@ -1599,7 +1591,7 @@ bool MainWindow::fileSaveAs()
 
     if (result) {
       statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
-      m_project->getUndoBuffer()->clear();
+      m_project->undoBuffer()->clear();
       m_control->addMRUEntry(fileio->getActFilePath());
       fileio->saveMRU(m_control->getMRUList());
     }
@@ -1618,7 +1610,7 @@ bool MainWindow::fileSaveAs()
 /// Imports a graphviz file
 void MainWindow::fileImportGraphviz()
 {
-  Project* p;
+  qfsm::Project* p;
 
   if (m_project && m_project->hasChanged()) {
     switch (mb_changed->exec()) {
@@ -1645,14 +1637,14 @@ void MainWindow::fileImportGraphviz()
     }
     statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("imported."), 2000);
     m_project = p;
-    p->getUndoBuffer()->clear();
+    p->undoBuffer()->clear();
 
     updateAll();
     m_mainView->updateBackground();
     m_mainView->getDrawArea()->resetState();
     // m_mainView->getDrawArea()->updateCanvasSize();
     if (doc_status.getMode() == DocStatus::Simulating) {
-      if (!simulator->startSimulation(m_project->machine))
+      if (!simulator->startSimulation(m_project->machine()))
         setMode(DocStatus::Select);
     } else {
       // m_mainView->widget()->repaint();
@@ -1671,7 +1663,7 @@ bool MainWindow::fileExportEPS()
   if (m_project) {
     bool result;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
 
     ExportEPS* exp = new ExportEPS(&doc_options);
     result = fileio->exportFile(m_project, exp, m_mainView);
@@ -1693,7 +1685,7 @@ bool MainWindow::fileExportSVG()
   if (m_project) {
     bool result;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
 
     ExportSVG* exp = new ExportSVG(&doc_options);
     result = fileio->exportFile(m_project, exp, m_mainView);
@@ -1714,7 +1706,7 @@ bool MainWindow::fileExportPNG()
   if (m_project) {
     bool result;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
 
     ExportPNG* exp = new ExportPNG(&doc_options);
     result = fileio->exportFile(m_project, exp, m_mainView);
@@ -1744,7 +1736,7 @@ bool MainWindow::fileExportAHDL()
         break;
     }
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportAHDL* exp = new ExportAHDL(&doc_options);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -1766,7 +1758,7 @@ bool MainWindow::fileExportVHDL()
     QString errorMessage;
     QStringList invalidNames;
 
-    vhdl_export->init(&doc_options, m_project->machine);
+    vhdl_export->init(&doc_options, m_project->machine());
     switch (vhdl_export->exec()) {
       case QDialog::Accepted:
         doc_options.applyOptions(this);
@@ -1776,10 +1768,10 @@ bool MainWindow::fileExportVHDL()
         break;
     }
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportVHDL* exp = new ExportVHDL(&doc_options);
 
-    result = exp->checkMachineNames(m_project->machine, &doc_options, &invalidNames);
+    result = exp->checkMachineNames(m_project->machine(), &doc_options, &invalidNames);
 
     if (!result) {
       errorMessage = tr("Export of file %1 failed!").arg(fileio->getActExportFileName()) + "\n\n" +
@@ -1797,7 +1789,7 @@ bool MainWindow::fileExportVHDL()
     if (!m_project || !exp)
       return false;
 
-    if (!exp->validateMachine(m_project->machine))
+    if (!exp->validateMachine(m_project->machine()))
       return false;
 
     QString path_entity = vhdl_export->getEntityPath();
@@ -1836,10 +1828,10 @@ bool MainWindow::fileExportVHDL()
         delete exp;
         return false;
       }
-      exp->init(&fout_entity, &fout_architecture, m_project->machine, path_entity, NULL);
+      exp->init(&fout_entity, &fout_architecture, m_project->machine(), path_entity, NULL);
       exp->doExport();
     } else {
-      exp->init(&fout_entity, &fout_entity, m_project->machine, path_entity, NULL);
+      exp->init(&fout_entity, &fout_entity, m_project->machine(), path_entity, NULL);
       exp->doExport();
     }
 
@@ -1860,7 +1852,7 @@ bool MainWindow::fileExportIODescription()
 {
   bool result;
   if (m_project) {
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportIODescription* exp = new ExportIODescription(&doc_options);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -1887,7 +1879,7 @@ bool MainWindow::fileExportTestbench()
     QDir testbenchDir, testvectorDir, packageDir, logfileDir;
     std::ofstream *testbench_out, *testvector_out, *package_out;
 
-    testbench_export->init(&doc_options, m_project->machine);
+    testbench_export->init(&doc_options, m_project->machine());
 
     while (true) {
       dialog_result = testbench_export->exec();
@@ -1910,7 +1902,7 @@ bool MainWindow::fileExportTestbench()
         packageDir.setPath(base_dir_name + package_dir_name);
         logfileDir.setPath(base_dir_name + logfile_dir_name);
 
-        if (m_project->machine->getNumOutputs() > 0) {
+        if (m_project->machine()->getNumOutputs() > 0) {
           QMessageBox::critical(this, "qfsm",
                                 tr("The current version does not create a "
                                    "testbench for a Mealy-type FSM!"),
@@ -2033,7 +2025,7 @@ bool MainWindow::fileExportTestbench()
         return true;
     }
 
-    result = ExportVHDL::checkMachineNames(m_project->machine, &doc_options, &invalidNames);
+    result = ExportVHDL::checkMachineNames(m_project->machine(), &doc_options, &invalidNames);
     if (!result) {
       errorMessage = tr("Export of file %1 failed!").arg(fileio->getActExportFileName()) + "\n\n" +
                      tr("The following identifiers do not match the VHDL syntax:") + "\n";
@@ -2047,13 +2039,13 @@ bool MainWindow::fileExportTestbench()
       return false;
     }
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
 
     ExportTestbenchVHDL* exportTestbench = new ExportTestbenchVHDL(&doc_options);
     ExportTestvectorASCII* exportTestvector = new ExportTestvectorASCII(&doc_options);
 
-    exportTestbench->init(testbench_out, package_out, m_project->machine, doc_options.getTestbenchVHDLPath(), NULL);
-    exportTestvector->init(testvector_out, m_project->machine, doc_options.getTestvectorASCIIPath(), NULL);
+    exportTestbench->init(testbench_out, package_out, m_project->machine(), doc_options.getTestbenchVHDLPath(), NULL);
+    exportTestvector->init(testvector_out, m_project->machine(), doc_options.getTestvectorASCIIPath(), NULL);
 
     exportTestbench->doExport();
     exportTestvector->doExport();
@@ -2088,7 +2080,7 @@ bool MainWindow::fileExportVerilog()
         break;
     }
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportVerilog* exp = new ExportVerilog(&doc_options);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2108,7 +2100,7 @@ bool MainWindow::fileExportKISS()
   if (m_project) {
     bool result;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportKISS* exp = new ExportKISS(&doc_options);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2128,7 +2120,7 @@ bool MainWindow::fileExportVVVV()
   if (m_project) {
     bool result = true;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     updateVVVV();
     vvvv_export->show();
     /*
@@ -2149,7 +2141,7 @@ bool MainWindow::fileExportSCXML()
   if (m_project) {
     bool result;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportSCXML* exp = new ExportSCXML(&doc_options);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2171,7 +2163,7 @@ void MainWindow::updateVVVV()
   // string exp_output;
   std::ostringstream ostr;
   // result = fileio->exportFile(m_project, exp);
-  exp->init(&ostr, m_project->machine);
+  exp->init(&ostr, m_project->machine());
   exp->doExport();
   vvvv_export->setText(ostr.str().c_str());
   // qDebug("%s" ,str.str().c_str());
@@ -2198,7 +2190,7 @@ bool MainWindow::fileExportSTASCII()
     setCursor(Qt::WaitCursor);
     m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
-    TableBuilderASCII* tb = new TableBuilderASCII(this, m_project->machine, &doc_options);
+    TableBuilderASCII* tb = new TableBuilderASCII(this, m_project->machine(), &doc_options);
     ExportStateTable* exp = new ExportStateTable(&doc_options, tb);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2236,7 +2228,7 @@ bool MainWindow::fileExportSTLatex()
     setCursor(Qt::WaitCursor);
     m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
-    TableBuilderLatex* tb = new TableBuilderLatex(this, m_project->machine, &doc_options);
+    TableBuilderLatex* tb = new TableBuilderLatex(this, m_project->machine(), &doc_options);
     ExportStateTable* exp = new ExportStateTable(&doc_options, tb);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2274,7 +2266,7 @@ bool MainWindow::fileExportSTHTML()
     setCursor(Qt::WaitCursor);
     m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
-    TableBuilderHTML* tb = new TableBuilderHTML(this, m_project->machine, &doc_options);
+    TableBuilderHTML* tb = new TableBuilderHTML(this, m_project->machine(), &doc_options);
     ExportStateTable* exp = new ExportStateTable(&doc_options, tb);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2307,7 +2299,7 @@ bool MainWindow::fileExportRagel()
         break;
     }
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportRagel* exp = new ExportRagel(&doc_options);
     result = fileio->exportFile(m_project, exp);
 
@@ -2345,7 +2337,7 @@ bool MainWindow::fileExportSMC()
   if (m_project) {
     bool result;
 
-    m_project->machine->updateDefaultTransitions();
+    m_project->machine()->updateDefaultTransitions();
     ExportSMC* exp = new ExportSMC(&doc_options);
     result = fileio->exportFile(m_project, exp);
     delete exp;
@@ -2453,7 +2445,7 @@ bool MainWindow::fileClose()
 void MainWindow::editUndo()
 {
   if (m_project) {
-    m_project->getUndoBuffer()->undo();
+    m_project->undoBuffer()->undo();
     updateAll();
     m_mainView->widget()->repaint();
   }
@@ -2486,7 +2478,7 @@ void MainWindow::editCopy()
   if (!m_project)
     return;
 
-  if (!edit->copy(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine, data))
+  if (!edit->copy(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data))
     return;
   //  qDebug(data);
 
@@ -2539,9 +2531,9 @@ void MainWindow::editPaste()
   if (data.isEmpty())
     return;
 
-  m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine);
+  m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
 
-  if (edit->paste(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine, data)) {
+  if (edit->paste(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data)) {
     emit objectsPasted();
     m_project->setChanged();
   }
@@ -2561,7 +2553,7 @@ void MainWindow::editDelete()
 {
   int count = m_mainView->getDrawArea()->getSelection()->count();
 
-  edit->deleteSelection(m_mainView->getDrawArea()->getSelection(), m_project->machine);
+  edit->deleteSelection(m_mainView->getDrawArea()->getSelection(), m_project->machine());
 
   if (!bcut) {
     if (count == 1)
@@ -2585,7 +2577,7 @@ void MainWindow::editSelect()
 void MainWindow::editSelectAll()
 {
   DRect bound;
-  if (m_mainView->getDrawArea()->getSelection()->selectAll(m_project->machine, bound))
+  if (m_mainView->getDrawArea()->getSelection()->selectAll(m_project->machine(), bound))
     emit allSelected();
   m_mainView->getDrawArea()->setSelectionRect(bound);
   updateAll();
@@ -2594,7 +2586,7 @@ void MainWindow::editSelectAll()
 /// Called when 'Edit->Deselect all' is clicked
 void MainWindow::editDeselectAll()
 {
-  m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine);
+  m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
   m_mainView->widget()->repaint();
   updateAll();
 }
@@ -2615,7 +2607,7 @@ bool MainWindow::runDragOperation(bool force_copy)
   bool ret = false;
   QString data;
 
-  if (edit->copy(this->m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine, data)) {
+  if (edit->copy(this->m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data)) {
     MimeMachine* mm = new MimeMachine(data);
 
     QDrag* drag = new QDrag(this);
@@ -2788,7 +2780,7 @@ void MainWindow::machineEdit()
 /// Automatically correct the state codes of the machine.
 void MainWindow::machineCorrectCodes()
 {
-  m_project->machine->correctCodes();
+  m_project->machine()->correctCodes();
   updateAll();
   m_mainView->widget()->repaint();
 }
@@ -2797,7 +2789,7 @@ void MainWindow::machineCorrectCodes()
 void MainWindow::machineSimulate()
 {
   if (getMode() != DocStatus::Simulating) {
-    if (simulator->startSimulation(m_project->machine)) {
+    if (simulator->startSimulation(m_project->machine())) {
       setMode(DocStatus::Simulating);
       m_mainView->widget()->repaint();
     }
@@ -2811,14 +2803,14 @@ void MainWindow::machineSimulate()
 /// Called when 'Machine->Check Integrity' is clicked
 void MainWindow::machineICheck()
 {
-  if (m_project && m_project->machine) {
+  if (m_project && m_project->machine()) {
     QCursor oldcursor1 = cursor();
     QCursor oldcursor2 = m_mainView->viewport()->cursor();
     setCursor(Qt::WaitCursor);
     m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
     statusbar->showMessage(tr("Checking machine..."));
-    m_project->machine->checkIntegrity(ichecker);
+    m_project->machine()->checkIntegrity(ichecker);
     statusbar->showMessage(tr("Check finished."), 2000);
 
     setCursor(oldcursor1);
@@ -2857,7 +2849,7 @@ void MainWindow::stateSetInitial()
     s = m_mainView->getDrawArea()->getSelection()->getSList().front();
 
   if (s && m_project) {
-    statemanager->setInitialState(m_project->machine, s);
+    statemanager->setInitialState(m_project->machine(), s);
     updateAll();
     m_mainView->widget()->repaint();
   }
@@ -2873,7 +2865,7 @@ void MainWindow::stateSetFinal()
 
   if (!m_project)
     return;
-  m = m_project->machine;
+  m = m_project->machine();
   if (!m)
     return;
 
@@ -2888,7 +2880,7 @@ void MainWindow::stateSetFinal()
 
   if (s && m_project)
   {
-    statemanager->setEndState(m_project->machine, s);
+    statemanager->setEndState(m_project->machine(), s);
     updateAll();
     m_mainView->viewport()->repaint();
   }
@@ -2912,7 +2904,7 @@ void MainWindow::transEdit()
     t = m_mainView->getDrawArea()->getSelection()->getTList().front();
 
   if (t && m_project)
-    transmanager->editTransition(m_project->machine, t);
+    transmanager->editTransition(m_project->machine(), t);
 }
 
 /// Straighten selected transitions.
@@ -2922,7 +2914,7 @@ void MainWindow::transStraighten()
   //  int otype;
   t = NULL; //(GTransition*)m_mainView->getContextObject(otype);
   if (t) {
-    m_project->getUndoBuffer()->changeTransition(t);
+    m_project->undoBuffer()->changeTransition(t);
     t->straighten();
   } else
     transmanager->straightenSelection(&m_mainView->getDrawArea()->getSelection()->getTList());

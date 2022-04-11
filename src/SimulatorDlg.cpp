@@ -98,13 +98,13 @@ void SimulatorDlgImpl::init() {
 
   if (isIBinChecked())
     ui.le_inputs->setMaxLength(
-        main->project()->machine->getNumInputs());
+        main->project()->machine()->getNumInputs());
   else if (isIHexChecked())
     ui.le_inputs->setMaxLength(
-        int((double)main->project()->machine->getNumInputs() / 4 + 0.9));
+        int((double)main->project()->machine()->getNumInputs() / 4 + 0.9));
   else
     ui.le_inputs->setMaxLength(
-        int((double)main->project()->machine->getNumInputs() / 8 + 0.9) * 4);
+        int((double)main->project()->machine()->getNumInputs() / 8 + 0.9) * 4);
 
   setInputs("");
   ui.le_inputs->setFocus();
@@ -164,7 +164,7 @@ void SimulatorDlgImpl::inputsChanged(const QString &in) {
   //  char* bininv;
   IOInfoBin io(IO_MealyIn), ioinv(IO_MealyIn);
 
-  int len = main->project()->machine->getNumInputs();
+  int len = main->project()->machine()->getNumInputs();
   //  bin = new char[len+1];
   //  bininv = new char[len+1];
   if (isIBinChecked())
@@ -287,7 +287,7 @@ void SimulatorDlgImpl::updateInputsStr() {
   QString bin;
   IOInfoBin io(IO_MealyIn), ioinv(IO_MealyIn);
 
-  len = main->project()->machine->getNumInputs();
+  len = main->project()->machine()->getNumInputs();
   s = ui.le_inputs->text();
 
   if (isIBinChecked())
@@ -369,7 +369,7 @@ void SimulatorDlgImpl::iBinPressed() {
   Convert conv;
 
   if (isIHexChecked()) {
-    tmp = conv.hexStrToBinStr(main->project()->machine->getNumInputs(),
+    tmp = conv.hexStrToBinStr(main->project()->machine()->getNumInputs(),
                               ui.le_inputs->text());
     //    le_inputs->setText(tmp);
     //    rb_ibin->setChecked(true);
@@ -381,12 +381,12 @@ void SimulatorDlgImpl::iBinPressed() {
     conv.resolveEscapes(ui.le_inputs->text(), ascii,
                         MAX_CHARARRAY_LENGTH, alen);
     tmp =
-        conv.asciiToBinStr(main->project()->machine->getNumInputs(), ascii, alen);
+        conv.asciiToBinStr(main->project()->machine()->getNumInputs(), ascii, alen);
     //    le_inputs->setText(tmp);
     //    rb_ibin->setChecked(true);
     //    inputsChanged(tmp);
   }
-  ui.le_inputs->setMaxLength(main->project()->machine->getNumInputs());
+  ui.le_inputs->setMaxLength(main->project()->machine()->getNumInputs());
   ui.le_inputs->setText(tmp);
   ui.rb_ibin->setChecked(true);
   inputsChanged(tmp);
@@ -414,7 +414,7 @@ void SimulatorDlgImpl::iHexPressed() {
     //    rb_ihex->setChecked(true);
     //    inputsChanged(tmp);
   }
-  maxlen = int((double)main->project()->machine->getNumInputs() / 4 + 0.9);
+  maxlen = int((double)main->project()->machine()->getNumInputs() / 4 + 0.9);
   tmp = tmp.right(maxlen);
   ui.le_inputs->setMaxLength(maxlen);
   ui.le_inputs->setText(tmp);
@@ -453,7 +453,7 @@ void SimulatorDlgImpl::iASCIIPressed() {
     //    inputsChanged(tmp);
   }
   ui.le_inputs->setMaxLength(
-      int((double)main->project()->machine->getNumInputs() / 8 + 0.9) * 4);
+      int((double)main->project()->machine()->getNumInputs() / 8 + 0.9) * 4);
   ui.le_inputs->setText(tmp);
   ui.rb_iascii->setChecked(true);
   inputsChanged(tmp);
@@ -465,7 +465,7 @@ void SimulatorDlgImpl::oBinPressed() {
   Convert conv;
 
   if (isOHexChecked()) {
-    tmp = conv.hexStrToBinStr(main->project()->machine->getNumOutputs(),
+    tmp = conv.hexStrToBinStr(main->project()->machine()->getNumOutputs(),
                               ui.lb_outputs->text());
     ui.lb_outputs->setText(tmp);
   } else if (isOASCIIChecked()) {
@@ -473,7 +473,7 @@ void SimulatorDlgImpl::oBinPressed() {
     int alen;
     conv.resolveEscapes(ui.lb_outputs->text(), ascii,
                         MAX_CHARARRAY_LENGTH, alen);
-    tmp = conv.asciiToBinStr(main->project()->machine->getNumOutputs(), ascii,
+    tmp = conv.asciiToBinStr(main->project()->machine()->getNumOutputs(), ascii,
                              alen);
     ui.lb_outputs->setText(tmp);
   }
@@ -523,8 +523,8 @@ void SimulatorDlgImpl::oASCIIPressed() {
 
 /// Sets all button states to Off
 void SimulatorDlgImpl::resetButtons() {
-  if (main->project()->machine) {
-    if (main->project()->machine->getType() == Binary) {
+  if (main->project()->machine()) {
+    if (main->project()->machine()->getType() == Binary) {
       ui.rb_ibin->setChecked(true);
       ui.rb_obin->setChecked(true);
     } else {

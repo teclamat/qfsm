@@ -93,252 +93,12 @@ FileIO::~FileIO() {
 }
 
 /**
- * Opens a 'fsm'-file. DEPRECATED!
- * Asks for a file name and opens the specified 'fsm'-file.
- */
-// Project* FileIO::openFile(QString mrufile /*=QString::null*/)
-/*
-{
-  Project* p=NULL;
-//  filedlg->setMode(Q3FileDialog::ExistingFile);
-  filedlg->setAcceptMode(QFileDialog::AcceptOpen);
-  filedlg->setFileMode(QFileDialog::ExistingFile);
-
-  if (mrufile.isNull())
-  {
-    if (!filedlg->exec())
-    {
-      act_file = QString::null;
-      return p;
-    }
-    act_file = filedlg->selectedFile();
-  }
-  else
-    act_file = mrufile;
-
-  QFile file(act_file);
-  if (!file.open(QIODevice::ReadOnly))
-    return NULL;
-
-  Q3TextStream s(&file);
-
-  int version_major, version_minor;
-  QString mname, mversion, mauthor, mdescription;
-  int mtype, numbits, numin, numout, initial;
-  int num_states;
-  int scode;
-  QString str_moore;
-  IOInfo* smoore;
-  QString sname, sdescription;
-  double xpos, ypos;
-  double c1x, c1y, c2x, c2y;
-  double endx, endy;
-  int radius, linewidth;
-  unsigned int pencolor, brushcolor;
-  QString sfamily, tfamily;
-  int spointsize, tpointsize;
-  int dest_code, anz, type;
-  QString in, out;
-  QString tdescription;
-  int straight;
-  GState *state, *dest_state;
-  Convert conv;
-  TransitionInfo* info=NULL;
-  Machine* m;
-  int arrowtype;
-  QString inames, onames, onamesm;
-  int endstate;
-
-  s >> version_major;
-  s >> version_minor;
-  s.readLine();
-  mname = s.readLine();
-  mversion = s.readLine();
-  mauthor = s.readLine();
-  mdescription = s.readLine();
-  s >> mtype >> numbits >> numin >> numout;
-  if (mtype==Ascii)
-  {
-    numbits=32;
-    numin=8;
-    numout=8;
-  }
-  s.readLine();
-  onamesm = s.readLine();
-  inames = s.readLine();
-  onames = s.readLine();
-  s >> num_states;
-  s >> initial;
-  s.readLine();
-  sfamily = s.readLine();
-  spointsize = s.readLine().toInt();
-  tfamily = s.readLine();
-  tpointsize = s.readLine().toInt();
-  s >> arrowtype;
-  QFont sfont(sfamily, spointsize);
-  QFont tfont(tfamily, tpointsize);
-
-  p = new Project(main);
-  p->addMachine(mname, mversion, mauthor, mdescription, mtype, numbits, onamesm,
-numin, inames, numout, onames, sfont, tfont, arrowtype, true); m = p->machine;
-
-  for (int i=0; i<num_states; i++)
-  {
-    s >> scode;
-    s >> str_moore;
-
-    if (m->getType()==Binary)
-    {
-      //smoore = conv.binStrToX10(numbits, str_moore);
-      smoore = new IOInfoBin(IO_MooreOut);
-      smoore->setBin(str_moore, numbits);
-    }
-    else if (m->getType()==Ascii)
-      smoore = new IOInfoASCII(IO_MooreOut, str_moore);
-    else
-      smoore = new IOInfoText(IO_MooreOut, str_moore);
-
-
-    s.readLine();
-    sname=s.readLine();
-    sdescription=s.readLine();
-    s >> xpos >> ypos >> radius;
-    s >> pencolor >> linewidth;
-    s >> brushcolor;
-    s >> endstate;
-
-    QColor pcol((QRgb)pencolor);
-    QColor bcol((QRgb)brushcolor);
-    QPen pen(pcol, linewidth );
-    QBrush brush(bcol);
-
-    m->addState(sname, sdescription, scode, smoore, xpos, ypos, radius, 1.0,
-pen, bool(endstate));
-  }
-
-  state = m->getState(initial);
-  if (state)
-    m->setInitialState(state);
-  else
-    m->setInitialState(m->getSList().first());
-
-  for(int ii=0; ii<num_states; ii++)
-  {
-    s >> scode;
-    state = m->getState(scode);
-    s >> anz;
-    for (int j=0; j<anz; j++)
-    {
-      s >> dest_code;
-      if (dest_code==-1)
-        dest_state=NULL;
-      else
-        dest_state = m->getState(dest_code);
-      s >> type;
-      s >> tdescription;
-      s >> in >> out;
-      s >> xpos >> ypos >> c1x >> c1y >> c2x >> c2y >> endx >> endy;
-      s >> straight;
-
-      if (type == Binary)
-      {
-        IOInfoBin bin(IO_MealyIn), bout(IO_MealyOut);
-
-        bin = conv.binStrToX10(numin, in, IO_MealyIn);
-
-        if (out!="<noout>")
-        {
-          bout = conv.binStrToX10(numout, out, IO_MealyOut);
-        }
-
-        info = new TransitionInfoBin(bin,bout);
-      }
-      else if (type == Ascii)
-      {
-        if (out=="<noout>")
-          out="";
-
-        IOInfoASCII ain(IO_MealyIn, in), aout(IO_MealyOut, out);
-
-        info = new TransitionInfoASCII(ain, aout);
-      }
-      else
-      {
-        if (out=="<noout>")
-          out="";
-
-        IOInfoText tin(IO_MealyIn, in), tout(IO_MealyOut, out);
-
-        info = new TransitionInfoText(tin, tout);
-      }
-
-      if (state)
-      {
-        state->addTransition(p, dest_state, info, xpos, ypos, endx, endy,
-          c1x, c1y, c2x, c2y, tdescription, (bool)straight);
-      }
-    }
-  }
-
-  // phantom state
-  state = m->getPhantomState();
-  s >> anz;
-  for (int j=0; j<anz; j++)
-  {
-    s >> dest_code;
-    if (dest_code==-1)
-      dest_state=NULL;
-    else
-      dest_state = m->getState(dest_code);
-    s >> type;
-    s >> tdescription;
-    s >> in >> out;
-    s >> xpos >> ypos >> c1x >> c1y >> c2x >> c2y >> endx >> endy;
-    s >> straight;
-
-    if (type == Binary)
-    {
-      IOInfoBin bin(IO_MealyIn), bout(IO_MealyOut);
-
-      bin = conv.binStrToX10(numin, in, IO_MealyIn);
-      bout = conv.binStrToX10(numout, out, IO_MealyOut);
-
-      info = new TransitionInfoBin(bin,bout);
-    }
-    else if (type == Ascii)
-    {
-      IOInfoASCII ain(IO_MealyIn, in), aout(IO_MealyOut, out);
-
-      info = new TransitionInfoASCII(ain, aout);
-    }
-    else
-    {
-      IOInfoText tin(IO_MealyIn, in), tout(IO_MealyOut, out);
-
-      info = new TransitionInfoText(tin, tout);
-    }
-
-    if (state)
-    {
-      state->addTransition(p, dest_state, info, xpos, ypos, endx, endy,
-        c1x, c1y, c2x, c2y, tdescription, (bool)straight);
-    }
-  }
-  m->calcCanvasSize();
-
-  file.close();
-
-  return p;
-}
-*/
-
-/**
  * Opens a 'fsm'-file.
  * Opens the '.fsm' file @a mrufile.
  * If @a mrufile is null a file dialog is opened first.
  */
-Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
-  Project *p = NULL;
+qfsm::Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
+  qfsm::Project *p = NULL;
   //  filedlg->setMode(Q3FileDialog::ExistingFile);
   filedlg->setAcceptMode(QFileDialog::AcceptOpen);
   filedlg->setFileMode(QFileDialog::ExistingFile);
@@ -361,7 +121,7 @@ Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
    if (!file.open(QFile::ReadOnly))
      return NULL;
 
-  p = new Project(main);
+  p = new qfsm::Project(main);
   XMLHandler handler(p);
   handler.setDevice(&file);
   // QXmlInputSource source(file);
@@ -376,203 +136,18 @@ Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
   }
   file.close();
 
-  p->machine->updateDefaultTransitions();
+  p->machine()->updateDefaultTransitions();
 
   emit setPreviousCursor();
   return NULL;
-
-  /*  QTextStream s(&file);
-
-    QDomDocument domdoc("domdoc");
-
-    if ( !domdoc.setContent( &file ) )
-    {
-      file.close();
-      return NULL;
-    }
-    qDebug(domdoc.toString());
-
-    QDomDocumentType domdoctype=domdoc.docType();
-    if (domdoctype.name!="fsmproject")
-      return NULL;
-
-    QDomElement domroot=domdoc.documentElement();
-  */
-
-  /*
-  int version_major, version_minor;
-  QString mname;
-  int mtype, numbits, numin, numout, initial;
-  int num_states;
-  int scode;
-  QString sname;
-  double xpos, ypos;
-  double c1x, c1y, c2x, c2y;
-  double endx, endy;
-  int radius, linewidth;
-  unsigned int pencolor, brushcolor;
-  QString sfamily, tfamily;
-  int spointsize, tpointsize;
-  int dest_code, anz, type;
-  QString in, out;
-  int straight;
-  GState *state, *dest_state;
-  Convert conv;
-  TransitionInfo* info=NULL;
-  Machine* m;
-  int arrowtype;
-  QString inames, onames, onamesm;
-  int endstate;
-
-  s >> version_major;
-  s >> version_minor;
-  s.readLine();
-  mname = s.readLine();
-  s >> mtype >> numbits >> numin >> numout;
-  if (mtype==Ascii)
-  {
-    numbits=32;
-    numin=8;
-    numout=8;
-  }
-  s.readLine();
-  onamesm = s.readLine();
-  inames = s.readLine();
-  onames = s.readLine();
-  s >> num_states;
-  s >> initial;
-  s.readLine();
-  sfamily = s.readLine();
-  spointsize = s.readLine().toInt();
-  tfamily = s.readLine();
-  tpointsize = s.readLine().toInt();
-  s >> arrowtype;
-  QFont sfont(sfamily, spointsize);
-  QFont tfont(tfamily, tpointsize);
-
-  p = new Project(main);
-  p->addMachine(mname, mtype, numbits, onamesm, numin, inames, numout, onames,
-  sfont, tfont, arrowtype); m = p->machine;
-
-  for (int i=0; i<num_states; i++)
-  {
-    s >> scode;
-    s.readLine();
-    sname=s.readLine();
-    s >> xpos >> ypos >> radius;
-    s >> pencolor >> linewidth;
-    s >> brushcolor;
-    s >> endstate;
-
-    QColor pcol((QRgb)pencolor);
-    QColor bcol((QRgb)brushcolor);
-    QPen pen(pcol, linewidth );
-    QBrush brush(bcol);
-
-    m->addState(sname, scode, xpos, ypos, radius, 1.0, pen, bool(endstate));
-  }
-
-  state = m->getState(initial);
-  if (state)
-    m->setInitialState(state);
-  else
-    m->setInitialState(m->getSList().first());
-
-  for(int i=0; i<num_states; i++)
-  {
-    s >> scode;
-    state = m->getState(scode);
-    s >> anz;
-    for (int j=0; j<anz; j++)
-    {
-      s >> dest_code;
-      if (dest_code==-1)
-        dest_state=NULL;
-      else
-        dest_state = m->getState(dest_code);
-      s >> type;
-      s >> in >> out;
-      s >> xpos >> ypos >> c1x >> c1y >> c2x >> c2y >> endx >> endy;
-      s >> straight;
-
-      if (type == Binary)
-      {
-        IOInfoBin bin, bout;
-
-        bin = conv.binStrToX10(numin, in);
-
-        if (out!="<noout>")
-        {
-          bout = conv.binStrToX10(numout, out);
-        }
-
-        info = new TransitionInfoBin(bin,bout);
-      }
-      else
-      {
-        if (out=="<noout>")
-          out="";
-
-        IOInfoASCII ain(in), aout(out);
-
-        info = new TransitionInfoASCII(ain, aout);
-      }
-
-      if (state)
-      {
-        state->addTransition(p, dest_state, info, xpos, ypos, endx, endy,
-          c1x, c1y, c2x, c2y, (bool)straight);
-      }
-    }
-  }
-
-  // phantom state
-  state = m->getPhantomState();
-  s >> anz;
-  for (int j=0; j<anz; j++)
-  {
-    s >> dest_code;
-    if (dest_code==-1)
-      dest_state=NULL;
-    else
-      dest_state = m->getState(dest_code);
-    s >> type;
-    s >> in >> out;
-    s >> xpos >> ypos >> c1x >> c1y >> c2x >> c2y >> endx >> endy;
-    s >> straight;
-
-    if (type == Binary)
-    {
-      IOInfoBin bin, bout;
-
-      bin = conv.binStrToX10(numin, in);
-      bout = conv.binStrToX10(numout, out);
-
-      info = new TransitionInfoBin(bin/,bout);
-    }
-    else
-    {
-      IOInfoASCII ain(in), aout(out);
-
-      info = new TransitionInfoASCII(ain, aout);
-    }
-
-    if (state)
-    {
-      state->addTransition(p, dest_state, info, xpos, ypos, endx, endy,
-        c1x, c1y, c2x, c2y, (bool)straight);
-    }
-  }
-  m->calcCanvasSize();
-*/
 }
 
 /**
  * Save project as 'fsm'-file with a new name.
  * Asks for a file name and saves the project @a p as a 'fsm'-file.
  */
-bool FileIO::saveFileAs(Project *p) {
-  if (!p->machine->checkStateCodes()) {
+bool FileIO::saveFileAs(qfsm::Project *p) {
+  if (!p->machine()->checkStateCodes()) {
     switch (mb_statecode->exec()) {
     case QMessageBox::Yes:
       break;
@@ -618,8 +193,8 @@ bool FileIO::saveFileAs(Project *p) {
  * Saves project as 'fsm'-file.
  * If no file name is given, it first asks for the file name.
  */
-bool FileIO::saveFile(Project *p) {
-  if (!p->machine->checkStateCodes()) {
+bool FileIO::saveFile(qfsm::Project *p) {
+  if (!p->machine()->checkStateCodes()) {
     switch (mb_statecode->exec()) {
     case QMessageBox::Yes:
       break;
@@ -638,10 +213,10 @@ bool FileIO::saveFile(Project *p) {
 /**
  * Performs the actual saving of project @a p.
  */
-bool FileIO::doSave(Project *p) {
+bool FileIO::doSave(qfsm::Project *p) {
   using Info = qfsm::AppInfo;
 
-  Machine* m = p->machine;
+  Machine* m = p->machine();
   if (!m)
     return false;
 
@@ -821,8 +396,8 @@ bool FileIO::doSave(Project *p) {
 /**
  * Performs the actual saving of project @a p in XML format.
  */
-bool FileIO::doSaveXML(Project *p) {
-  Machine *m = p->machine;
+bool FileIO::doSaveXML(qfsm::Project *p) {
+  Machine *m = p->machine();
   if (!m)
     return false;
 
@@ -1374,7 +949,7 @@ int FileIO::loadOptions(Options *opt) {
 #endif
 
   if (!file.open(QIODevice::ReadOnly)) {
-    qDebug("options not loaded");
+    qDebug() << "options not loaded";
     return 1;
   }
 
@@ -1553,7 +1128,8 @@ void FileIO::setOptions(QMap<QString, QString> *_map, Options *opt) {
  * Imports a file
  * Opens a file dialog, imports a file, and creates a new project
  */
-Project *FileIO::importFile(Import *imp, ScrollView *sv /*=NULL*/) {
+qfsm::Project* FileIO::importFile(Import* imp, ScrollView* sv /*=NULL*/)
+{
   using namespace std;
 
   QString ext;
@@ -1561,7 +1137,7 @@ Project *FileIO::importFile(Import *imp, ScrollView *sv /*=NULL*/) {
   if (!imp)
     return NULL;
 
-  Project *p = NULL;
+  qfsm::Project* p = NULL;
   importdlg->setAcceptMode(QFileDialog::AcceptOpen);
   importdlg->setFileMode(QFileDialog::ExistingFile);
   importdlg->setNameFilters({ imp->fileFilter(), "All Files (*)" });
@@ -1600,7 +1176,8 @@ Project *FileIO::importFile(Import *imp, ScrollView *sv /*=NULL*/) {
  * Exports the actual file.
  * Opens a file dialog and exports the actual machine into the specified format.
  */
-bool FileIO::exportFile(Project *p, Export *exp, ScrollView *sv /*=NULL*/) {
+bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
+{
   using namespace std;
 
   QString ext;
@@ -1608,7 +1185,7 @@ bool FileIO::exportFile(Project *p, Export *exp, ScrollView *sv /*=NULL*/) {
   if (!p || !exp)
     return false;
 
-  if (!exp->validateMachine(p->machine))
+  if (!exp->validateMachine(p->machine()))
     return false;
 
   //  exportdlg->setMode(Q3FileDialog::AnyFile);
@@ -1617,7 +1194,7 @@ bool FileIO::exportFile(Project *p, Export *exp, ScrollView *sv /*=NULL*/) {
     //    exportdlg->setSelection(act_exportfile);
     exportdlg->selectFile(act_exportfile);
   else
-    exportdlg->selectFile(p->machine->getName());
+    exportdlg->selectFile(p->machine()->getName());
 
   exportdlg->setNameFilters({exp->fileFilter(),"All Files (*)"});
 
@@ -1646,7 +1223,7 @@ bool FileIO::exportFile(Project *p, Export *exp, ScrollView *sv /*=NULL*/) {
 
     emit setWaitCursor();
 
-    exp->init(&fout, p->machine, act_exportfile, sv);
+    exp->init(&fout, p->machine(), act_exportfile, sv);
     exp->doExport();
 
     emit setPreviousCursor();

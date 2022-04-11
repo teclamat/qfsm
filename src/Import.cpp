@@ -46,5 +46,5 @@ void Import::init(std::istream *i, MainWindow *main,
   in = i;
   fileName = fn;
   scrollview = sv;
-  project = new Project(main);
+  project = new qfsm::Project(main);
 }

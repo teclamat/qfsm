@@ -40,12 +40,12 @@ MachineManager::~MachineManager() { delete machine_props; }
 /**
  * Adds a new machine to the project @a p
  */
-int MachineManager::addMachine(Project *p) {
+int MachineManager::addMachine(qfsm::Project *p) {
   int result;
   QString n, v, a, d;
   int nb, ni, no;
   QFont f("Helvetica", 8);
-  f.setStyleHint(QFont::Helvetica);
+  f.setStyleHint(QFont::SansSerif);
   // f.setStyleStrategy(QFont::PreferBitmap);
   QFont sf, tf;
   int atype = 1;
@@ -95,12 +95,12 @@ int MachineManager::addMachine(Project *p) {
       p->addMachine(n, v, a, d, type, nb, onamesm, ni, inames, no, onames, sf,
                     tf, atype, draw_it);
 
-      p->getMain()->updateIOView(p->machine);
+      p->mainWindow()->updateIOView(p->machine());
 
       if (type == 0 &&
-          (nb != p->machine->translateNames(onamesm).size() ||
-          ni != p->machine->translateNames(inames).size() ||
-          no != p->machine->translateNames(onames).size())) {
+          (nb != p->machine()->translateNames(onamesm).size() ||
+          ni != p->machine()->translateNames(inames).size() ||
+          no != p->machine()->translateNames(onames).size())) {
         ires = err.warningOkCancel(
             tr("Warning.\nThe number of bits does not match the number of "
                "signal names. \nDo you want to proceed?"));
@@ -119,7 +119,7 @@ int MachineManager::addMachine(Project *p) {
 /**
  * Edits the machine in the project @a p.
  */
-void MachineManager::editMachine(Project *p) {
+void MachineManager::editMachine(qfsm::Project *p) {
   bool result;
   int mtype, numbit, numin, numout;
   int nnumbit, nnumin, nnumout;
@@ -134,7 +134,7 @@ void MachineManager::editMachine(Project *p) {
   QStringList ilist, olist;
   bool draw_it;
 
-  m = p->machine;
+  m = p->machine();
 
   numbit = m->getNumMooreOutputs();
   machine_props->enableType(false);
@@ -212,7 +212,7 @@ void MachineManager::editMachine(Project *p) {
         return;
     }
 
-    p->getUndoBuffer()->changeMachine(m);
+    p->undoBuffer()->changeMachine(m);
 
     m->setName(nname);
     m->setVersion(nversion);
@@ -233,7 +233,7 @@ void MachineManager::editMachine(Project *p) {
     if (!m->getDrawITrans())
       m->getInitialTransition()->select(false);
 
-    p->getMain()->updateIOView(m);
+    p->mainWindow()->updateIOView(m);
     if (main->project())
       main->project()->setChanged();
   }

@@ -36,7 +36,7 @@ Machine::Machine(QObject *parent /*=NULL*/, const char *n /*=0*/)
     : QObject(parent) {
   name = "";
   version = "";
-  project = (Project *)parent;
+  project = (qfsm::Project*)parent;
   num_input = 0;
   num_output = 0;
   num_moore_output = 0;
@@ -45,11 +45,11 @@ Machine::Machine(QObject *parent /*=NULL*/, const char *n /*=0*/)
   phantom_state = new GState(this);
   state_font.setFamily("Helvetica");
   state_font.setPointSize(8);
-  state_font.setStyleHint(QFont::Helvetica);
+  state_font.setStyleHint(QFont::SansSerif);
   // state_font.setStyleStrategy(QFont::PreferBitmap);
   transition_font.setFamily("Helvetica");
   transition_font.setPointSize(8);
-  transition_font.setStyleHint(QFont::Helvetica);
+  transition_font.setStyleHint(QFont::SansSerif);
   // transition_font.setStyleStrategy(QFont::PreferBitmap);
   arrow_type = 1;
   type = 1; // set to ASCII machine by default
@@ -90,7 +90,7 @@ Machine::Machine(QObject *parent, const QString n, QString v, QString a,
   setMooreOutputNames(nb, onamesm);
   setMealyInputNames(ni, inames);
   setMealyOutputNames(no, onames);
-  project = (Project *)parent;
+  project = (qfsm::Project*)parent;
   initial_state = NULL;
   initial_transition = NULL;
   phantom_state = new GState(this);
@@ -208,7 +208,7 @@ bool Machine::addState(const QString sname, QString sdescription, int code,
   }
 
   if (withundo)
-    project->getUndoBuffer()->addState(this, s);
+    project->undoBuffer()->addState(this, s);
 
   updateCanvasSize(int(xpos + radius + 50), int(ypos + radius + 50), scale);
   return true;
@@ -238,7 +238,7 @@ bool Machine::addState(GState *s, bool withundo /*=true*/) {
   }
 
   if (withundo)
-    project->getUndoBuffer()->addState(this, s);
+    project->undoBuffer()->addState(this, s);
 
   updateCanvasSize(int(xpos + radius + 50), int(ypos + radius + 50), 1.0);
   return true;
