@@ -172,12 +172,12 @@ void ExportTestvectorASCII::generateVector() {
     omoore = i_omoore.next();
     ics = i_cs.next();
 
-    *out << " " << QString::number(c - 1).toLatin1() << " ";
+    *out << " " << QString::number(c - 1).toStdString() << " ";
 
     if (synchronous_reset || synchronous_enable) {
       s = ics->convertToBinStr(machine, options).replace("x", "0");
       s.insert(1, " ");
-      *out << s.toLatin1() << " ";
+      *out << s.toStdString() << " ";
     }
 
     s = i->convertToBinStr(machine, options).replace("x", "0");
@@ -188,7 +188,7 @@ void ExportTestvectorASCII::generateVector() {
         s.insert(i_sep.next(), " ");
       }
     }
-    *out << s.toLatin1();
+    *out << s.toStdString();
 
     *out << " | ";
 
@@ -200,7 +200,7 @@ void ExportTestvectorASCII::generateVector() {
         s.insert(i_sep.next(), " ");
       }
     }
-    *out << s.toLatin1();
+    *out << s.toStdString();
 
     if (machine->getNumOutputs() > 0 && machine->getNumMooreOutputs() > 0)
       *out << " ";
@@ -213,7 +213,7 @@ void ExportTestvectorASCII::generateVector() {
         s.insert(i_sep.next(), " ");
       }
     }
-    *out << s.toLatin1();
+    *out << s.toStdString();
     *out << endl;
   }
 }
@@ -233,18 +233,18 @@ void ExportTestvectorASCII::writeHeader(QString, QString) {
     bit_string = "bit";
 
   *out << "# Testpattern including expected results of "
-       << machine->getName().toLatin1() << endl;
+       << machine->getName().toStdString() << endl;
   *out << "#" << endl;
 
   if (synchronous_reset || synchronous_enable) {
     *out << "# control input signals:" << endl;
     *out << "# ----------------------" << endl;
     if (synchronous_reset && negated_reset)
-      *out << "# srst_n : " << bit_string.toLatin1().constData() << ";" << endl;
+      *out << "# srst_n : " << bit_string.toStdString() << ";" << endl;
     else if (synchronous_reset && !negated_reset)
-      *out << "# srst_p : " << bit_string.toLatin1().constData() << ";" << endl;
+      *out << "# srst_p : " << bit_string.toStdString() << ";" << endl;
     if (synchronous_enable)
-      *out << "# sen_p : " << bit_string.toLatin1().constData() << ";" << endl;
+      *out << "# sen_p : " << bit_string.toStdString() << ";" << endl;
     *out << endl;
   }
 

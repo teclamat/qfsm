@@ -24,22 +24,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Machine.h"
 #include "MainWindow.h"
 #include "TransitionInfo.h"
+
+#include <QCursor>
+#include <QDebug>
 #include <QProgressDialog>
 #include <QString>
-#include <math.h>
-#include <qcursor.h>
+
+#include <cmath>
 
 /// Constructor
-ICheck::ICheck(QWidget *m) {
-  main = (MainWindow *)m;
+ICheck::ICheck(QWidget* m)
+{
+  main = (MainWindow*)m;
   icheckdlg = new ICheckDlgImpl(m);
 }
 
 /// Destructor
-ICheck::~ICheck() { delete icheckdlg; }
+ICheck::~ICheck()
+{
+  delete icheckdlg;
+}
 
 /// Performs the whole set of checks and updates the dialog
-int ICheck::checkMachine(Machine *m) {
+int ICheck::checkMachine(Machine* m)
+{
   QProgressDialog progress("Checking machine...", "Cancel", 0, 5);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(1000);
@@ -125,13 +133,14 @@ int ICheck::checkMachine(Machine *m) {
 }
 
 /// Checks if there are ambiguous conditions
-bool ICheck::checkUnambiguousCond(Machine *m, Options *opt) {
-  GState *s;
+bool ICheck::checkUnambiguousCond(Machine* m, Options* opt)
+{
+  GState* s;
   GTransition *t, *ttmp;
   TransitionInfo *info, *infotmp;
   bool ret = true;
 
-  QMutableListIterator<GState *> sit(m->getSList());
+  QMutableListIterator<GState*> sit(m->getSList());
   for (; sit.hasNext();) {
     s = sit.next();
 
@@ -179,8 +188,7 @@ bool ICheck::checkUnambiguousCond(Machine *m, Options *opt) {
                   ret = false;
                   s->setMark(true);
                   // protocol+=" ambiguous condition "+info->getInputsStr()+" ";
-                  protocol += " ambiguous condition " +
-                              info->getCompleteInputsStr(m, opt) + "<->" +
+                  protocol += " ambiguous condition " + info->getCompleteInputsStr(m, opt) + "<->" +
                               infotmp->getCompleteInputsStr(m, opt) + " ";
                 }
               }
@@ -195,16 +203,18 @@ bool ICheck::checkUnambiguousCond(Machine *m, Options *opt) {
 }
 
 /// Checks if the machine @a m has an initial state
-bool ICheck::checkInitialState(Machine *m) {
+bool ICheck::checkInitialState(Machine* m)
+{
   if (m->getInitialState() == NULL)
     return false;
   return true;
 }
 
 /// Checks if the machine @a m has at least one final state
-bool ICheck::checkFinalState(Machine *m) {
-  QMutableListIterator<GState *> it(m->getSList());
-  GState *s;
+bool ICheck::checkFinalState(Machine* m)
+{
+  QMutableListIterator<GState*> it(m->getSList());
+  GState* s;
   for (; it.hasNext();) {
     s = it.next();
     if (!s->isDeleted() && s->isFinalState())
@@ -214,7 +224,8 @@ bool ICheck::checkFinalState(Machine *m) {
 }
 
 /// Checks if there are dead locks in the machine @a m
-bool ICheck::checkDeadLocks(Machine *m) {
+bool ICheck::checkDeadLocks(Machine* m)
+{
   /*
   GState *s, *es;
   QList<GState*> elist = m->getEndStates();
@@ -269,13 +280,13 @@ bool ICheck::checkDeadLocks(Machine *m) {
   return !isStateBlocking(m->getInitialState(), visited_states,
   blocking_states);
   */
-  QList<GState *> blocking = m->getSList();
-  QList<GState *> visited; // = m->getEndStates();
+  QList<GState*> blocking = m->getSList();
+  QList<GState*> visited; // = m->getEndStates();
   // QListIterator<GState*> eit(m->getEndStates());
-  QList<GState *> templist = m->getFinalStates();
+  QList<GState*> templist = m->getFinalStates();
   ;
   GState *stmp, *sstart;
-  GTransition *t;
+  GTransition* t;
 
   // compute blocking states starting reversely from the end states
   while (templist.count() > 0) {
@@ -285,12 +296,11 @@ bool ICheck::checkDeadLocks(Machine *m) {
       // qDebug("Visiting: %s", stmp->getStateName().latin1());
       visited.append(stmp);
 
-      QListIterator<GTransition *> it(stmp->reflist);
+      QListIterator<GTransition*> it(stmp->reflist);
       for (; it.hasNext();) {
         t = it.next();
-        sstart = (GState *)t->getStart();
-        if (!t->isDeleted() && !sstart->isDeleted() &&
-            sstart != m->getPhantomState() && sstart != stmp) {
+        sstart = (GState*)t->getStart();
+        if (!t->isDeleted() && !sstart->isDeleted() && sstart != m->getPhantomState() && sstart != stmp) {
           templist.append(sstart);
           // qDebug("  appending: %s", sstart->getStateName().latin1());
         }
@@ -314,17 +324,18 @@ bool ICheck::checkDeadLocks(Machine *m) {
 
 /// Checks if the machine @a m is complete (i.e. all possible input values are
 /// covered)
-double ICheck::checkCompleteness(Machine *m) {
+double ICheck::checkCompleteness(Machine* m)
+{
   double rate;
   int match; //, nonmatch=0;
   int total_match;
   int nmaxinputs;
   int nstates;
-  GState *s;
-  IOInfo *io_out;
+  GState* s;
+  IOInfo* io_out;
   int ntrans;
-  GState *phantom = m->getPhantomState();
-  GState *snext;
+  GState* phantom = m->getPhantomState();
+  GState* snext;
 
   if (m->countStates() < 2)
     return 1;
@@ -333,7 +344,7 @@ double ICheck::checkCompleteness(Machine *m) {
   nstates = 0;
   total_match = 0;
 
-  QMutableListIterator<GState *> si(m->getSList());
+  QMutableListIterator<GState*> si(m->getSList());
   for (; si.hasNext();) {
     s = si.next();
 
@@ -363,9 +374,9 @@ double ICheck::checkCompleteness(Machine *m) {
       else // ntrans==1
       {
         bool deleted = true;
-        QListIterator<GTransition *> it(s->tlist);
-        GTransition *ttmp;
-        IOInfo *ioinfo;
+        QListIterator<GTransition*> it(s->tlist);
+        GTransition* ttmp;
+        IOInfo* ioinfo;
 
         while (deleted) {
           ttmp = it.next();
@@ -395,11 +406,12 @@ double ICheck::checkCompleteness(Machine *m) {
 }
 
 /// Checks if all states of the machine @a m are reachable
-double ICheck::checkStatesReachable(Machine *m) {
+double ICheck::checkStatesReachable(Machine* m)
+{
   int reach = 0, nonreach = 0;
   double rate;
-  GState *istate;
-  GState *s;
+  GState* istate;
+  GState* s;
 
   istate = m->getInitialState();
 
@@ -409,10 +421,10 @@ double ICheck::checkStatesReachable(Machine *m) {
   if (!istate)
     return 0;
 
-  QMutableListIterator<GState *> it(m->getSList());
+  QMutableListIterator<GState*> it(m->getSList());
   for (; it.hasNext();) {
     s = it.next();
-    QList<GState *> visited;
+    QList<GState*> visited;
     if (!s->isDeleted()) {
       protocol += "  checking state:  " + s->getStateName();
       //      if (isStateReachable(m, istate, it.next(), &visited))
@@ -435,11 +447,12 @@ double ICheck::checkStatesReachable(Machine *m) {
 }
 
 /// Checks if all end states of the machine @a m are reachable
-double ICheck::checkFinalStatesReachable(Machine *m) {
+double ICheck::checkFinalStatesReachable(Machine* m)
+{
   int reach = 0, nonreach = 0;
   double rate;
-  GState *istate;
-  GState *s;
+  GState* istate;
+  GState* s;
 
   istate = m->getInitialState();
 
@@ -449,12 +462,12 @@ double ICheck::checkFinalStatesReachable(Machine *m) {
   if (!istate)
     return 0;
 
-  QMutableListIterator<GState *> it(m->getSList());
+  QMutableListIterator<GState*> it(m->getSList());
   for (; it.hasNext();) {
     s = it.next();
 
     if (!s->isDeleted() && s->isFinalState()) {
-      QList<GState *> visited;
+      QList<GState*> visited;
       //      if (isStateReachable(m, istate, it.current(), &visited))
       if (isStateReachable(m, istate, s, &visited))
         reach++;
@@ -471,18 +484,19 @@ double ICheck::checkFinalStatesReachable(Machine *m) {
 }
 
 /// Checks if all transitions starting from a state have an end state
-double ICheck::checkConnections(Machine *m) {
+double ICheck::checkConnections(Machine* m)
+{
   int connect = 0, nonconnect = 0;
   double rate;
-  QMutableListIterator<GState *> it(m->getSList());
-  GState *s;
-  GTransition *t;
+  QMutableListIterator<GState*> it(m->getSList());
+  GState* s;
+  GTransition* t;
 
   for (; it.hasNext();) {
     s = it.next();
     if (!s->isDeleted()) {
       protocol += "  checking state: " + s->getStateName();
-      QMutableListIterator<GTransition *> jt(s->tlist);
+      QMutableListIterator<GTransition*> jt(s->tlist);
       for (; jt.hasNext();) {
         t = jt.next();
         if (t->getEnd() == NULL) {
@@ -496,10 +510,9 @@ double ICheck::checkConnections(Machine *m) {
   }
 
   s = m->getPhantomState();
-  QMutableListIterator<GTransition *> jt(s->tlist);
+  QMutableListIterator<GTransition*> jt(s->tlist);
   protocol += "  transitions without start state: ";
   for (; jt.hasNext();) {
-
     t = jt.next();
     //    if (t->getEnd()!=NULL)
     nonconnect++;
@@ -515,24 +528,24 @@ double ICheck::checkConnections(Machine *m) {
 }
 
 /// Checks if all state codes were used only once
-bool ICheck::checkStateCodes(Machine *m) {
+bool ICheck::checkStateCodes(Machine* m)
+{
   bool ret = true, codeComplete;
   int stateCodeCount, c, stateCodeSize;
-  QListIterator<GState *> i1(m->getSList());
+  QListIterator<GState*> i1(m->getSList());
   GState *s1, *s2;
 
   while (i1.hasNext()) {
     s1 = i1.next();
     if (!s1->isDeleted()) {
       protocol += "  checking state: " + s1->getStateName();
-      QListIterator<GState *> i2(m->getSList());
+      QListIterator<GState*> i2(m->getSList());
       i2.findNext(s1);
       while (i2.hasNext()) {
         s2 = i2.next();
         if (s2->getEncoding() == s1->getEncoding()) {
           ret = false;
-          protocol += " Code " + s1->getCodeStr() + " also used for state " +
-                      s2->getStateName();
+          protocol += " Code " + s1->getCodeStr() + " also used for state " + s2->getStateName();
         }
       }
     }
@@ -569,10 +582,10 @@ bool ICheck::checkStateCodes(Machine *m) {
  * @param visited List of visited states.
  * @returns true if state @a state is reachable from state @a from.
  */
-bool ICheck::isStateReachable(Machine *m, GState *from, GState *state,
-                              QList<GState *> *visited) {
-  GTransition *t;
-  GState *s;
+bool ICheck::isStateReachable(Machine* m, GState* from, GState* state, QList<GState*>* visited)
+{
+  GTransition* t;
+  GState* s;
 
   //  visited->setAutoDelete(false);
 
@@ -585,13 +598,12 @@ bool ICheck::isStateReachable(Machine *m, GState *from, GState *state,
   //  QListIterator<GState> it(m->getSList());
   visited->append(state);
 
-  QListIterator<GTransition *> it(state->reflist);
+  QListIterator<GTransition*> it(state->reflist);
   for (; it.hasNext();) {
     t = it.next();
     if (!t->isDeleted()) {
-      s = (GState *)t->getStart();
-      if (s && s != m->getPhantomState() && !s->isDeleted() &&
-          !visited->contains(s)) {
+      s = (GState*)t->getStart();
+      if (s && s != m->getPhantomState() && !s->isDeleted() && !visited->contains(s)) {
         if (isStateReachable(m, from, s, visited))
           return true;
       }
@@ -605,9 +617,9 @@ bool ICheck::isStateReachable(Machine *m, GState *from, GState *state,
  *
  * @param m Machine that contains the states
  */
-void ICheck::connectMachine(Machine *m) {
-  QObject::connect(icheckdlg, SIGNAL(finished(int)), m,
-                   SLOT(checkFinished(int)));
+void ICheck::connectMachine(Machine* m)
+{
+  QObject::connect(icheckdlg, SIGNAL(finished(int)), m, SLOT(checkFinished(int)));
   // QObject::connect(icheckdlg,SIGNAL(finished(int)),main,SLOT(repaintViewport()));
 }
 
@@ -616,9 +628,9 @@ void ICheck::connectMachine(Machine *m) {
  *
  * @param m Machine that contains the states
  */
-void ICheck::disconnectMachine(Machine *m) {
-  QObject::disconnect(icheckdlg, SIGNAL(finished(int)), m,
-                      SLOT(checkFinished(int)));
+void ICheck::disconnectMachine(Machine* m)
+{
+  QObject::disconnect(icheckdlg, SIGNAL(finished(int)), m, SLOT(checkFinished(int)));
   // QObject::disconnect(icheckdlg,SIGNAL(finished(int)),main,SLOT(repaintViewport()));
 }
 

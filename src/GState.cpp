@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <qcolor.h>
 #include <qpen.h>
 #include <QRegularExpression>
+#include <QTextStream>
 
 #include "Const.h"
 #include "Convert.h"
@@ -35,6 +36,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ScrollView.h"
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QtGlobal>
+namespace Qt {
+static auto endl = ::endl;
+}
+#endif
 
 /**
  * Constructor.

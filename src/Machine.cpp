@@ -31,6 +31,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QString>
+namespace Qt {
+static auto SkipEmptyParts = QString::SkipEmptyParts;
+}
+#endif
+
+#include <cmath>
+
 /// Constructor.
 Machine::Machine(QObject *parent /*=NULL*/, const char *n /*=0*/)
     : QObject(parent) {
@@ -451,7 +460,7 @@ void Machine::attachInitialTransition() {
   initial_state->getPos(xst, yst);
   rad = initial_state->getRadius();
 
-  dist = sqrt((xe - xst) * (xe - xst) + (ye - yst) * (ye - yst));
+  dist = std::sqrt((xe - xst) * (xe - xst) + (ye - yst) * (ye - yst));
   if (dist > rad + 5) {
     double diffx, diffy;
     GState::circleEdge(xst, yst, rad, xe, ye, resx, resy);

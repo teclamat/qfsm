@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Options.h"
 #include "TransitionInfo.h"
 
+#include <cmath>
+
 /**
  * Constructor.
  * Initialises the IOInfo object with the bits contained in the array @a io
@@ -914,7 +916,7 @@ IOInfo *IOInfoBin::getPlus1() {
     return NULL;
   i++;
   IOInfo *newio;
-  if (i >= pow(2.0, getLength()))
+  if (i >= std::pow(2.0, getLength()))
     return NULL;
   newio = new IOInfoBin(type, i, getLength());
   return newio;

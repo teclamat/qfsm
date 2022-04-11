@@ -16,8 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <QFileDialog>
 #include <QCheckBox>
+#include <QDebug>
+#include <QFileDialog>
 
 #include "ExportVHDLDlg.h"
 #include "Machine.h"
@@ -30,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-ExportVHDLDlgImpl::ExportVHDLDlgImpl(QWidget *parent, const char *name,
-                                     bool modal, Qt::WindowFlags fl) {
+ExportVHDLDlgImpl::ExportVHDLDlgImpl(QWidget* parent, const char* name, bool modal, Qt::WindowFlags fl)
+{
   symbolic_states = false;
   inout_names = true;
   sync_reset = false;
@@ -49,106 +50,99 @@ ExportVHDLDlgImpl::ExportVHDLDlgImpl(QWidget *parent, const char *name,
   connect(ui.pb_cancel, &QPushButton::clicked, this, &ExportVHDLDlgImpl::reject);
   // connects between ui elements and the current class must be done in the code
   connect(ui.cb_symbolicstates, SIGNAL(clicked()), this, SLOT(symbolicNamesClicked()));
-  connect(ui.cb_inoutnames, SIGNAL(clicked()), this,
-          SLOT(inOutNamesClicked()));
-  connect(ui.cb_synchreset, SIGNAL(clicked()), this,
-          SLOT(synchronousResetClicked()));
-  connect(ui.cb_synchenable, SIGNAL(clicked()), this,
-          SLOT(synchronousEnableClicked()));
-  connect(ui.cb_negreset, SIGNAL(clicked()), this,
-          SLOT(negResetClicked()));
-  connect(ui.cb_stdlogic, SIGNAL(clicked()), this,
-          SLOT(useStdLogicClicked()));
-  connect(ui.cb_iodesc, SIGNAL(clicked()), this,
-          SLOT(ioHeaderClicked()));
-  connect(ui.cb_alliance, SIGNAL(clicked()), this,
-          SLOT(allianceClicked()));
-  connect(ui.cb_state_code, SIGNAL(clicked()), this,
-          SLOT(stateCodeClicked()));
-  connect(ui.bg_cond_notation, SIGNAL(clicked(bool)), this,
-          SLOT(condNotationClicked(bool)));
-  connect(ui.cb_sep_files, SIGNAL(clicked()), this,
-          SLOT(sepFilesClicked()));
-  connect(ui.cb_look_ahead, SIGNAL(clicked()), this,
-          SLOT(lookAheadClicked()));
-  connect(ui.le_architecture_name, SIGNAL(textChanged(QString)),
-          this, SLOT(architectureNameChanged(QString)));
-  connect(ui.le_architecture_file, SIGNAL(textChanged(QString)),
-          this, SLOT(archtitecturePathChanged(QString)));
-  connect(ui.le_entity_file, SIGNAL(textChanged(QString)), this,
-          SLOT(entityPathChanged(QString)));
-  connect(ui.pb_architecture_file, SIGNAL(clicked()), this,
-          SLOT(selectArchitectureFileClicked()));
-  connect(ui.pb_entity_file, SIGNAL(clicked()), this,
-          SLOT(selectEntityFileClicked()));
-  connect(ui.cb_debugstate, SIGNAL(clicked()), this,
-          SLOT(debugStateClicked()));
+  connect(ui.cb_inoutnames, SIGNAL(clicked()), this, SLOT(inOutNamesClicked()));
+  connect(ui.cb_synchreset, SIGNAL(clicked()), this, SLOT(synchronousResetClicked()));
+  connect(ui.cb_synchenable, SIGNAL(clicked()), this, SLOT(synchronousEnableClicked()));
+  connect(ui.cb_negreset, SIGNAL(clicked()), this, SLOT(negResetClicked()));
+  connect(ui.cb_stdlogic, SIGNAL(clicked()), this, SLOT(useStdLogicClicked()));
+  connect(ui.cb_iodesc, SIGNAL(clicked()), this, SLOT(ioHeaderClicked()));
+  connect(ui.cb_alliance, SIGNAL(clicked()), this, SLOT(allianceClicked()));
+  connect(ui.cb_state_code, SIGNAL(clicked()), this, SLOT(stateCodeClicked()));
+  connect(ui.bg_cond_notation, SIGNAL(clicked(bool)), this, SLOT(condNotationClicked(bool)));
+  connect(ui.cb_sep_files, SIGNAL(clicked()), this, SLOT(sepFilesClicked()));
+  connect(ui.cb_look_ahead, SIGNAL(clicked()), this, SLOT(lookAheadClicked()));
+  connect(ui.le_architecture_name, SIGNAL(textChanged(QString)), this, SLOT(architectureNameChanged(QString)));
+  connect(ui.le_architecture_file, SIGNAL(textChanged(QString)), this, SLOT(archtitecturePathChanged(QString)));
+  connect(ui.le_entity_file, SIGNAL(textChanged(QString)), this, SLOT(entityPathChanged(QString)));
+  connect(ui.pb_architecture_file, SIGNAL(clicked()), this, SLOT(selectArchitectureFileClicked()));
+  connect(ui.pb_entity_file, SIGNAL(clicked()), this, SLOT(selectEntityFileClicked()));
+  connect(ui.cb_debugstate, SIGNAL(clicked()), this, SLOT(debugStateClicked()));
 }
 
 /**
  *  Destroys the object and frees any allocated resources
  */
-ExportVHDLDlgImpl::~ExportVHDLDlgImpl() {
+ExportVHDLDlgImpl::~ExportVHDLDlgImpl()
+{
   // no need to delete child widgets, Qt does it all for us
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::symbolicNamesClicked() {
+void ExportVHDLDlgImpl::symbolicNamesClicked()
+{
   symbolic_states = ui.cb_symbolicstates->isChecked();
 }
 
-void ExportVHDLDlgImpl::inOutNamesClicked() {
+void ExportVHDLDlgImpl::inOutNamesClicked()
+{
   inout_names = ui.cb_inoutnames->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::synchronousResetClicked() {
+void ExportVHDLDlgImpl::synchronousResetClicked()
+{
   sync_reset = ui.cb_synchreset->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::synchronousEnableClicked() {
+void ExportVHDLDlgImpl::synchronousEnableClicked()
+{
   sync_enable = ui.cb_synchenable->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::negResetClicked() {
+void ExportVHDLDlgImpl::negResetClicked()
+{
   neg_reset = ui.cb_negreset->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::useStdLogicClicked() {
+void ExportVHDLDlgImpl::useStdLogicClicked()
+{
   stdlogic = ui.cb_stdlogic->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::ioHeaderClicked() {
+void ExportVHDLDlgImpl::ioHeaderClicked()
+{
   io_header = ui.cb_iodesc->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::stateCodeClicked() {
+void ExportVHDLDlgImpl::stateCodeClicked()
+{
   state_code = ui.cb_state_code->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::allianceClicked() {
+void ExportVHDLDlgImpl::allianceClicked()
+{
   alliance = ui.cb_alliance->isChecked();
   if (alliance) {
     ui.cb_symbolicstates->setEnabled(false);
@@ -166,7 +160,8 @@ void ExportVHDLDlgImpl::allianceClicked() {
 /**
  * Initialises the dialog according to the current options @a opt.
  */
-void ExportVHDLDlgImpl::init(Options *opt, Machine *m) {
+void ExportVHDLDlgImpl::init(Options* opt, Machine* m)
+{
   symbolic_states = opt->getVHDLSymbolicStates();
   ui.cb_symbolicstates->setChecked(symbolic_states);
   inout_names = opt->getVHDLInOutNames();
@@ -209,14 +204,11 @@ void ExportVHDLDlgImpl::init(Options *opt, Machine *m) {
     machine_name = m->getName();
   if (path_entity.length() > 0) {
     if (sep_files) {
-      path_entity = path_entity.left(path_entity.lastIndexOf("/") + 1) + "e_" +
-                    machine_name + ".vhd";
-      path_architecture =
-          path_architecture.left(path_architecture.lastIndexOf("/") + 1) +
-          "a_" + machine_name + "_" + architecture_name + ".vhd";
+      path_entity = path_entity.left(path_entity.lastIndexOf("/") + 1) + "e_" + machine_name + ".vhd";
+      path_architecture = path_architecture.left(path_architecture.lastIndexOf("/") + 1) + "a_" + machine_name + "_" +
+                          architecture_name + ".vhd";
     } else
-      path_entity = path_entity.left(path_entity.lastIndexOf("/") + 1) +
-                    machine_name + ".vhd";
+      path_entity = path_entity.left(path_entity.lastIndexOf("/") + 1) + machine_name + ".vhd";
     ui.le_entity_file->setText(path_entity);
     ui.le_architecture_file->setText(path_architecture);
   } else
@@ -247,25 +239,32 @@ void ExportVHDLDlgImpl::init(Options *opt, Machine *m) {
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::condNotationClicked(bool) { cond_notation = static_cast<int>(ui.rb_ifthen->isChecked()); }
+void ExportVHDLDlgImpl::condNotationClicked(bool)
+{
+  cond_notation = static_cast<int>(ui.rb_ifthen->isChecked());
+}
 
-void ExportVHDLDlgImpl::debugStateClicked() {
+void ExportVHDLDlgImpl::debugStateClicked()
+{
   debug_state = ui.cb_debugstate->isChecked();
 }
 
-void ExportVHDLDlgImpl::sepFilesClicked() {
+void ExportVHDLDlgImpl::sepFilesClicked()
+{
   sep_files = ui.cb_sep_files->isChecked();
   setSepFiles(sep_files);
 }
 
-void ExportVHDLDlgImpl::lookAheadClicked() {
+void ExportVHDLDlgImpl::lookAheadClicked()
+{
   sync_look_ahead = ui.cb_look_ahead->isChecked();
 }
 
 /**
  * public slot
  */
-void ExportVHDLDlgImpl::architectureNameChanged(QString) {
+void ExportVHDLDlgImpl::architectureNameChanged(QString)
+{
   architecture_name = ui.le_architecture_name->text();
   qDebug() << "architecture name chaned:" << architecture_name;
 }
@@ -274,14 +273,13 @@ void ExportVHDLDlgImpl::architectureNameChanged(QString) {
  * public slot
  * Show file dialog to get entity file name
  */
-void ExportVHDLDlgImpl::selectArchitectureFileClicked() {
-
+void ExportVHDLDlgImpl::selectArchitectureFileClicked()
+{
   if (path_architecture.length() == 0)
     path_architecture = "a_" + machine_name + "_" + architecture_name + ".vhd";
 
   QString path_architecture_temp = QFileDialog::getSaveFileName(
-      this, "", path_architecture, "VHDL (*.vhd *.vhdl);;All Files (*)", 0,
-      QFileDialog::DontConfirmOverwrite);
+      this, "", path_architecture, "VHDL (*.vhd *.vhdl);;All Files (*)", 0, QFileDialog::DontConfirmOverwrite);
 
   if (path_architecture_temp.length() > 0) {
     ui.le_architecture_file->setText(path_architecture_temp);
@@ -293,7 +291,8 @@ void ExportVHDLDlgImpl::selectArchitectureFileClicked() {
  * Public slot;
  * Show file dialog to get entity file name
  */
-void ExportVHDLDlgImpl::selectEntityFileClicked() {
+void ExportVHDLDlgImpl::selectEntityFileClicked()
+{
   if (path_entity.length() <= 0) {
     if (sep_files)
       path_entity = "e_" + machine_name + ".vhd";
@@ -301,9 +300,8 @@ void ExportVHDLDlgImpl::selectEntityFileClicked() {
       path_entity = machine_name + ".vhd";
   }
 
-  QString path_entity_temp = QFileDialog::getSaveFileName(
-      this, "", path_entity, "VHDL (*.vhd *.vhdl);;All Files (*)", 0,
-      QFileDialog::DontConfirmOverwrite);
+  QString path_entity_temp = QFileDialog::getSaveFileName(this, "", path_entity, "VHDL (*.vhd *.vhdl);;All Files (*)",
+                                                          0, QFileDialog::DontConfirmOverwrite);
 
   if (path_entity_temp.length() > 0) {
     ui.le_entity_file->setText(path_entity_temp);
@@ -314,7 +312,8 @@ void ExportVHDLDlgImpl::selectEntityFileClicked() {
 /**
  * Public slot to update the entity export path
  */
-void ExportVHDLDlgImpl::entityPathChanged(QString new_path) {
+void ExportVHDLDlgImpl::entityPathChanged(QString new_path)
+{
   path_entity = new_path;
   if (path_entity.length() > 0)
     ui.pb_export->setEnabled(true);
@@ -325,13 +324,15 @@ void ExportVHDLDlgImpl::entityPathChanged(QString new_path) {
 /**
  * Public slot to update the architecture export path
  */
-void ExportVHDLDlgImpl::archtitecturePathChanged(QString new_path) {
+void ExportVHDLDlgImpl::archtitecturePathChanged(QString new_path)
+{
   path_architecture = new_path;
 }
 
 /// Set the flag for exporting the state machine in two files (architecture and
 /// entity)
-void ExportVHDLDlgImpl::setSepFiles(bool sep) {
+void ExportVHDLDlgImpl::setSepFiles(bool sep)
+{
   sep_files = sep;
   if (sep_files) {
     ui.l_entity_file->setText(tr("Entity File Name"));

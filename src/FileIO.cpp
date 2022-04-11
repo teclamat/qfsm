@@ -16,12 +16,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <QFileDialog>
-#include <QTextStream>
 #include <qcolor.h>
 #include <qdom.h>
 #include <qmap.h>
 #include <qwidget.h>
+#include <QDebug>
+#include <QFileDialog>
+#include <QTextStream>
 
 #include "AppInfo.h"
 #include "Convert.h"
@@ -40,18 +41,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoText.h"
 #include "XMLHandler.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QtGlobal>
+namespace Qt {
+static auto endl = ::endl;
+static auto bin = ::bin;
+static auto dec = ::dec;
+} // namespace Qt
+#endif
+
 /**
  * Constructor.
  * Initialises the FileIO object with the parent @a parent.
  */
-FileIO::FileIO(QWidget *parent) : QObject(parent) {
-
+FileIO::FileIO(QWidget* parent)
+  : QObject(parent)
+{
   //  filedlg = new Q3FileDialog(act_dir.dirName(), "Finite State Machine
   //  (*.fsm)",
   //    parent, "filedlg", true);
   //  filedlg->setMode(Q3FileDialog::AnyFile);
-  filedlg = new QFileDialog(parent, "", act_dir.dirName(),
-                            "Finite State Machine (*.fsm)");
+  filedlg = new QFileDialog(parent, "", act_dir.dirName(), "Finite State Machine (*.fsm)");
   filedlg->setFileMode(QFileDialog::AnyFile);
   filedlg->setAcceptMode(QFileDialog::AcceptSave);
   filedlg->setOption(QFileDialog::DontConfirmOverwrite);
@@ -68,12 +78,11 @@ FileIO::FileIO(QWidget *parent) : QObject(parent) {
   exportdlg->setAcceptMode(QFileDialog::AcceptSave);
   exportdlg->setOption(QFileDialog::DontConfirmOverwrite);
 
-  mb_statecode = new QMessageBox(
-      "qfsm",
-      tr("The file cannot be saved because of incorrect state codes. Do you "
-         "want to correct that?"),
-      QMessageBox::Critical, QMessageBox::Yes | QMessageBox::Default,
-      QMessageBox::No, QMessageBox::Cancel | QMessageBox::Escape);
+  mb_statecode = new QMessageBox("qfsm",
+                                 tr("The file cannot be saved because of incorrect state codes. Do you "
+                                    "want to correct that?"),
+                                 QMessageBox::Critical, QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                                 QMessageBox::Cancel | QMessageBox::Escape);
   mb_statecode->setButtonText(QMessageBox::Yes, tr("Yes"));
   mb_statecode->setButtonText(QMessageBox::No, tr("No"));
   mb_statecode->setButtonText(QMessageBox::Cancel, tr("Cancel"));
@@ -81,11 +90,12 @@ FileIO::FileIO(QWidget *parent) : QObject(parent) {
   act_file = QString{};
   act_exportfile = QString{};
   act_export_dir = QString{};
-  main = (MainWindow *)parent;
+  main = (MainWindow*)parent;
 }
 
 /// Destructor
-FileIO::~FileIO() {
+FileIO::~FileIO()
+{
   delete filedlg;
   delete importdlg;
   delete exportdlg;
@@ -97,8 +107,9 @@ FileIO::~FileIO() {
  * Opens the '.fsm' file @a mrufile.
  * If @a mrufile is null a file dialog is opened first.
  */
-qfsm::Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
-  qfsm::Project *p = NULL;
+qfsm::Project* FileIO::openFileXML(QString mrufile /*=QString::null*/)
+{
+  qfsm::Project* p = NULL;
   //  filedlg->setMode(Q3FileDialog::ExistingFile);
   filedlg->setAcceptMode(QFileDialog::AcceptOpen);
   filedlg->setFileMode(QFileDialog::ExistingFile);
@@ -118,8 +129,8 @@ qfsm::Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
 
   emit sbMessage(tr("File loading..."));
   QFile file(act_file);
-   if (!file.open(QFile::ReadOnly))
-     return NULL;
+  if (!file.open(QFile::ReadOnly))
+    return NULL;
 
   p = new qfsm::Project(main);
   XMLHandler handler(p);
@@ -146,17 +157,18 @@ qfsm::Project *FileIO::openFileXML(QString mrufile /*=QString::null*/) {
  * Save project as 'fsm'-file with a new name.
  * Asks for a file name and saves the project @a p as a 'fsm'-file.
  */
-bool FileIO::saveFileAs(qfsm::Project *p) {
+bool FileIO::saveFileAs(qfsm::Project* p)
+{
   if (!p->machine()->checkStateCodes()) {
     switch (mb_statecode->exec()) {
-    case QMessageBox::Yes:
-      break;
-    case QMessageBox::No:
-      return false;
-      break;
-    case QMessageBox::Cancel:
-      return false;
-      break;
+      case QMessageBox::Yes:
+        break;
+      case QMessageBox::No:
+        return false;
+        break;
+      case QMessageBox::Cancel:
+        return false;
+        break;
     }
   }
   //  filedlg->setMode(Q3FileDialog::AnyFile);
@@ -169,8 +181,7 @@ bool FileIO::saveFileAs(qfsm::Project *p) {
   if (filedlg->exec()) {
     act_file = filedlg->selectedFiles().first();
 
-    QString name =
-        act_file.right(act_file.length() - act_file.lastIndexOf("/"));
+    QString name = act_file.right(act_file.length() - act_file.lastIndexOf("/"));
     if (name.right(4) != ".fsm")
       act_file.append(".fsm");
 
@@ -179,8 +190,7 @@ bool FileIO::saveFileAs(qfsm::Project *p) {
       // if (QMessageBox::warning(main, tr("Warning"), tr("File exists. Do you
       // want to overwrite it?"), QMessageBox::Ok|QMessageBox::Default,
       // QMessageBox::Cancel|QMessageBox::Escape)!=QMessageBox::Ok)
-      if (Error::warningOkCancel(tr(
-              "File exists. Do you want to overwrite it?")) != QMessageBox::Ok)
+      if (Error::warningOkCancel(tr("File exists. Do you want to overwrite it?")) != QMessageBox::Ok)
         return false;
     }
 
@@ -193,15 +203,16 @@ bool FileIO::saveFileAs(qfsm::Project *p) {
  * Saves project as 'fsm'-file.
  * If no file name is given, it first asks for the file name.
  */
-bool FileIO::saveFile(qfsm::Project *p) {
+bool FileIO::saveFile(qfsm::Project* p)
+{
   if (!p->machine()->checkStateCodes()) {
     switch (mb_statecode->exec()) {
-    case QMessageBox::Yes:
-      break;
-    case QMessageBox::No:
-      return false;
-    case QMessageBox::Cancel:
-      return false;
+      case QMessageBox::Yes:
+        break;
+      case QMessageBox::No:
+        return false;
+      case QMessageBox::Cancel:
+        return false;
     }
   }
   if (act_file.isEmpty())
@@ -213,18 +224,19 @@ bool FileIO::saveFile(qfsm::Project *p) {
 /**
  * Performs the actual saving of project @a p.
  */
-bool FileIO::doSave(qfsm::Project *p) {
+bool FileIO::doSave(qfsm::Project* p)
+{
   using Info = qfsm::AppInfo;
 
   Machine* m = p->machine();
   if (!m)
     return false;
 
-  QList<GState *> list;
-  QList<GTransition *> tlist;
-  GState *state;
-  State *dest_state;
-  GTransition *t;
+  QList<GState*> list;
+  QList<GTransition*> tlist;
+  GState* state;
+  State* dest_state;
+  GTransition* t;
 
   QFile file(act_file);
   if (!file.open(QIODevice::WriteOnly)) {
@@ -235,7 +247,7 @@ bool FileIO::doSave(qfsm::Project *p) {
   QTextStream s(&file);
 
   list = m->getSList();
-  QMutableListIterator<GState *> i(list);
+  QMutableListIterator<GState*> i(list);
 
   double xpos, ypos;
   double c1x, c1y, c2x, c2y;
@@ -273,7 +285,6 @@ bool FileIO::doSave(qfsm::Project *p) {
   s << Qt::endl;
 
   for (; i.hasNext();) {
-
     state = i.next();
     state->getPos(xpos, ypos);
 
@@ -302,7 +313,7 @@ bool FileIO::doSave(qfsm::Project *p) {
     s << Qt::dec;
 
     tlist = state->tlist;
-    QMutableListIterator<GTransition *> j(tlist);
+    QMutableListIterator<GTransition*> j(tlist);
 
     s << state->countTransitions() << Qt::endl;
 
@@ -348,7 +359,7 @@ bool FileIO::doSave(qfsm::Project *p) {
   state = m->getPhantomState();
 
   tlist = state->tlist;
-  QMutableListIterator<GTransition *> ph(tlist);
+  QMutableListIterator<GTransition*> ph(tlist);
 
   s << state->countTransitions() << Qt::endl;
 
@@ -396,8 +407,9 @@ bool FileIO::doSave(qfsm::Project *p) {
 /**
  * Performs the actual saving of project @a p in XML format.
  */
-bool FileIO::doSaveXML(qfsm::Project *p) {
-  Machine *m = p->machine();
+bool FileIO::doSaveXML(qfsm::Project* p)
+{
+  Machine* m = p->machine();
   if (!m)
     return false;
 
@@ -812,7 +824,8 @@ bool FileIO::doSaveXML(qfsm::Project *p) {
  * Saves the application options.
  * Saves options @a opt in the qfsmrc-file which is in $HOME/.qfsm/.
  */
-int FileIO::saveOptions(Options *opt) {
+int FileIO::saveOptions(Options* opt)
+{
   int result = 0;
   QString stmp;
   QDir dir = QDir::home();
@@ -936,7 +949,8 @@ int FileIO::saveOptions(Options *opt) {
  * Loads the application options.
  * Loads the options from $HOME/.qfsm/qfsmrc into @a opt.
  */
-int FileIO::loadOptions(Options *opt) {
+int FileIO::loadOptions(Options* opt)
+{
   int result = 0;
   QDir dir = QDir::home();
   QMap<QString, QString> _map;
@@ -974,7 +988,8 @@ int FileIO::loadOptions(Options *opt) {
  * @param map pairs of strings which contain the options
  * @param opt options object where the options will be saved
  */
-void FileIO::setOptions(QMap<QString, QString> *_map, Options *opt) {
+void FileIO::setOptions(QMap<QString, QString>* _map, Options* opt)
+{
   QMap<QString, QString>::Iterator it;
   QString key, data;
   int idata;
@@ -1149,10 +1164,8 @@ qfsm::Project* FileIO::importFile(Import* imp, ScrollView* sv /*=NULL*/)
   act_importfile = importdlg->selectedFiles().first();
   act_import_dir = importdlg->directory().absolutePath();
 
-  QString name = act_importfile.right(act_importfile.length() -
-                                      act_importfile.lastIndexOf("/"));
-  if (name.right(1 + imp->defaultExtension().length()) !=
-      QString("." + imp->defaultExtension()))
+  QString name = act_importfile.right(act_importfile.length() - act_importfile.lastIndexOf("/"));
+  if (name.right(1 + imp->defaultExtension().length()) != QString("." + imp->defaultExtension()))
     act_importfile.append("." + imp->defaultExtension());
 
   // p = new Project(main);
@@ -1196,23 +1209,20 @@ bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
   else
     exportdlg->selectFile(p->machine()->getName());
 
-  exportdlg->setNameFilters({exp->fileFilter(),"All Files (*)"});
+  exportdlg->setNameFilters({ exp->fileFilter(), "All Files (*)" });
 
   if (exportdlg->exec()) {
     act_exportfile = exportdlg->selectedFiles().first();
     //    act_export_dir = exportdlg->dirPath();
     act_export_dir = exportdlg->directory().absolutePath();
 
-    QString name = act_exportfile.right(act_exportfile.length() -
-                                        act_exportfile.lastIndexOf("/"));
-    if (name.right(1 + exp->defaultExtension().length()) !=
-        QString("." + exp->defaultExtension()))
+    QString name = act_exportfile.right(act_exportfile.length() - act_exportfile.lastIndexOf("/"));
+    if (name.right(1 + exp->defaultExtension().length()) != QString("." + exp->defaultExtension()))
       act_exportfile.append("." + exp->defaultExtension());
 
     QFile ftmp(act_exportfile);
     if (ftmp.exists()) {
-      if (Error::warningOkCancel(tr(
-              "File exists. Do you want to overwrite it?")) != QMessageBox::Ok)
+      if (Error::warningOkCancel(tr("File exists. Do you want to overwrite it?")) != QMessageBox::Ok)
         return false;
     }
 
@@ -1234,7 +1244,8 @@ bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
 }
 
 /// Saves the list of most recently used files
-bool FileIO::saveMRU(QStringList list) {
+bool FileIO::saveMRU(QStringList list)
+{
   QDir dir = QDir::home();
 
   QDir qfsmdir = createQfsmDir();
@@ -1258,7 +1269,8 @@ bool FileIO::saveMRU(QStringList list) {
 }
 
 /// Loads the list of most recently used files
-bool FileIO::loadMRU(QStringList &_list) {
+bool FileIO::loadMRU(QStringList& _list)
+{
   _list.clear();
 
   QString entry;
@@ -1289,7 +1301,8 @@ bool FileIO::loadMRU(QStringList &_list) {
   return true;
 }
 
-QDir FileIO::createQfsmDir() {
+QDir FileIO::createQfsmDir()
+{
   QDir dir = QDir::home();
 #ifdef Q_OS_WIN
   QDir qfsmdir(dir.absolutePath() + "/Application Data/qfsm");

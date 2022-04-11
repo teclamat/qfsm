@@ -76,9 +76,6 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <includes>
-  <include location="local">WSpinBox.h</include>
- </includes>
  <resources/>
  <connections/>
 </ui>

@@ -40,6 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QRect>
 #include <QToolTip>
 
+#include <cmath>
+
 DrawArea::DrawArea(QWidget* parent, MainWindow* m, const char* name)
   : QWidget(parent)
 {
@@ -402,7 +404,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
             s->getPos(xpos, ypos);
             grid->getPoint(xpos, ypos, xlock, ylock);
 
-            if (fabs(xpos - xlock) > 1e-1 || fabs(ypos - ylock) > 1e-1) {
+            if (std::fabs(xpos - xlock) > 1e-1 || std::fabs(ypos - ylock) > 1e-1) {
               movex = xlock - xpos; // + (mousex-lastMovePosX);
               movey = ylock - ypos; // + (mousey-lastMovePosY);
               lastMovePosX -= movex;

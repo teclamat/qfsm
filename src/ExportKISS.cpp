@@ -77,7 +77,7 @@ void ExportKISS::writeName() {
 
   *out << "SUBDESIGN " << n << endl;
   */
-  *out << "# " << n.toLatin1() << endl << endl;
+  *out << "# " << n.constData() << endl << endl;
 }
 
 /// Writes the inputs/outputs to the output stream
@@ -87,11 +87,11 @@ void ExportKISS::writeIO() {
   QString on;
   *out << ".i " << machine->getNumInputs() << endl;
   *out << ".o " << machine->getNumOutputs() << endl;
-  *out << ".ilb " << machine->getMealyInputNames(" ").toLatin1() << endl;
+  *out << ".ilb " << machine->getMealyInputNames(" ").toStdString() << endl;
 
   on = machine->getMealyOutputNames(" ");
   if (!on.isEmpty())
-    *out << ".ob " << on.toLatin1() << endl;
+    *out << ".ob " << on.toStdString() << endl;
 
   *out << endl;
 }
@@ -159,7 +159,7 @@ void ExportKISS::writeMain() {
 
   reset = machine->getInitialState();
   if (reset)
-    *out << ".r " << reset->getStateName().toLatin1() << endl << endl;
+    *out << ".r " << reset->getStateName().toStdString() << endl << endl;
 
   writeTransitions();
 }
@@ -215,19 +215,19 @@ void ExportKISS::writeTransitions() {
               *out << "0";
 
             tinfoi.replace(QRegularExpression("x"), "-");
-            *out << tinfoi.toLatin1() << " "; // << "\" ";
+            *out << tinfoi.toStdString() << " "; // << "\" ";
 
             sn2 = stmp->getStateName();
             sn2.replace(QRegularExpression(" "), "_");
 
-            *out << sn1.toLatin1() << " " << sn2.toLatin1() << " ";
+            *out << sn1.toStdString() << " " << sn2.toStdString() << " ";
 
             slen = tinfoo.length();
             int numout = machine->getNumOutputs();
             for (int l = slen; l < numout; l++)
               *out << "0";
 
-            *out << tinfoo.toLatin1() << endl;
+            *out << tinfoo.toStdString() << endl;
           }
         }
       }

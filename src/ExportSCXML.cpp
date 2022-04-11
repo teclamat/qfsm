@@ -45,7 +45,7 @@ void ExportSCXML::writeMain() {
 
   *out << "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" "
           "initialstate=\""
-       << initial->getStateName().toLatin1() << "\">" << endl;
+       << initial->getStateName().toStdString() << "\">" << endl;
   *out << endl;
 
   writeHeader("<!--", "-->");
@@ -78,9 +78,9 @@ void ExportSCXML::writeTransitions() {
     sn1.replace(QRegularExpression(" "), "_");
 
     if (s->isFinalState())
-      *out << "  <final id=\"" << sn1.toLatin1() << "\">" << endl;
+      *out << "  <final id=\"" << sn1.toStdString() << "\">" << endl;
     else
-      *out << "  <state id=\"" << sn1.toLatin1() << "\">" << endl;
+      *out << "  <state id=\"" << sn1.toStdString() << "\">" << endl;
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -101,8 +101,8 @@ void ExportSCXML::writeTransitions() {
           sn2 = stmp->getStateName();
           sn2.replace(QRegularExpression(" "), "_");
 
-          *out << "    <transition event=\"" << tinfoi_processed.toLatin1()
-               << "\" target=\"" << sn2.toLatin1() << "\" >" << endl;
+          *out << "    <transition event=\"" << tinfoi_processed.toStdString()
+               << "\" target=\"" << sn2.toStdString() << "\" >" << endl;
           /*
           if (!tinfoo.isEmpty())
             *out << "      <log expr=\"\'" << tinfoo.latin1() << "\'\" />" <<
@@ -113,7 +113,7 @@ void ExportSCXML::writeTransitions() {
             while (sit != tinfoo_list.end()) {
               tinfoo_processed = (*sit).trimmed();
               tinfoo_processed.replace(QRegularExpression(" "), "_");
-              *out << "      <send event=\"" << tinfoo_processed.toLatin1()
+              *out << "      <send event=\"" << tinfoo_processed.toStdString()
                    << "\" />" << endl;
               ++sit;
             }

@@ -19,9 +19,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // #include <q3textstream.h>
 #include <qdir.h>
 #include <QRegularExpression>
+#include <QTextStream>
 
 #include "MainWindow.h"
 #include "Options.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QtGlobal>
+namespace Qt {
+static auto endl = ::endl;
+}
+#endif
 
 /**
  * Constructor.

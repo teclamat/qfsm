@@ -45,13 +45,13 @@ void ExportSMC::writeMain() {
 
   initial = machine->getInitialState();
 
-  *out << "%class " << machine->getName().toLatin1() << endl;
+  *out << "%class " << machine->getName().toStdString() << endl;
   *out << endl;
   /*
    *out << "%fsmclass " << machine->getName().latin1() << endl;
    *out << endl;
    */
-  *out << "%start MainMap::" << initial->getStateName().toLatin1() << endl;
+  *out << "%start MainMap::" << initial->getStateName().toStdString() << endl;
   *out << endl;
   *out << "%map MainMap" << endl;
   *out << "%%" << endl;
@@ -86,7 +86,7 @@ void ExportSMC::writeTransitions() {
     sn1 = s->getStateName();
     sn1.replace(QRegularExpression(" "), "_");
 
-    *out << sn1.toLatin1() << endl;
+    *out << sn1.toStdString() << endl;
 
     QMutableListIterator<GTransition *> it(s->tlist);
 
@@ -99,7 +99,7 @@ void ExportSMC::writeTransitions() {
       while (sit != action_list.end()) {
         act = (*sit).trimmed();
         act.replace(QRegularExpression(" "), "_");
-        *out << "  " << act.toLatin1() << ";" << endl;
+        *out << "  " << act.toStdString() << ";" << endl;
         ++sit;
       }
       *out << "}" << endl;
@@ -113,7 +113,7 @@ void ExportSMC::writeTransitions() {
       while (sit != action_list.end()) {
         act = (*sit).trimmed();
         act.replace(QRegularExpression(" "), "_");
-        *out << "  " << act.toLatin1() << ";" << endl;
+        *out << "  " << act.toStdString() << ";" << endl;
         ++sit;
       }
       *out << "}" << endl;
@@ -141,15 +141,15 @@ void ExportSMC::writeTransitions() {
           if (tioinfo->isDefault()) // default transition
             *out << "  Default" << endl;
           else // not default transition
-            *out << "  " << tinfoi_processed.toLatin1() << endl;
-          *out << "    " << sn2.toLatin1() << endl;
+            *out << "  " << tinfoi_processed.toStdString() << endl;
+          *out << "    " << sn2.toStdString() << endl;
           *out << "    {" << endl;
           if (!tinfoo.isEmpty()) {
             sit = tinfoo_list.begin();
             while (sit != tinfoo_list.end()) {
               tinfoo_processed = (*sit).trimmed();
               tinfoo_processed.replace(QRegularExpression(" "), "_");
-              *out << "      " << tinfoo_processed.toLatin1() << ";" << endl;
+              *out << "      " << tinfoo_processed.toStdString() << ";" << endl;
               ++sit;
             }
           }

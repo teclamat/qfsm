@@ -39,6 +39,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Grid.h"
 #include "TransitionInfo.h"
 
+#include <cmath>
+
 /**
  * Constructor.
  * Initialises the Draw object.
@@ -387,7 +389,7 @@ void Draw::drawTransitions(Machine *m, QPainter *p, int contx, int conty,
           p->setPen(pen);
 
         //	p->setPen(pen);
-        path.clear();
+        path = QPainterPath{};
         path.moveTo(xpos, ypos);
         path.cubicTo(c1x, c1y, c2x, c2y, ex, ey);
         p->drawPath(path);
@@ -452,7 +454,7 @@ void Draw::drawTransitions(Machine *m, QPainter *p, int contx, int conty,
 
       p->setPen(redpen);
 
-      path.clear();
+      path = QPainterPath{};
       path.moveTo(xpos, ypos);
       path.cubicTo(c1x, c1y, c2x, c2y, ex, ey);
       p->drawPath(path);
@@ -828,8 +830,8 @@ void Draw::drawInitialTransition(Machine *m, GITransition *t, QPainter *p,
 
     double extx, exty;
     QRect boundrect;
-    extx = START_DISTANCE / sqrt(1 + mg * mg);
-    exty = START_DISTANCE / sqrt(1 + 1 / (mg * mg));
+    extx = START_DISTANCE / std::sqrt(1 + mg * mg);
+    exty = START_DISTANCE / std::sqrt(1 + 1 / (mg * mg));
 
     boundrect = p->boundingRect((int)textposx, (int)textposy, 1000, 100,
                                 Qt::AlignLeft | Qt::AlignVCenter,
@@ -993,18 +995,18 @@ void Draw::calcArrow(double p1x, double p1y, double p2x, double p2y, double &xl,
   else
     mg = (p2y < p1y ? 1 : -1) * 100000;
 
-  phi = atan(mg);
+  phi = std::atan(mg);
   if (p2x < p1x)
     phi = phi + PI;
   phil = phi - (ARROW_ANGLE / 180 * PI);
   phir = phi + (ARROW_ANGLE / 180 * PI);
 
-  arrow_x1 = ARROW_LENGTH * cos(phil);
-  arrow_y1 = ARROW_LENGTH * sin(phil);
-  arrow_x2 = ARROW_LENGTH * cos(phir);
-  arrow_y2 = ARROW_LENGTH * sin(phir);
-  arrow_xm = 0.66 * ARROW_LENGTH * cos(phi);
-  arrow_ym = 0.66 * ARROW_LENGTH * sin(phi);
+  arrow_x1 = ARROW_LENGTH * std::cos(phil);
+  arrow_y1 = ARROW_LENGTH * std::sin(phil);
+  arrow_x2 = ARROW_LENGTH * std::cos(phir);
+  arrow_y2 = ARROW_LENGTH * std::sin(phir);
+  arrow_xm = 0.66 * ARROW_LENGTH * std::cos(phi);
+  arrow_ym = 0.66 * ARROW_LENGTH * std::sin(phi);
 
   //  t->getEndPos(ex, ey);
   ex = p2x;
@@ -1185,9 +1187,9 @@ void Draw::drawHeadline(Machine *m, QPainter *p) //, double scale)
 
 QRect Draw::getBoundingBox(Machine *m, QPainter *p) {
   QRect result;
-  double minx = DBL_MAX;
+  double minx = std::numeric_limits<double>::max();
   double maxx = 0;
-  double miny = DBL_MAX;
+  double miny = std::numeric_limits<double>::max();
   double maxy = 0;
   bool shadows = options->getStateShadows();
   int addshadowx = 0, addshadowy = 0;
@@ -1229,8 +1231,8 @@ QRect Draw::getBoundingBox(Machine *m, QPainter *p) {
 
       double extx, exty;
       QRect boundrect;
-      extx = START_DISTANCE / sqrt(1 + mg * mg);
-      exty = START_DISTANCE / sqrt(1 + 1 / (mg * mg));
+      extx = START_DISTANCE / std::sqrt(1 + mg * mg);
+      exty = START_DISTANCE / std::sqrt(1 + 1 / (mg * mg));
 
       boundrect = p->boundingRect((int)ROUND(textposx), (int)ROUND(textposy),
                                   3000, 100, Qt::AlignLeft | Qt::AlignVCenter,

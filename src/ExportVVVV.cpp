@@ -16,7 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <iostream>
 #include <QRegularExpression>
 
 #include "ExportVVVV.h"
@@ -26,26 +25,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "IOInfo.h"
 #include "Options.h"
 
+#include <iostream>
 // using namespace std;
 
-ExportVVVV::ExportVVVV(Options *opt) : Export(opt) {}
+ExportVVVV::ExportVVVV(Options* opt)
+  : Export(opt)
+{
+}
 
 /// Writes all the relevant data into the tdf file.
-void ExportVVVV::doExport() { writeMain(); }
+void ExportVVVV::doExport()
+{
+  writeMain();
+}
 
-QString ExportVVVV::fileFilter() { return "vvvv Automata code (*.txt)"; }
-QString ExportVVVV::defaultExtension() { return "txt"; }
+QString ExportVVVV::fileFilter()
+{
+  return "vvvv Automata code (*.txt)";
+}
+QString ExportVVVV::defaultExtension()
+{
+  return "txt";
+}
 
 /// Writes the vvvv Automata code to the output stream
-void ExportVVVV::writeMain() {
+void ExportVVVV::writeMain()
+{
   using namespace std;
 
-  GState *reset = NULL;
-  GState *s;
-  GTransition *t;
+  GState* reset = NULL;
+  GState* s;
+  GTransition* t;
   QString tinfoi, tinfoo, sn1, sn2, reset_sn;
-  State *stmp;
-  TransitionInfo *tinfo;
+  State* stmp;
+  TransitionInfo* tinfo;
   QString reset_event_name, reset_action_name;
 
   // output reset state first
@@ -60,7 +73,7 @@ void ExportVVVV::writeMain() {
   if (reset_action_name.isEmpty())
     reset_action_name = "DoReset";
 
-  QMutableListIterator<GTransition *> it(reset->tlist);
+  QMutableListIterator<GTransition*> it(reset->tlist);
 
   for (; it.hasNext();) {
     t = it.next();
@@ -80,14 +93,14 @@ void ExportVVVV::writeMain() {
         if (tinfoo.isEmpty())
           tinfoo = "Do" + sn2;
 
-        *out << sn1.toLatin1() << " " << tinfoi.toLatin1() << " " << sn2.toLatin1()
-             << " " << tinfoo.toLatin1() << endl;
+        *out << sn1.toStdString() << " " << tinfoi.toStdString() << " " << sn2.toStdString() << " "
+             << tinfoo.toStdString() << endl;
       }
     }
   }
 
   // output all other states
-  QMutableListIterator<GState *> is(machine->getSList());
+  QMutableListIterator<GState*> is(machine->getSList());
 
   for (; is.hasNext();) {
     s = is.next();
@@ -96,16 +109,14 @@ void ExportVVVV::writeMain() {
     sn1 = s->getStateName();
     sn1.replace(QRegularExpression(" "), "_");
 
-    QMutableListIterator<GTransition *> it(s->tlist);
+    QMutableListIterator<GTransition*> it(s->tlist);
 
     if (s == reset) // reset state has already been output
       continue;
 
     if (options->getVVVVReset()) {
-
-      *out << sn1.toLatin1() << " " << reset_event_name.toLatin1() << " "
-           << reset_sn.toLatin1() << " " << reset_action_name.toLatin1() << " "
-           << endl;
+      *out << sn1.toStdString() << " " << reset_event_name.toStdString() << " " << reset_sn.toStdString() << " "
+           << reset_action_name.toStdString() << " " << endl;
     }
 
     for (; it.hasNext();) {
@@ -126,8 +137,8 @@ void ExportVVVV::writeMain() {
           if (tinfoo.isEmpty())
             tinfoo = "Do" + sn2;
 
-          *out << sn1.toLatin1() << " " << tinfoi.toLatin1() << " " << sn2.toLatin1()
-               << " " << tinfoo.toLatin1() << endl;
+          *out << sn1.toStdString() << " " << tinfoi.toStdString() << " " << sn2.toStdString() << " "
+               << tinfoo.toStdString() << endl;
         }
       }
     }

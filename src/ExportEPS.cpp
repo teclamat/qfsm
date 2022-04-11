@@ -32,6 +32,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "IOInfo.h"
 #include "ScrollView.h"
 
+#include <cmath>
+
 // using namespace std;
 
 ExportEPS::ExportEPS(Options *opt) : Export(opt) {}
@@ -131,14 +133,14 @@ bool ExportEPS::fixEPS(const QString &fileName, QRect rect) const {
   QRegularExpressionMatch match{};
   const qsizetype pos = fileContent.indexOf(rx, 0, &match);
   if (pos < 0) {
-    cerr << "ExportEPS::fixEPS(" << fileName.toLatin1()
+    cerr << "ExportEPS::fixEPS(" << fileName.toStdString()
          << "): cannot find %%BoundingBox" << endl;
     return false;
   }
 
   // write new content to file
   if (!epsfile.open(QFile::WriteOnly | QFile::Truncate)) {
-    cerr << "ExportEPS::fixEPS(" << fileName.toLatin1()
+    cerr << "ExportEPS::fixEPS(" << fileName.toStdString()
          << "): cannot open file for writing" << endl;
     return false;
   }

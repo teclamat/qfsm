@@ -454,7 +454,7 @@ void ExportVHDL::writeStateProcess(std::ofstream* out)
         i->replace("..", " DOWNTO ");
         i->replace('[', '(');
         i->replace(']', ')');
-        *out << ", " << i->toLatin1();
+        *out << ", " << i->toStdString();
       }
     } else
       *out << ", a";
@@ -488,15 +488,15 @@ void ExportVHDL::writeStateProcess(std::ofstream* out)
     i->replace('[', '(');
     i->replace(']', ')');
     if (machine->getNumInputs() == 1)
-      *out << "    temp_input(0) := " << i->toLatin1();
+      *out << "    temp_input(0) := " << i->toStdString();
     else if (machine->getNumInputs() > 1) {
-      *out << "    temp_input := " << i->toLatin1();
+      *out << "    temp_input := " << i->toStdString();
       i++;
 
       for (; i != inputs.end(); ++i) {
         i->replace('[', '(');
         i->replace(']', ')');
-        *out << " & " << i->toLatin1();
+        *out << " & " << i->toStdString();
       }
     }
     *out << ";\n";
@@ -896,7 +896,7 @@ void ExportVHDL::writeDescription(std::ofstream* out)
       textLen[0] = state->getStateName().length();
   textLen[0]++;
 
-  *out << "-- State/Output" << QString(textLen[0] - 13, ' ').toLatin1().constData();
+  *out << "-- State/Output" << QString(textLen[0] - 13, ' ').toStdString();
 
   if (machine->getNumMooreOutputs() > 0) {
     int spc = 1;
@@ -905,7 +905,7 @@ void ExportVHDL::writeDescription(std::ofstream* out)
     for (i = outputs.begin(); i != outputs.end(); ++i) {
       textLen[spc] = i->length() + 1;
       spc++;
-      *out << ' ' << i->toLatin1();
+      *out << ' ' << i->toStdString();
     }
   }
   *out << endl;
@@ -968,12 +968,12 @@ void ExportVHDL::writeOutputProcess(std::ofstream* out)
 
     if (state_encoding) {
       *out << "      WHEN \""
-           << Convert::intToBinStr(s->getEncoding(), machine->getNumEncodingBits()).toLatin1().constData() << "\" =>";
+           << Convert::intToBinStr(s->getEncoding(), machine->getNumEncodingBits()).toStdString() << "\" =>";
     } else {
-      *out << "      WHEN " << Utils::noWS(s->getStateName()).toLatin1().constData() << " =>";
+      *out << "      WHEN " << Utils::noWS(s->getStateName()).toStdString() << " =>";
     }
 
-    *out << " next_output <= \"" << s->getMooreOutputsStr(machine, options).toLatin1() << "\";" << endl;
+    *out << " next_output <= \"" << s->getMooreOutputsStr(machine, options).toStdString() << "\";" << endl;
   }
 
   if (use_std_logic)

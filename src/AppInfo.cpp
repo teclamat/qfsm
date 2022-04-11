@@ -23,6 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QObject>
 #include <QTextStream>
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QtGlobal>
+namespace Qt {
+static auto endl = ::endl;
+}
+#endif
+
 namespace qfsm {
 
 int AppInfo::s_versionMajor = QFSM_VERSION_MAJOR;

@@ -49,5 +49,5 @@ void ExportStateTable::writeMain() {
   body = tablebuilder->getBody();
   footer = tablebuilder->getFoot();
 
-  *out << header.toLatin1() << body.toLatin1() << footer.toLatin1();
+  *out << header.toStdString() << body.toStdString() << footer.toStdString();
 }

@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>427</width>
-    <height>380</height>
+    <height>399</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,7 +39,7 @@
    <property name="spacing">
     <number>6</number>
    </property>
-   <property name="margin" stdset="0">
+   <property name="margin">
     <number>11</number>
    </property>
    <item>
@@ -57,7 +57,7 @@
       <property name="spacing">
        <number>6</number>
       </property>
-      <property name="margin" stdset="0">
+      <property name="margin">
        <number>8</number>
       </property>
       <item>
@@ -78,7 +78,7 @@
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin" stdset="0">
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
@@ -86,7 +86,7 @@
            <property name="spacing">
             <number>6</number>
            </property>
-           <property name="margin" stdset="0">
+           <property name="margin">
             <number>0</number>
            </property>
            <item>
@@ -120,7 +120,7 @@
         <property name="spacing">
          <number>2</number>
         </property>
-        <property name="margin" stdset="0">
+        <property name="margin">
          <number>0</number>
         </property>
         <item>
@@ -393,7 +393,7 @@
       <property name="spacing">
        <number>6</number>
       </property>
-      <property name="margin" stdset="0">
+      <property name="margin">
        <number>8</number>
       </property>
       <item>
@@ -439,7 +439,7 @@
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin" stdset="0">
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
@@ -447,7 +447,7 @@
            <property name="spacing">
             <number>6</number>
            </property>
-           <property name="margin" stdset="0">
+           <property name="margin">
             <number>0</number>
            </property>
            <item>
@@ -484,7 +484,7 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <property name="margin" stdset="0">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
@@ -554,9 +554,6 @@
          <height>32767</height>
         </size>
        </property>
-       <property name="pixmap">
-        <pixmap/>
-       </property>
        <property name="scaledContents">
         <bool>false</bool>
        </property>
@@ -578,7 +575,7 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <property name="margin" stdset="0">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
@@ -623,7 +620,7 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <property name="margin" stdset="0">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
@@ -669,9 +666,9 @@
       </widget>
      </item>
      <item>
-      <widget class="WSpinBox" name="frequency" native="true">
+      <widget class="QSpinBox" name="frequency">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -685,7 +682,7 @@
      <property name="spacing">
       <number>5</number>
      </property>
-     <property name="margin" stdset="0">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
@@ -751,13 +748,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>WSpinBox</class>
-   <extends>QWidget</extends>
-   <header>WSpinBox.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>le_inputs</tabstop>
   <tabstop>rb_ibin</tabstop>
@@ -783,9 +773,6 @@
   <tabstop>pb_reset</tabstop>
   <tabstop>pb_cancel</tabstop>
  </tabstops>
- <includes>
-  <include location="local">WSpinBox.h</include>
- </includes>
  <resources/>
  <connections/>
 </ui>

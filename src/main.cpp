@@ -29,6 +29,7 @@ Qt 5/6 port by Mateusz Tecław
 #include "MainControl.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QLocale>

@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
 
+#include <cmath>
+
 //#include "dialogs/DStateProperties.h"
 #include "StatePropertiesDlg.h"
 
@@ -301,7 +303,7 @@ QString StateManager::getNewBinCode() {
   int bits;
 
   code = getNewCode();
-  bits = int(log((float)code) / log(2.0)) + 1;
+  bits = int(std::log((float)code) / std::log(2.0)) + 1;
   if (bits < 1)
     bits = 1;
 

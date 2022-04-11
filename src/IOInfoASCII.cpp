@@ -1300,7 +1300,7 @@ QStringList IOInfoASCII::getRagelConditions() {
           s2.replace(QRegularExpression("[\\[]"), "\\[");
           s2.replace(QRegularExpression("[\\]]"), "\\]");
           s2.replace(QRegularExpression("[\\-]"), "\\-");
-          stmp = QString{"%1-%2"}.arg(s1.toLatin1(), s2.toLatin1());
+          stmp = QString{"%1-%2"}.arg(s1).arg(s2);
           single_chars += stmp;
           stmp = "";
         } else {
@@ -1316,8 +1316,8 @@ QStringList IOInfoASCII::getRagelConditions() {
           }
           */
           if (c2 > 127) {
-            stmp1 = QString{"0x%1"}.arg(conv.asciiToHexStr(c1).toLatin1());
-            stmp2 = QString{"0x%1"}.arg(conv.asciiToHexStr(127).toLatin1());
+            stmp1 = QString{"0x%1"}.arg(conv.asciiToHexStr(c1));
+            stmp2 = QString{"0x%1"}.arg(conv.asciiToHexStr(127));
             stmp = stmp1 + ".." + stmp2;
 
             if (invert)
@@ -1327,8 +1327,8 @@ QStringList IOInfoASCII::getRagelConditions() {
             // c2 = c1;
             c1 = (unsigned char)-128;
           }
-          stmp1 = QString{"0x%1"}.arg(conv.asciiToHexStr(c1).toLatin1());
-          stmp2 = QString{"0x%1"}.arg(conv.asciiToHexStr(c2).toLatin1());
+          stmp1 = QString{"0x%1"}.arg(conv.asciiToHexStr(c1));
+          stmp2 = QString{"0x%1"}.arg(conv.asciiToHexStr(c2));
 
           stmp = stmp1 + ".." + stmp2;
         }
@@ -1350,7 +1350,7 @@ QStringList IOInfoASCII::getRagelConditions() {
         single_chars += s1;
         stmp = "";
       } else
-        stmp = QString{"0x%1"}.arg(conv.asciiToHexStr(c[0]).toLatin1());
+        stmp = QString{"0x%1"}.arg(conv.asciiToHexStr(c[0]));
     }
     if (!stmp.isEmpty()) {
       if (invert)
@@ -1371,9 +1371,9 @@ QStringList IOInfoASCII::getRagelConditions() {
   it1 = result.indexOf("upper");
   it2 = result.indexOf("lower");
   if (it1 != -1 && it2 != -1) {
-    result.remove(it1);
+    result.removeAt(it1);
     it2 = result.indexOf("lower");
-    result.remove(it2);
+    result.removeAt(it2);
     result.append("alpha");
   }
 
@@ -1381,9 +1381,9 @@ QStringList IOInfoASCII::getRagelConditions() {
   it1 = result.indexOf("alpha");
   it2 = result.indexOf("digit");
   if (it1 != -1 && it2 != -1) {
-    result.remove(it1);
+    result.removeAt(it1);
     it2 = result.indexOf("digit");
-    result.remove(it2);
+    result.removeAt(it2);
     result.append("alnum");
   }
 

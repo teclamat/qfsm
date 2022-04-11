@@ -20,10 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QRegularExpression>
 #include <QString>
 // Added by qt3to4:
+#include <QList>
+#include <cmath>
 #include "Convert.h"
 #include "IOInfoASCII.h"
 #include "IOInfoList.h"
-#include <QList>
 
 /**
  * Standard constructor.
@@ -35,7 +36,8 @@ Convert::Convert() {}
  * @param s string to convert
  * @return converted value
  */
-int Convert::binStrToInt(QString s) {
+int Convert::binStrToInt(QString s)
+{
   QChar c;
   int count;
   int power = 0;
@@ -51,7 +53,7 @@ int Convert::binStrToInt(QString s) {
     c = s[count--];
 
     if (c == '1')
-      result += int(pow(2.0, power));
+      result += int(std::pow(2.0, power));
     power++;
   } while (count >= 0);
 
@@ -65,7 +67,8 @@ int Convert::binStrToInt(QString s) {
  * @param ires Resulting integer value
  * @returns true if successful
  */
-bool Convert::hexStrToInt(QString hex, int &ires) {
+bool Convert::hexStrToInt(QString hex, int& ires)
+{
   int len;
   QString hexdig = "0123456789ABCDEF";
   QString tmp = hex;
@@ -82,7 +85,7 @@ bool Convert::hexStrToInt(QString hex, int &ires) {
       return false;
     }
 
-    sum += dezdig * int(pow(16.0, count));
+    sum += dezdig * int(std::pow(16.0, count));
 
     count++;
   }
@@ -97,8 +100,9 @@ bool Convert::hexStrToInt(QString hex, int &ires) {
  * @param len length of resulting string
  * @return binary string
  */
-QString Convert::intToBinStr(int c, int len) {
-  if (c > pow(2.0, len) - 1 || len == 0)
+QString Convert::intToBinStr(int c, int len)
+{
+  if (c > std::pow(2.0, len) - 1 || len == 0)
     return {};
 
   QString result;
@@ -126,7 +130,8 @@ QString Convert::intToBinStr(int c, int len) {
  * @param cs string to convert
  * @param buffer binary array
  */
-IOInfoBin Convert::binStrToX10(int num, const QString cs, IOType t) {
+IOInfoBin Convert::binStrToX10(int num, const QString cs, IOType t)
+{
   /*
   char* buffer = new char[num+1];
 
@@ -173,7 +178,8 @@ IOInfoBin Convert::binStrToX10(int num, const QString cs, IOType t) {
  * @param io Object containing binary information
  * @return converted string
  */
-QString Convert::X10ToBinStr(IOInfoBin io) {
+QString Convert::X10ToBinStr(IOInfoBin io)
+{
   /*  QString s;
     int num;
     char* buffer;
@@ -211,7 +217,8 @@ QString Convert::X10ToBinStr(IOInfoBin io) {
  * @param dec Resulting decimal representation
  * @returns true if successful
  */
-bool Convert::X10ToDec(IOInfoBin io, int &dec) {
+bool Convert::X10ToDec(IOInfoBin io, int& dec)
+{
   /*
     int len = io.getLength();
     int count=0;
@@ -254,8 +261,8 @@ bool Convert::X10ToDec(IOInfoBin io, int &dec) {
  * @param singlechar If true only a single character is converted
  * @returns true if successful
  */
-bool Convert::X10ToASCII(IOInfoBin io, unsigned char *ascii, int asciiarraylen,
-                         int &length, bool singlechar /*=true*/) {
+bool Convert::X10ToASCII(IOInfoBin io, unsigned char* ascii, int asciiarraylen, int& length, bool singlechar /*=true*/)
+{
   /*
   int itmp;
   bool ok;
@@ -296,7 +303,8 @@ void Convert::invertX10(int len, char* buffer, char* inverted)
  * @param hex string containing hexadecimal number
  * @param bin buffer for resulting binary data
  */
-IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t) {
+IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t)
+{
   /*
   int dezdig;
   QString hexdig = "0123456789ABCDEF";
@@ -364,54 +372,54 @@ IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t) {
   QString binString("");
   for (int c = 0; c < hex.length(); c++) {
     switch (hex[c].toLatin1()) {
-    case '0':
-      binString += "0000";
-      break;
-    case '1':
-      binString += "0001";
-      break;
-    case '2':
-      binString += "0010";
-      break;
-    case '3':
-      binString += "0011";
-      break;
-    case '4':
-      binString += "0100";
-      break;
-    case '5':
-      binString += "0101";
-      break;
-    case '6':
-      binString += "0110";
-      break;
-    case '7':
-      binString += "0111";
-      break;
-    case '8':
-      binString += "1000";
-      break;
-    case '9':
-      binString += "1001";
-      break;
-    case 'A':
-      binString += "1010";
-      break;
-    case 'B':
-      binString += "1011";
-      break;
-    case 'C':
-      binString += "1100";
-      break;
-    case 'D':
-      binString += "1101";
-      break;
-    case 'E':
-      binString += "1110";
-      break;
-    case 'F':
-      binString += "1111";
-      break;
+      case '0':
+        binString += "0000";
+        break;
+      case '1':
+        binString += "0001";
+        break;
+      case '2':
+        binString += "0010";
+        break;
+      case '3':
+        binString += "0011";
+        break;
+      case '4':
+        binString += "0100";
+        break;
+      case '5':
+        binString += "0101";
+        break;
+      case '6':
+        binString += "0110";
+        break;
+      case '7':
+        binString += "0111";
+        break;
+      case '8':
+        binString += "1000";
+        break;
+      case '9':
+        binString += "1001";
+        break;
+      case 'A':
+        binString += "1010";
+        break;
+      case 'B':
+        binString += "1011";
+        break;
+      case 'C':
+        binString += "1100";
+        break;
+      case 'D':
+        binString += "1101";
+        break;
+      case 'E':
+        binString += "1110";
+        break;
+      case 'F':
+        binString += "1111";
+        break;
     }
   }
   binString.resize(len);
@@ -426,7 +434,8 @@ IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t) {
  * @param bininv binary data
  * @return string with hexadecimal data
  */
-QString Convert::X10ToHexStr(/*int len, char* bininv*/ IOInfoBin invio) {
+QString Convert::X10ToHexStr(/*int len, char* bininv*/ IOInfoBin invio)
+{
   if (!invio.isSingle())
     return QString("");
   int count = 0;
@@ -448,7 +457,7 @@ QString Convert::X10ToHexStr(/*int len, char* bininv*/ IOInfoBin invio) {
     dsum = 0;
     for (int i = 0; i < 4; i++) {
       if (count < len)
-        dsum += int(pow(2.0, i) + 0.5) * (bin[count].toLatin1() - 48);
+        dsum += int(std::pow(2.0, i) + 0.5) * (bin[count].toLatin1() - 48);
       count++;
     }
     hex = hexdig[dsum] + hex;
@@ -464,7 +473,8 @@ QString Convert::X10ToHexStr(/*int len, char* bininv*/ IOInfoBin invio) {
  * @param bin string containing the binary value
  * @return string containing the hexadecimal value
  */
-QString Convert::binStrToHexStr(const QString bin) {
+QString Convert::binStrToHexStr(const QString bin)
+{
   int len;
   int count;
   QString hex;
@@ -483,58 +493,58 @@ QString Convert::binStrToHexStr(const QString bin) {
         dig = c.digitValue();
         if (dig < 0)
           dig = 0;
-        dsum += int(pow(2.0, i) + 0.5) * dig;
+        dsum += int(std::pow(2.0, i) + 0.5) * dig;
       }
     }
     switch (dsum) {
-    case 0:
-      hex = "0" + hex;
-      break;
-    case 1:
-      hex = "1" + hex;
-      break;
-    case 2:
-      hex = "2" + hex;
-      break;
-    case 3:
-      hex = "3" + hex;
-      break;
-    case 4:
-      hex = "4" + hex;
-      break;
-    case 5:
-      hex = "5" + hex;
-      break;
-    case 6:
-      hex = "6" + hex;
-      break;
-    case 7:
-      hex = "7" + hex;
-      break;
-    case 8:
-      hex = "8" + hex;
-      break;
-    case 9:
-      hex = "9" + hex;
-      break;
-    case 10:
-      hex = "A" + hex;
-      break;
-    case 11:
-      hex = "B" + hex;
-      break;
-    case 12:
-      hex = "C" + hex;
-      break;
-    case 13:
-      hex = "D" + hex;
-      break;
-    case 14:
-      hex = "E" + hex;
-      break;
-    case 15:
-      hex = "F" + hex;
-      break;
+      case 0:
+        hex = "0" + hex;
+        break;
+      case 1:
+        hex = "1" + hex;
+        break;
+      case 2:
+        hex = "2" + hex;
+        break;
+      case 3:
+        hex = "3" + hex;
+        break;
+      case 4:
+        hex = "4" + hex;
+        break;
+      case 5:
+        hex = "5" + hex;
+        break;
+      case 6:
+        hex = "6" + hex;
+        break;
+      case 7:
+        hex = "7" + hex;
+        break;
+      case 8:
+        hex = "8" + hex;
+        break;
+      case 9:
+        hex = "9" + hex;
+        break;
+      case 10:
+        hex = "A" + hex;
+        break;
+      case 11:
+        hex = "B" + hex;
+        break;
+      case 12:
+        hex = "C" + hex;
+        break;
+      case 13:
+        hex = "D" + hex;
+        break;
+      case 14:
+        hex = "E" + hex;
+        break;
+      case 15:
+        hex = "F" + hex;
+        break;
     }
     count -= 4;
   }
@@ -551,9 +561,9 @@ QString Convert::binStrToHexStr(const QString bin) {
  * @param singlechar If true only the first character is converted.
  * @returns true if successful
  */
-bool Convert::binStrToASCII(const QString bin, unsigned char *ascii,
-                            int arraymaxlen, int &length,
-                            bool singlechar /*=true*/, int arrayoffset /*=0*/) {
+bool Convert::binStrToASCII(const QString bin, unsigned char* ascii, int arraymaxlen, int& length,
+                            bool singlechar /*=true*/, int arrayoffset /*=0*/)
+{
   if (arraymaxlen == 0)
     return false;
 
@@ -570,21 +580,21 @@ bool Convert::binStrToASCII(const QString bin, unsigned char *ascii,
   rbin = bin;
   rbin.replace(QRegularExpression("\\s"), "");
   if (singlechar) {
-    if (rbin.indexOf(QRegularExpression("[^01]")) != -1) return false;
+    if (rbin.indexOf(QRegularExpression("[^01]")) != -1)
+      return false;
   } else {
-    if (rbin.indexOf(QRegularExpression("[^01xX]")) != -1) return false;
+    if (rbin.indexOf(QRegularExpression("[^01xX]")) != -1)
+      return false;
   }
 
   //  cx = rbin.contains("x", false);
   firstxpos = rbin.indexOf("x", 0, Qt::CaseInsensitive);
   if (firstxpos != -1) {
     rbin.replace(firstxpos, 1, "0");
-    binStrToASCII(rbin, ascii, arraymaxlen, tmplength1, singlechar,
-                  arrayoffset);
+    binStrToASCII(rbin, ascii, arraymaxlen, tmplength1, singlechar, arrayoffset);
     rbin.replace(firstxpos, 1, "1");
     //    rbin.replace(QRegExp("[xX]"), "0");
-    binStrToASCII(rbin, ascii, arraymaxlen - tmplength1, tmplength2, singlechar,
-                  arrayoffset + tmplength1);
+    binStrToASCII(rbin, ascii, arraymaxlen - tmplength1, tmplength2, singlechar, arrayoffset + tmplength1);
     length = tmplength1 + tmplength2;
   } else {
     binlen = rbin.length();
@@ -628,7 +638,8 @@ bool Convert::binStrToASCII(const QString bin, unsigned char *ascii,
  * @param hex string containing a hexadecimal number
  * @return string containing the binary number
  */
-QString Convert::hexStrToBinStr(int maxlen, const QString hex) {
+QString Convert::hexStrToBinStr(int maxlen, const QString hex)
+{
   int len;
   QString tmp = hex;
   QString hexdig = "0123456789ABCDEF";
@@ -642,54 +653,54 @@ QString Convert::hexStrToBinStr(int maxlen, const QString hex) {
     if (dezdig < 0)
       dezdig = 0;
     switch (dezdig) {
-    case 0:
-      bin = "0000" + bin;
-      break;
-    case 1:
-      bin = "0001" + bin;
-      break;
-    case 2:
-      bin = "0010" + bin;
-      break;
-    case 3:
-      bin = "0011" + bin;
-      break;
-    case 4:
-      bin = "0100" + bin;
-      break;
-    case 5:
-      bin = "0101" + bin;
-      break;
-    case 6:
-      bin = "0110" + bin;
-      break;
-    case 7:
-      bin = "0111" + bin;
-      break;
-    case 8:
-      bin = "1000" + bin;
-      break;
-    case 9:
-      bin = "1001" + bin;
-      break;
-    case 10:
-      bin = "1010" + bin;
-      break;
-    case 11:
-      bin = "1011" + bin;
-      break;
-    case 12:
-      bin = "1100" + bin;
-      break;
-    case 13:
-      bin = "1101" + bin;
-      break;
-    case 14:
-      bin = "1110" + bin;
-      break;
-    case 15:
-      bin = "1111" + bin;
-      break;
+      case 0:
+        bin = "0000" + bin;
+        break;
+      case 1:
+        bin = "0001" + bin;
+        break;
+      case 2:
+        bin = "0010" + bin;
+        break;
+      case 3:
+        bin = "0011" + bin;
+        break;
+      case 4:
+        bin = "0100" + bin;
+        break;
+      case 5:
+        bin = "0101" + bin;
+        break;
+      case 6:
+        bin = "0110" + bin;
+        break;
+      case 7:
+        bin = "0111" + bin;
+        break;
+      case 8:
+        bin = "1000" + bin;
+        break;
+      case 9:
+        bin = "1001" + bin;
+        break;
+      case 10:
+        bin = "1010" + bin;
+        break;
+      case 11:
+        bin = "1011" + bin;
+        break;
+      case 12:
+        bin = "1100" + bin;
+        break;
+      case 13:
+        bin = "1101" + bin;
+        break;
+      case 14:
+        bin = "1110" + bin;
+        break;
+      case 15:
+        bin = "1111" + bin;
+        break;
     }
   }
   bin = bin.right(maxlen);
@@ -707,19 +718,19 @@ QString Convert::hexStrToBinStr(int maxlen, const QString hex) {
  * @param singlechar If true only the first character is converted.
  * @returns true if successful
  */
-bool Convert::hexStrToASCII(const QString hex, unsigned char *ascii,
-                            int maxarraylen, int &length,
-                            bool singlechar /*=true*/) {
+bool Convert::hexStrToASCII(const QString hex, unsigned char* ascii, int maxarraylen, int& length,
+                            bool singlechar /*=true*/)
+{
   int itmp;
-  QString rhex;
+  QString rhex{ hex };
   int count = 0, aindex;
   int hexlen;
   unsigned char ctmp;
 
   length = 0;
-  rhex = hex;
   rhex.replace(QRegularExpression("\\s"), "");
-  if (rhex.indexOf(QRegularExpression("[^\\da-fA-F]")) != -1) return false;
+  if (rhex.indexOf(QRegularExpression("[^\\da-fA-F]")) != -1)
+    return false;
   hexlen = rhex.length();
   if (hexlen % 2)
     rhex = "0" + rhex;
@@ -755,8 +766,8 @@ bool Convert::hexStrToASCII(const QString hex, unsigned char *ascii,
  *    (can be smaller than the array size)
  * @returns The string representing the binary number
  */
-QString Convert::asciiToBinStr(int maxlen, const unsigned char *ascii,
-                               int asciilen) {
+QString Convert::asciiToBinStr(int maxlen, const unsigned char* ascii, int asciilen)
+{
   QString hex, bin;
   int newlen;
 
@@ -779,7 +790,8 @@ QString Convert::asciiToBinStr(int maxlen, const unsigned char *ascii,
  * @param ascii The ASCII character to convert
  * @returns The string representing the binary number
  */
-QString Convert::asciiToBinStr(int maxlen, const unsigned char ascii) {
+QString Convert::asciiToBinStr(int maxlen, const unsigned char ascii)
+{
   return asciiToBinStr(maxlen, &ascii, 1);
 }
 
@@ -791,7 +803,8 @@ QString Convert::asciiToBinStr(int maxlen, const unsigned char ascii) {
  *    (can be smaller than the array size)
  * @returns The string representing the hexadecimal number
  */
-QString Convert::asciiToHexStr(const unsigned char *ascii, int asciilen) {
+QString Convert::asciiToHexStr(const unsigned char* ascii, int asciilen)
+{
   QString hex = "";
   int itmp, k;
   //  char cnext;
@@ -803,108 +816,108 @@ QString Convert::asciiToHexStr(const unsigned char *ascii, int asciilen) {
 
     // first digit
     switch (k) {
-    case 0:
-      hex += "0";
-      break;
-    case 1:
-      hex += "1";
-      break;
-    case 2:
-      hex += "2";
-      break;
-    case 3:
-      hex += "3";
-      break;
-    case 4:
-      hex += "4";
-      break;
-    case 5:
-      hex += "5";
-      break;
-    case 6:
-      hex += "6";
-      break;
-    case 7:
-      hex += "7";
-      break;
-    case 8:
-      hex += "8";
-      break;
-    case 9:
-      hex += "9";
-      break;
-    case 10:
-      hex += "A";
-      break;
-    case 11:
-      hex += "B";
-      break;
-    case 12:
-      hex += "C";
-      break;
-    case 13:
-      hex += "D";
-      break;
-    case 14:
-      hex += "E";
-      break;
-    case 15:
-      hex += "F";
-      break;
+      case 0:
+        hex += "0";
+        break;
+      case 1:
+        hex += "1";
+        break;
+      case 2:
+        hex += "2";
+        break;
+      case 3:
+        hex += "3";
+        break;
+      case 4:
+        hex += "4";
+        break;
+      case 5:
+        hex += "5";
+        break;
+      case 6:
+        hex += "6";
+        break;
+      case 7:
+        hex += "7";
+        break;
+      case 8:
+        hex += "8";
+        break;
+      case 9:
+        hex += "9";
+        break;
+      case 10:
+        hex += "A";
+        break;
+      case 11:
+        hex += "B";
+        break;
+      case 12:
+        hex += "C";
+        break;
+      case 13:
+        hex += "D";
+        break;
+      case 14:
+        hex += "E";
+        break;
+      case 15:
+        hex += "F";
+        break;
     }
 
     itmp -= int(16 * k);
 
     // second digit
     switch (itmp) {
-    case 0:
-      hex += "0";
-      break;
-    case 1:
-      hex += "1";
-      break;
-    case 2:
-      hex += "2";
-      break;
-    case 3:
-      hex += "3";
-      break;
-    case 4:
-      hex += "4";
-      break;
-    case 5:
-      hex += "5";
-      break;
-    case 6:
-      hex += "6";
-      break;
-    case 7:
-      hex += "7";
-      break;
-    case 8:
-      hex += "8";
-      break;
-    case 9:
-      hex += "9";
-      break;
-    case 10:
-      hex += "A";
-      break;
-    case 11:
-      hex += "B";
-      break;
-    case 12:
-      hex += "C";
-      break;
-    case 13:
-      hex += "D";
-      break;
-    case 14:
-      hex += "E";
-      break;
-    case 15:
-      hex += "F";
-      break;
+      case 0:
+        hex += "0";
+        break;
+      case 1:
+        hex += "1";
+        break;
+      case 2:
+        hex += "2";
+        break;
+      case 3:
+        hex += "3";
+        break;
+      case 4:
+        hex += "4";
+        break;
+      case 5:
+        hex += "5";
+        break;
+      case 6:
+        hex += "6";
+        break;
+      case 7:
+        hex += "7";
+        break;
+      case 8:
+        hex += "8";
+        break;
+      case 9:
+        hex += "9";
+        break;
+      case 10:
+        hex += "A";
+        break;
+      case 11:
+        hex += "B";
+        break;
+      case 12:
+        hex += "C";
+        break;
+      case 13:
+        hex += "D";
+        break;
+      case 14:
+        hex += "E";
+        break;
+      case 15:
+        hex += "F";
+        break;
     }
   }
   return hex;
@@ -916,7 +929,8 @@ QString Convert::asciiToHexStr(const unsigned char *ascii, int asciilen) {
  * @param ascii ASCII character to convert.
  * @returns String representing the hexadecimal number
  */
-QString Convert::asciiToHexStr(const unsigned char ascii) {
+QString Convert::asciiToHexStr(const unsigned char ascii)
+{
   return asciiToHexStr(&ascii, 1);
 }
 
@@ -928,8 +942,8 @@ QString Convert::asciiToHexStr(const unsigned char ascii) {
  * @param asciilen Number of ASCII characters stores in the array
  * @returns Object with the binary number
  */
-IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char *ascii,
-                              int asciilen, IOType t) {
+IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char* ascii, int asciilen, IOType t)
+{
   QString binstr = asciiToBinStr(maxlen, ascii, asciilen);
   return binStrToX10(maxlen, binstr, t);
 }
@@ -941,7 +955,8 @@ IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char *ascii,
  * @param ascii ASCII character to convert
  * @returns Object with the binary number
  */
-IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char ascii, IOType t) {
+IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char ascii, IOType t)
+{
   return asciiToX10(maxlen, &ascii, 1, t);
 }
 
@@ -955,8 +970,8 @@ IOInfoBin Convert::asciiToX10(int maxlen, const unsigned char ascii, IOType t) {
  * @param arraymaxlen Length of the array
  * @param length Number characters stores in the array after resolution
  */
-void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
-                             int &length) {
+void Convert::resolveEscapes(QString estr, unsigned char* cres, int arraymaxlen, int& length)
+{
   int i = 0;
   int len;
   unsigned char ctmp, cprev = 0;
@@ -992,15 +1007,14 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
 
         previsdigit = true;
       } else {
-        if (cnext ==
-            '0') // hex code (\0xx where xx is the hex code of the character)
+        if (cnext == '0') // hex code (\0xx where xx is the hex code of the character)
         {
           if (i >= len - 3) {
             i = len;
             break;
           }
           int ires;
-          QString hexStr = QString{"%1%2"}.arg(estr[i + 2], estr[i + 3]);
+          QString hexStr = QString{ "%1%2" }.arg(estr[i + 2]).arg(estr[i + 3]);
           // hexStr.sprintf("%c%c", estr[i + 2].toLatin1(), estr[i + 3].toLatin1());
 
           i += 2;
@@ -1047,15 +1061,14 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
         {
           nextisdigit = true;
         } else {
-          if (cnext ==
-              '0') // hex code (\0xx where xx is the hex code of the character)
+          if (cnext == '0') // hex code (\0xx where xx is the hex code of the character)
           {
             if (i >= len - 4) {
               i = len;
               break;
             }
             int ires;
-            QString hexStr = QString{"%1%2"}.arg(estr[i + 3], estr[i + 4]);
+            QString hexStr = QString{ "%1%2" }.arg(estr[i + 3]).arg(estr[i + 4]);
             // hexStr.sprintf("%c%c", estr[i + 3].latin1(), estr[i + 4].latin1());
 
             i += 2;
@@ -1183,8 +1196,8 @@ void Convert::resolveEscapes(QString estr, unsigned char *cres, int arraymaxlen,
  * @param asciilength Number of characters in the array
  * @returns Resulting string
  */
-QString Convert::asciiToReadableStr(const unsigned char *asciiarray,
-                                    int asciilength) {
+QString Convert::asciiToReadableStr(const unsigned char* asciiarray, int asciilength)
+{
   unsigned char c;
   QString stmp;
   QString hex;
@@ -1204,10 +1217,10 @@ QString Convert::asciiToReadableStr(const unsigned char *asciiarray,
         */
       if (IOInfoASCII::isReadable(c))
         // stmp.sprintf("%c", c);
-        stmp = QChar{c};
+        stmp = QChar{ c };
       else {
         hex = asciiToHexStr(c);
-        stmp = QString{"\\0%1"}.arg(hex.toLatin1());
+        stmp = QString{ "\\0%1" }.arg(hex);
         // stmp.sprintf("\\0%s", hex.latin1());
       }
     }
@@ -1225,14 +1238,15 @@ QString Convert::asciiToReadableStr(const unsigned char *asciiarray,
  * @param asciilength Number of characters in the array
  * @param result Resulting IOInfo list
  */
-void Convert::asciiToIOList(const unsigned char *asciiarray, int asciilength,
-                            IOInfoList &result, bool invert /*=false*/) {
+void Convert::asciiToIOList(const unsigned char* asciiarray, int asciilength, IOInfoList& result,
+                            bool invert /*=false*/)
+{
   unsigned char c, cnext, cfirst;
   QString stmp, stmp2;
   QString hex;
   QString sres;
   bool inrange = false;
-  unsigned char *asciiarray2;
+  unsigned char* asciiarray2;
   int asciilength2;
 
   result.clear();
@@ -1279,7 +1293,7 @@ void Convert::asciiToIOList(const unsigned char *asciiarray, int asciilength,
           stmp = asciiToReadableStr(&cfirst, 1);
           stmp2 = asciiToReadableStr(&c, 1);
           sres = stmp + "-" + stmp2;
-          IOInfoASCII *info = new IOInfoASCII(IO_MealyIn, sres);
+          IOInfoASCII* info = new IOInfoASCII(IO_MealyIn, sres);
           info->setRange(int((unsigned char)cfirst), int((unsigned char)c));
           if (!result.contains(info))
             result.append(info);
@@ -1288,7 +1302,7 @@ void Convert::asciiToIOList(const unsigned char *asciiarray, int asciilength,
         } else // we are not and we won't be in a range
         {
           sres = asciiToReadableStr(&c, 1);
-          IOInfoASCII *info = new IOInfoASCII(IO_MealyIn, sres);
+          IOInfoASCII* info = new IOInfoASCII(IO_MealyIn, sres);
           if (!result.contains(info))
             result.append(info);
         }
@@ -1300,14 +1314,14 @@ void Convert::asciiToIOList(const unsigned char *asciiarray, int asciilength,
         stmp = asciiToReadableStr(&cfirst, 1);
         stmp2 = asciiToReadableStr(&c, 1);
         sres = stmp + "-" + stmp2;
-        IOInfoASCII *info = new IOInfoASCII(IO_MealyIn, sres);
+        IOInfoASCII* info = new IOInfoASCII(IO_MealyIn, sres);
         info->setRange(int((unsigned char)cfirst), int((unsigned char)c));
         if (!result.contains(info))
           result.append(info);
       } else // we are not in a range
       {
         sres = asciiToReadableStr(&c, 1);
-        IOInfoASCII *info = new IOInfoASCII(IO_MealyIn, sres);
+        IOInfoASCII* info = new IOInfoASCII(IO_MealyIn, sres);
         if (!result.contains(info))
           result.append(info);
       }
