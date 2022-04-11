@@ -175,7 +175,7 @@ void State::setEncoding(int c) { code = c; }
  * @returns The resulting string
  */
 QString State::getMooreOutputsStr(Machine *m /*=NULL*/,
-                                  Options *opt /*=NULL*/) {
+                                  Options *opt /*=NULL*/) const {
   Convert conv;
   QString res;
 

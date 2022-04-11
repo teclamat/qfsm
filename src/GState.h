@@ -90,15 +90,15 @@ public:
   //    QString& getSCode() { return scode; };
   //    void setSCode(const QString s) { scode = s; };
   /// Returns the radius.
-  int getRadius() { return radius; };
+  int getRadius() const { return radius; };
   /// Sets the radius
   void setRadius(const int r) { radius = r; };
   /// Returns the linewidth
-  int getLineWidth() { return pen.width(); };
+  int getLineWidth() const { return pen.width(); };
   /// Sets the line width
   void setLineWidth(const int l) { pen.setWidth(l); };
   /// Returns the color of the state
-  QColor getColor() { return pen.color(); };
+  QColor getColor() const { return pen.color(); };
   /// Sets the color of the state
   void setColor(QColor c) { pen.setColor(c); };
   /// Returns the integrity check mark

@@ -24,9 +24,9 @@ added #include <QRect>
 #ifndef GOBJECT_H
 #define GOBJECT_H
 
-#include <QRect>
 #include <qobject.h>
 #include <qpoint.h>
+#include <QRect>
 
 class Grid;
 class Machine;
@@ -40,17 +40,20 @@ class Options;
 class GObject //: public QObject
 {
   //  Q_OBJECT
-public:
+ public:
   GObject(double, double); // , QObject* parent=0, const char* name=0 );
   virtual ~GObject();
 
   /// Gets @a x and @a y coordinate of object.
-  void getPos(double &x, double &y) {
+  void getPos(double& x, double& y)
+  {
     x = xpos;
     y = ypos;
   };
+  QPointF position() const { return QPointF{ xpos, ypos }; }
   /// Sets @a x and @a y coordinate of object.
-  virtual void setPos(const double x, const double y) {
+  virtual void setPos(const double x, const double y)
+  {
     xpos = x;
     ypos = y;
   };
@@ -60,24 +63,24 @@ public:
   virtual void setYPos(const double y) { ypos = y; };
   //    virtual void alignToGrid(Grid* g);
   /// Returns true if object is selected otherwise false
-  bool isSelected() { return selected; };
+  bool isSelected() const { return selected; };
   /// If @a select is true selects object otherwise deselects it.
   void select(bool select = true) { selected = select; };
   /// Toggles the select state
   void toggleSelect() { selected = !selected; };
   /// Returns true if object is deleted otherwise false.
-  bool isDeleted() { return deleted; };
+  bool isDeleted() const { return deleted; };
   /// If @a d is true deletes object otherwise undeletes it.
   void setDeleted(bool d = true) { deleted = d; };
 
   virtual void move(double, double);
   /// Returns the tooltip string for this object
-  virtual QString getToolTipInfo(Machine *m = NULL, Options *opt = NULL) = 0;
+  virtual QString getToolTipInfo(Machine* m = NULL, Options* opt = NULL) = 0;
   /// Returns the tooltip rectangle (if the mouse leaves this rectangle the TT
   /// is closed).
-  virtual QRect getToolTipRect(const QPoint &p) = 0;
+  virtual QRect getToolTipRect(const QPoint& p) = 0;
 
-protected:
+ protected:
   /// X coordinate of the position
   double xpos;
   /// Y coordinate of the position

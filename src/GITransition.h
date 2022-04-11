@@ -35,12 +35,13 @@ class GState;
  *
  */
 class GITransition : public GObject, public Transition {
-public:
+ public:
   GITransition();
-  GITransition(State *, GState *);
+  GITransition(State*, GState*);
   ~GITransition();
+  QPointF endPosition() const { return QPointF{ endx, endy }; }
 
-  void getEndPos(double &x, double &y) /// Gets coordinates of end point
+  void getEndPos(double& x, double& y) /// Gets coordinates of end point
   {
     x = endx;
     y = endy;
@@ -59,15 +60,15 @@ public:
   bool contains(double, double);
   int onControlPoint(double, double, double);
 
-  QString getToolTipInfo(Machine * = NULL, Options * = NULL);
-  QRect getToolTipRect(const QPoint &);
+  QString getToolTipInfo(Machine* = NULL, Options* = NULL);
+  QRect getToolTipRect(const QPoint&);
 
   /// Returns true if the transition is being dragged
   bool isDragged() { return dragged; };
   /// Sets the dragged state to @a ds
   void setDragged(bool ds) { dragged = ds; };
 
-private:
+ private:
   /// End x position
   double endx;
   /// End y position

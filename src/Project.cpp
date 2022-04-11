@@ -17,7 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "Project.h"
-#include <qapplication.h>
 #include "AppInfo.h"
 #include "DrawArea.h"
 #include "GObject.h"
@@ -25,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "MainWindow.h"
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
+
+#include <QXmlStreamWriter>
 
 namespace qfsm {
 
@@ -102,6 +103,96 @@ void Project::connectMachine()
   connect(m_machine, &Machine::repaint, m_mainWindow, &MainWindow::repaintViewport);
 }
 
+void Project::saveTo(QIODevice* a_device, bool a_onlySelected)
+{
+  if (!a_device || !a_device->isOpen() || !a_device->isWritable()) {
+    return;
+  }
+
+  QXmlStreamWriter xml{ a_device };
+  xml.setAutoFormatting(true);
+  xml.setAutoFormattingIndent(2);
+
+  xml.writeStartDocument();
+  xml.writeDTD(QStringLiteral("<!DOCTYPE qfsmproject SYSTEM \"qfsm.dtd\">"));
+
+  xml.writeStartElement(QStringLiteral("qfsmproject"));
+  xml.writeAttribute(QStringLiteral("author"), QStringLiteral("Qfsm"));
+  xml.writeAttribute(QStringLiteral("version"), qfsm::AppInfo::getVersion());
+
+  if (!m_machine) {
+    xml.writeEndDocument();
+    return;
+  }
+
+  xml.writeStartElement(QStringLiteral("machine"));
+  xml.writeAttribute("name", m_machine->getName());
+  xml.writeAttribute("version", m_machine->getVersion());
+  xml.writeAttribute("author", m_machine->getAuthor());
+  xml.writeAttribute("description", m_machine->getDescription());
+  xml.writeAttribute("type", QString::number(m_machine->getType()));
+  xml.writeAttribute("nummooreout", QString::number(m_machine->getNumMooreOutputs()));
+  xml.writeAttribute("numbits", QString::number(m_machine->getNumEncodingBits()));
+  xml.writeAttribute("numin", QString::number(m_machine->getNumInputs()));
+  xml.writeAttribute("numout", QString::number(m_machine->getNumOutputs()));
+  const GState* initialState = m_machine->getInitialState();
+  if (initialState) {
+    xml.writeAttribute("initialstate", QString::number(initialState->getEncoding()));
+  }
+  xml.writeAttribute("statefont", m_machine->getSFont().family());
+  xml.writeAttribute("statefontsize", QString::number(m_machine->getSFont().pointSize()));
+  xml.writeAttribute("statefontweight", QString::number(m_machine->getSFont().weight()));
+  xml.writeAttribute("statefontitalic", QString::number(m_machine->getSFont().italic()));
+  xml.writeAttribute("transfont", m_machine->getTFont().family());
+  xml.writeAttribute("transfontsize", QString::number(m_machine->getTFont().pointSize()));
+  xml.writeAttribute("transfontweight", QString::number(m_machine->getTFont().weight()));
+  xml.writeAttribute("transfontitalic", QString::number(m_machine->getTFont().italic()));
+  xml.writeAttribute("draw_it", QString::number(m_machine->getDrawITrans()));
+
+  xml.writeTextElement(QStringLiteral("outputnames_moore"), m_machine->getMooreOutputNames());
+  xml.writeTextElement(QStringLiteral("inputnames"), m_machine->getMealyInputNames());
+  xml.writeTextElement(QStringLiteral("outputnames"), m_machine->getMealyOutputNames());
+
+  const GITransition* initialTransition = m_machine->getInitialTransition();
+  if (initialTransition) {
+    const QPointF position = initialTransition->position();
+    const QPointF endPosition = initialTransition->endPosition();
+    xml.writeStartElement(QStringLiteral("itransition"));
+    xml.writeAttribute("xpos", QString::number(position.x()));
+    xml.writeAttribute("ypos", QString::number(position.y()));
+    xml.writeAttribute("endx", QString::number(endPosition.x()));
+    xml.writeAttribute("endy", QString::number(endPosition.y()));
+    xml.writeEndElement();
+  }
+
+  const QList<GState*>& statesList = m_machine->getSList();
+  for (const GState* state : statesList) {
+    if (!state || state->isDeleted() || (a_onlySelected && !state->isSelected())) {
+      continue;
+    }
+    const QPointF position = state->position();
+
+    xml.writeStartElement(QStringLiteral("state"));
+
+    xml.writeAttribute("description", state->getDescription());
+    xml.writeAttribute("code", QString::number(state->getEncoding()));
+    xml.writeAttribute("moore_outputs", state->getMooreOutputsStr());
+    xml.writeAttribute("xpos", QString::number(position.x()));
+    xml.writeAttribute("ypos", QString::number(position.y()));
+    xml.writeAttribute("radius", QString::number(state->getRadius()));
+    xml.writeAttribute("pencolor", QString::number(state->getColor().rgb() & 0xffffff));
+    xml.writeAttribute("linewidth", QString::number(state->getLineWidth()));
+    xml.writeAttribute("finalstate", QString::number(state->isFinalState()));
+    xml.writeAttribute("entry_actions", state->getEntryActions());
+    xml.writeAttribute("exit_actions", state->getExitActions());
+
+    xml.writeCharacters(state->getStateName());
+
+    xml.writeEndElement();
+  }
+
+  xml.writeEndDocument();
+}
 /**
  * Creates a DOM document of this project and returns it.
  *

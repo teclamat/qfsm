@@ -114,17 +114,11 @@ bool Edit::copy(Selection*, qfsm::Project* p, Machine* m, QString& s)
   if (!p || !m)
     return false;
 
-  GObject *contextobject;
   QDomDocument domdoc;
-  //    int otype;
 
-  contextobject = NULL; // sel->getContextObject(otype);
-
-  domdoc = p->getDomDocument(true, contextobject);
+  domdoc = p->getDomDocument(true);
 
   QTextStream tstream(&s, QIODevice::WriteOnly);
-
-  //    qDebug(domdoc.toString());
 
   domdoc.save(tstream, 1);
 

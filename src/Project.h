@@ -68,6 +68,8 @@ class Project : public QObject {
   /// Machine (projects can currently contain only a single machine)
   Machine* machine() { return m_machine; }
 
+  void saveTo(QIODevice* a_device, bool a_onlySelected = false);
+
   QDomDocument getDomDocument(bool a_onlySelected = false, GObject* a_object = nullptr);
 
  private:

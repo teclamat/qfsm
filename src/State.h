@@ -43,15 +43,15 @@ public:
   /// Sets the name of the state
   void setStateName(QString n) { sname = n; };
   /// Returns the name of the state
-  QString getStateName() { return sname; };
+  QString getStateName() const { return sname; };
   /// Sets the description of the state
   void setDescription(QString d) { sdescription = d; };
   /// Returns the description of the state
-  QString getDescription() { return sdescription; };
+  QString getDescription() const { return sdescription; };
   /// Sets the code of the state
   void setEncoding(int c);
   /// Returns the code of the state.
-  int getEncoding() { return code; };
+  int getEncoding() const { return code; };
   /// Sets the moore outputs of the state
   void setMooreOutputs(IOInfo *o) { moore_outputs = o; };
   /// Returns the moore outputs of the state.
@@ -61,17 +61,17 @@ public:
   /// Toggles the 'end state' flag
   void toggleFinalState() { finalstate = !finalstate; };
   /// Returns true if this state is an end state, otherwise false
-  bool isFinalState() { return finalstate; }
+  bool isFinalState() const { return finalstate; }
 
   QString getCodeStr(int type = -1);
-  QString getMooreOutputsStr(Machine *m = NULL, Options *opt = NULL);
+  QString getMooreOutputsStr(Machine *m = NULL, Options *opt = NULL) const;
 
   /// Returns the entry actions of the state
-  QString getEntryActions() { return entry_actions; };
+  QString getEntryActions() const { return entry_actions; };
   /// Sets the entry actions of the state
   void setEntryActions(QString ea) { entry_actions = ea; };
   /// Returns the exit actions of the state
-  QString getExitActions() { return exit_actions; };
+  QString getExitActions() const { return exit_actions; };
   /// Sets the exit actions of the state
   void setExitActions(QString ea) { exit_actions = ea; };
 

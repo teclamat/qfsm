@@ -663,6 +663,16 @@ bool FileIO::doSaveXML(qfsm::Project* p)
 
   file.close();
 
+  file.setFileName(act_file + "xxx");
+  if (!file.open(QIODevice::WriteOnly)) {
+    Error::info(tr("File cannot be written."));
+    qDebug("file cannot be opened for writing");
+    return false;
+  }
+  p->saveTo(&file);
+
+  file.close();
+
   p->setChanged(false);
   return true;
 
