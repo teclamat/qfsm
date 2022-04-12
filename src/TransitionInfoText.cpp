@@ -26,14 +26,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoText.h"
 
 /// Constructor
-TransitionInfoText::TransitionInfoText() {
+TransitionInfoText::TransitionInfoText()
+{
   type = Text;
   inputs = new IOInfoText(IO_MealyIn);
   outputs = new IOInfoText(IO_MealyOut);
 }
 
 /// Constructor
-TransitionInfoText::TransitionInfoText(IOInfoText ain, IOInfoText aout) {
+TransitionInfoText::TransitionInfoText(IOInfoText ain, IOInfoText aout)
+{
   type = Text;
 
   inputs = new IOInfoText(ain);
@@ -41,7 +43,8 @@ TransitionInfoText::TransitionInfoText(IOInfoText ain, IOInfoText aout) {
 }
 
 /// Constructor
-TransitionInfoText::TransitionInfoText(QString sin, QString sout) {
+TransitionInfoText::TransitionInfoText(QString sin, QString sout)
+{
   type = Text;
 
   inputs = new IOInfoText(IO_MealyIn, sin);
@@ -49,7 +52,8 @@ TransitionInfoText::TransitionInfoText(QString sin, QString sout) {
 }
 
 /// Destructor
-TransitionInfoText::~TransitionInfoText() {
+TransitionInfoText::~TransitionInfoText()
+{
   if (inputs)
     delete inputs;
   if (outputs)
@@ -57,8 +61,9 @@ TransitionInfoText::~TransitionInfoText() {
 }
 
 /// Copy constructor
-TransitionInfoText::TransitionInfoText(const TransitionInfoText &t)
-    : TransitionInfo() {
+TransitionInfoText::TransitionInfoText(const TransitionInfoText& t)
+  : TransitionInfo()
+{
   //  IOInfoText ioascii;
 
   inputs = t.inputs->clone();
@@ -68,7 +73,8 @@ TransitionInfoText::TransitionInfoText(const TransitionInfoText &t)
 }
 
 /// Assignment operator
-TransitionInfoText &TransitionInfoText::operator=(const TransitionInfoText &t) {
+TransitionInfoText& TransitionInfoText::operator=(const TransitionInfoText& t)
+{
   if (this != &t) {
     if (inputs) {
       delete inputs;
@@ -88,46 +94,53 @@ TransitionInfoText &TransitionInfoText::operator=(const TransitionInfoText &t) {
   return *this;
 }
 
-QString TransitionInfoText::getInputsStr(Machine *m /*=NULL*/,
-                                         Options *opt /*=NULL*/) {
+QString TransitionInfoText::getInputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return inputs->convertToString(m, opt); // getInfo();
 }
 
-QString TransitionInfoText::getOutputsStr(Machine *m /*=NULL*/,
-                                          Options *opt /*=NULL*/) {
+QString TransitionInfoText::getOutputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return outputs->convertToString(m, opt); // getInfo();
 }
 
-QString TransitionInfoText::getOutputsStrBin(Machine * /*m=NULL*/,
-                                             Options * /*opt=NULL*/) {
+QString TransitionInfoText::getOutputsStrBin(Machine* /*m=NULL*/, Options* /*opt=NULL*/) const
+{
   Convert conv;
   unsigned char ascii[MAX_CHARARRAY_LENGTH];
   int length;
 
-  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH,
-                      length);
+  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH, length);
   return conv.asciiToBinStr(8, ascii, length); // getInfo());
 }
 
-QString TransitionInfoText::getOutputsStrHex() {
+QString TransitionInfoText::getOutputsStrHex() const
+{
   Convert conv;
   unsigned char ascii[MAX_CHARARRAY_LENGTH];
   int length;
 
-  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH,
-                      length);
+  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH, length);
   return conv.asciiToHexStr(ascii, length);
 }
 
-QString TransitionInfoText::getInputsStrASCII() { return getInputsStr(); }
+QString TransitionInfoText::getInputsStrASCII() const
+{
+  return getInputsStr();
+}
 
-QString TransitionInfoText::getOutputsStrASCII() { return getOutputsStr(); }
+QString TransitionInfoText::getOutputsStrASCII() const
+{
+  return getOutputsStr();
+}
 
-void TransitionInfoText::setInputs(QString sin, int numbits) {
+void TransitionInfoText::setInputs(QString sin, int numbits)
+{
   inputs->setString(sin, numbits);
 }
 
-void TransitionInfoText::setOutputs(QString sout, int numbits) {
+void TransitionInfoText::setOutputs(QString sout, int numbits)
+{
   outputs->setString(sout, numbits);
 }
 
@@ -135,7 +148,8 @@ void TransitionInfoText::setInputsSize(int) {}
 
 void TransitionInfoText::setOutputsSize(int) {}
 
-bool TransitionInfoText::matches(IOInfo *io) {
+bool TransitionInfoText::matches(IOInfo* io)
+{
   //  return inputs->matches(io);
   return inputs->equals(io);
 }

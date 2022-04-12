@@ -17,17 +17,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "TransitionInfoBin.h"
+#include <stdlib.h>
+#include <typeinfo>
 #include "Const.h"
 #include "Convert.h"
 #include "IOInfoASCII.h"
 #include "IOInfoBin.h"
 #include "Machine.h"
 #include "Options.h"
-#include <stdlib.h>
-#include <typeinfo>
 
 /// Standard constructor.
-TransitionInfoBin::TransitionInfoBin() {
+TransitionInfoBin::TransitionInfoBin()
+{
   type = Binary;
   //  inputs = NULL;
   //  outputs = NULL;
@@ -42,9 +43,8 @@ TransitionInfoBin::TransitionInfoBin() {
  * @param numout number of output bits
  * @param out array of output bits
  */
-TransitionInfoBin::TransitionInfoBin(
-    IOInfoBin bin,
-    IOInfoBin bout /*int numin, char* in, int numout, char* out*/) {
+TransitionInfoBin::TransitionInfoBin(IOInfoBin bin, IOInfoBin bout /*int numin, char* in, int numout, char* out*/)
+{
   type = Binary;
   //  inputs=new char[numin+1];
   //  outputs=new char[numout+1];
@@ -59,7 +59,8 @@ TransitionInfoBin::TransitionInfoBin(
 }
 
 /// Destructor.
-TransitionInfoBin::~TransitionInfoBin() {
+TransitionInfoBin::~TransitionInfoBin()
+{
   /*
   if (inputs)
     delete [] inputs;
@@ -73,8 +74,9 @@ TransitionInfoBin::~TransitionInfoBin() {
 }
 
 /// Copy constructor
-TransitionInfoBin::TransitionInfoBin(const TransitionInfoBin &t)
-    : TransitionInfo() {
+TransitionInfoBin::TransitionInfoBin(const TransitionInfoBin& t)
+  : TransitionInfo()
+{
   /*
     IOInfoBin iobin;
 
@@ -110,7 +112,8 @@ TransitionInfoBin::TransitionInfoBin(const TransitionInfoBin &t)
 }
 
 /// Assignment operator
-TransitionInfoBin &TransitionInfoBin::operator=(const TransitionInfoBin &t) {
+TransitionInfoBin& TransitionInfoBin::operator=(const TransitionInfoBin& t)
+{
   if (this != &t) {
     if (inputs) {
       delete inputs;
@@ -216,8 +219,8 @@ TransitionInfoBin& TransitionInfoBin::operator=(const TransitionInfoBin& t)
 }
 */
 
-QString TransitionInfoBin::getCompleteInputsStr(Machine *m /*=NULL*/,
-                                                Options *opt /*=NULL*/) {
+QString TransitionInfoBin::getCompleteInputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   QString res;
   res = getInputsStr(m, opt);
   if (opt) {
@@ -231,8 +234,8 @@ QString TransitionInfoBin::getCompleteInputsStr(Machine *m /*=NULL*/,
   return res;
 }
 
-QString TransitionInfoBin::getInputsStr(Machine *m /*=NULL*/,
-                                        Options *opt /*=NULL*/) {
+QString TransitionInfoBin::getInputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return getInputsStrBin(m, opt);
   /*
   QString sin = getInputsStrBin();
@@ -277,8 +280,8 @@ QString TransitionInfoBin::getInputsStr(Machine *m /*=NULL*/,
   */
 }
 
-QString TransitionInfoBin::getOutputsStr(Machine *m /*=NULL*/,
-                                         Options *opt /*=NULL*/) {
+QString TransitionInfoBin::getOutputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return getOutputsStrBin(m, opt);
   /*
   QString sout = getOutputsStrBin();
@@ -318,7 +321,8 @@ QString TransitionInfoBin::getOutputsStr(Machine *m /*=NULL*/,
   */
 }
 
-QString TransitionInfoBin::getSeparator(Options *opt) {
+QString TransitionInfoBin::getSeparator(Options* opt) const
+{
   QString sep;
   //  if (opt->getViewMealyIn() && opt->getViewMealyOut())
   {
@@ -339,7 +343,8 @@ QString TransitionInfoBin::getSeparator(Options *opt) {
   return sep;
 }
 
-QString TransitionInfoBin::getInputsStrASCII() {
+QString TransitionInfoBin::getInputsStrASCII() const
+{
   unsigned char ascii[MAX_CHARARRAY_LENGTH];
   int len;
   Convert conv;
@@ -348,7 +353,8 @@ QString TransitionInfoBin::getInputsStrASCII() {
   return conv.asciiToReadableStr(ascii, len);
 }
 
-QString TransitionInfoBin::getOutputsStrASCII() {
+QString TransitionInfoBin::getOutputsStrASCII() const
+{
   unsigned char ascii[MAX_CHARARRAY_LENGTH];
   int len;
   Convert conv;
@@ -362,8 +368,8 @@ QString TransitionInfoBin::getOutputsStrASCII() {
  * @param numin number of input bits
  * @return String representing the input information in binary format.
  */
-QString TransitionInfoBin::getInputsStrBin(Machine *m /*=NULL*/,
-                                           Options *opt /*=NULL*/) {
+QString TransitionInfoBin::getInputsStrBin(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   //  Convert conv;
   //  return conv.X10ToBinStr(*(IOInfoBin*)inputs);
   return inputs->convertToBinStr(m, opt);
@@ -374,8 +380,8 @@ QString TransitionInfoBin::getInputsStrBin(Machine *m /*=NULL*/,
  * @param numout number of output bits
  * @return String representing the output information in binary format.
  */
-QString TransitionInfoBin::getOutputsStrBin(Machine *m /*=NULL*/,
-                                            Options *opt /*=NULL*/) {
+QString TransitionInfoBin::getOutputsStrBin(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   //  Convert conv;
   //  return conv.X10ToBinStr(*(IOInfoBin*)outputs);
   return outputs->convertToBinStr(m, opt);
@@ -386,7 +392,8 @@ QString TransitionInfoBin::getOutputsStrBin(Machine *m /*=NULL*/,
  * @param numout number of intput bits
  * @return String representing the input information in hexadecimal format.
  */
-QString TransitionInfoBin::getInputsStrHex(/*int numin*/) {
+QString TransitionInfoBin::getInputsStrHex(/*int numin*/) const
+{
   //  Convert conv;
   //  return conv.X10ToHexStr(*(IOInfoBin*)inputs);
   return inputs->convertToHexStr();
@@ -397,7 +404,8 @@ QString TransitionInfoBin::getInputsStrHex(/*int numin*/) {
  * @param numout number of output bits
  * @return String representing the output information in hexadecimal format.
  */
-QString TransitionInfoBin::getOutputsStrHex(/*int numout*/) {
+QString TransitionInfoBin::getOutputsStrHex(/*int numout*/) const
+{
   //  Convert conv;
   //  return conv.X10ToHexStr(*(IOInfoBin*)outputs);
   return outputs->convertToHexStr();
@@ -408,7 +416,8 @@ QString TransitionInfoBin::getOutputsStrHex(/*int numout*/) {
  * @param numin number of inputs
  * @param s string containing the binary information
  */
-void TransitionInfoBin::setInputs(QString s, int numin /*=-1*/) {
+void TransitionInfoBin::setInputs(QString s, int numin /*=-1*/)
+{
   if (numin == -1)
     numin = inputs->getLength();
   /*
@@ -423,7 +432,8 @@ void TransitionInfoBin::setInputs(QString s, int numin /*=-1*/) {
  * @param numout number of inputs
  * @param s string containing the binary information
  */
-void TransitionInfoBin::setOutputs(QString s, int numout /*=-1*/) {
+void TransitionInfoBin::setOutputs(QString s, int numout /*=-1*/)
+{
   if (numout == -1)
     numout = outputs->getLength();
   /*
@@ -438,7 +448,8 @@ void TransitionInfoBin::setOutputs(QString s, int numout /*=-1*/) {
  * @param oldin old number of inputs
  * @param newin new number of inputs
  */
-void TransitionInfoBin::setInputsSize(int newin) {
+void TransitionInfoBin::setInputsSize(int newin)
+{
   inputs->setSize(newin);
   /*
     int oldin = inputs->getLength();
@@ -479,7 +490,8 @@ void TransitionInfoBin::setInputsSize(int newin) {
  * @param oldin old number of outputs
  * @param newin new number of outputs
  */
-void TransitionInfoBin::setOutputsSize(int newout) {
+void TransitionInfoBin::setOutputsSize(int newout)
+{
   outputs->setSize(newout);
 
   /*
@@ -521,7 +533,8 @@ void TransitionInfoBin::setOutputsSize(int newout) {
  * @param io I/O-info which shall be checked
  * @return true if the information matches otherwise false.
  */
-bool TransitionInfoBin::matches(IOInfo *io) {
+bool TransitionInfoBin::matches(IOInfo* io)
+{
   //  IOInfoBin iobin = io->convertToBin();
   //  bool result = true;
   //  char* ioinf;

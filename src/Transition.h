@@ -40,14 +40,17 @@ public:
 
   /// Returns starting state
   State *getStart() { return start; };
+  const State* getStart() const { return start; };
   /// Sets starting state
   void setStart(State *s) { start = s; };
   /// Returns end state
   State *getEnd() { return end; };
+  const State* getEnd() const { return end; };
   /// Sets end state.
   void setEnd(State *s) { end = s; };
   /// Returns transition info (condition)
   TransitionInfo *getInfo() { return info; };
+  const TransitionInfo* getInfo() const { return info; };
   /// Sets the transition condition to @a i
   void setInfo(TransitionInfo *i) { info = i; };
 

@@ -14,11 +14,11 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 COMPONENTS Core QUIET)
 if(Qt6_FOUND)
-  find_package(Qt6 COMPONENTS Core Widgets Xml Svg PrintSupport)
-  set(QFSM_QT_LIBS Qt::Core Qt::Widgets Qt::Xml Qt::Svg Qt::PrintSupport)
+  find_package(Qt6 COMPONENTS Core Widgets Svg PrintSupport)
+  set(QFSM_QT_LIBS Qt::Core Qt::Widgets Qt::Svg Qt::PrintSupport)
 else()
-  find_package(Qt5 COMPONENTS Core Widgets Xml Svg PrintSupport)
-  set(QFSM_QT_LIBS Qt5::Core Qt5::Widgets Qt5::Xml Qt5::Svg Qt5::PrintSupport)
+  find_package(Qt5 COMPONENTS Core Widgets Svg PrintSupport)
+  set(QFSM_QT_LIBS Qt5::Core Qt5::Widgets Qt5::Svg Qt5::PrintSupport)
 endif()
 
 set(QFSM_HEADERS

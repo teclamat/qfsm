@@ -56,7 +56,6 @@ class FileIO : public QObject {
   FileIO(QWidget*);
   ~FileIO();
 
-  // Project* openFile(QString mrufile=QString::null);  // deprecated
   qfsm::Project* openFileXML(QString mrufile = {});
   bool saveFile(qfsm::Project*);
   bool saveFileAs(qfsm::Project*);
@@ -139,7 +138,6 @@ class FileIO : public QObject {
   /// File dialog (export)
   QFileDialog* exportdlg;
 
-  bool doSave(qfsm::Project*);
   bool doSaveXML(qfsm::Project*);
   void setOptions(QMap<QString, QString>* map, Options* opt);
 };

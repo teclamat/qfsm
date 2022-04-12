@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QMessageBox>
 #include <QString>
 #include <QTextStream>
+#include <QBuffer>
 
 // #include "AppInfo.h"
 #include "Convert.h"
@@ -114,13 +115,17 @@ bool Edit::copy(Selection*, qfsm::Project* p, Machine* m, QString& s)
   if (!p || !m)
     return false;
 
-  QDomDocument domdoc;
+  // QDomDocument domdoc;
 
-  domdoc = p->getDomDocument(true);
+  // domdoc = p->getDomDocument(true);
 
-  QTextStream tstream(&s, QIODevice::WriteOnly);
+  // QTextStream tstream(&s, QIODevice::WriteOnly);
+  QBuffer pbuffer{};
+  p->saveTo(&pbuffer, true);
 
-  domdoc.save(tstream, 1);
+  s.append(pbuffer.buffer());
+
+  // domdoc.save(tstream, 1);
 
   return true;
   /*

@@ -43,11 +43,14 @@ public:
   void setEndPos(double x, double y);
   void setEndPosX(double x);
   void setEndPosY(double y);
+  QPointF endPosition() const { return QPointF{ endx, endy }; }
   /// Returns the end position (arrowhead) of the transition
   void getEndPos(double &x, double &y) {
     x = endx;
     y = endy;
   };
+  QPointF controlPoint1() const { return QPointF{ control1x, control1y }; }
+  QPointF controlPoint2() const { return QPointF{ control2x, control2y }; }
   /// Sets the position of the first control point
   void setCPoint1(double x, double y) {
     control1x = x;
@@ -77,7 +80,7 @@ public:
     y = control2y;
   };
   /// Returns true if the transition is straight otherwise false
-  bool isStraight() { return straight; };
+  bool isStraight() const { return straight; };
   /** If @a s is true declares the transition as straight otherwise declare
     it as not straight */
   void setStraight(bool s = true) { straight = s; };
@@ -100,7 +103,7 @@ public:
   QRect getToolTipRect(const QPoint &);
 
   /// Returns the description of the transition
-  QString getDescription() { return description; };
+  QString getDescription() const { return description; };
   /// Sets the descriptionn of the transition
   void setDescription(QString d) { description = d; };
 

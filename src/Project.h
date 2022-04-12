@@ -26,14 +26,16 @@ Qt 5/6 port by Mateusz Tecław
 #ifndef PROJECT_H
 #define PROJECT_H
 
-#include <QDomDocument>
 #include <QFont>
 #include <QObject>
+#include <QXmlStreamWriter>
 
 class Machine;
 class MainWindow;
 class UndoBuffer;
 class GObject;
+class GState;
+class GTransition;
 
 /// @namespace qfsm
 namespace qfsm {
@@ -70,10 +72,13 @@ class Project : public QObject {
 
   void saveTo(QIODevice* a_device, bool a_onlySelected = false);
 
-  QDomDocument getDomDocument(bool a_onlySelected = false, GObject* a_object = nullptr);
+  // QDomDocument getDomDocument(bool a_onlySelected = false, GObject* a_object = nullptr);
 
  private:
   void connectMachine();
+  static void writeState(QXmlStreamWriter& a_xml, const GState* a_state);
+  static void writeTransition(QXmlStreamWriter& a_xml, const GTransition* a_transition,
+                              bool a_onlySelected, bool a_isPhantom = false);
 
  private:
   MainWindow* m_mainWindow;

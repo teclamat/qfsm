@@ -34,34 +34,35 @@ two IOInfo objects to keep simulator working
  * @brief Stores information about an ASCII transition condition.
  */
 class TransitionInfoASCII : public TransitionInfo {
-public:
+ public:
   TransitionInfoASCII();
   TransitionInfoASCII(IOInfoASCII ain, IOInfoASCII aout);
   TransitionInfoASCII(QString sin, QString sout);
-  TransitionInfoASCII(const TransitionInfoASCII &t);
+  TransitionInfoASCII(const TransitionInfoASCII& t);
   ~TransitionInfoASCII();
 
-  TransitionInfoASCII &operator=(const TransitionInfoASCII &t);
+  TransitionInfoASCII& operator=(const TransitionInfoASCII& t);
 
-  TransitionInfo *clone() { return new TransitionInfoASCII(*this); };
+  TransitionInfo* clone() { return new TransitionInfoASCII(*this); };
 
-  QString getCompleteInputsStr(Machine *m = NULL, Options *opt = NULL);
-  QString getInputsStr(Machine *m = NULL, Options *opt = NULL);
-  QString getInputsStrBin(Machine *m = NULL, Options *opt = NULL);
-  QString getOutputsStr(Machine *m = NULL, Options *opt = NULL);
-  QString getOutputsStrBin(Machine *m = NULL, Options *opt = NULL);
-  QString getOutputsStrHex();
-  QString getInputsStrASCII();
-  QString getOutputsStrASCII();
-  QString getSeparator(Options *) { return "/"; };
+  QString getCompleteInputsStr(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getInputsStr(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getInputsStrBin(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getOutputsStr(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getOutputsStrBin(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getOutputsStrHex() const;
+  QString getInputsStrASCII() const;
+  QString getOutputsStrASCII() const;
+  QString getSeparator(Options*) const { return "/"; };
+
   void setInputs(QString, int numin = -1);
   void setOutputs(QString, int numout = -1);
   void setInputsSize(int bits);
   void setOutputsSize(int bits);
 
-  bool matches(IOInfo *);
+  bool matches(IOInfo*);
 
-private:
+ private:
   //    IOInfoASCII inputs;
   //    IOInfoASCII outputs;
 };

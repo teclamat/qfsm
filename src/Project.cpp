@@ -20,12 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "AppInfo.h"
 #include "DrawArea.h"
 #include "GObject.h"
+#include "GState.h"
 #include "Machine.h"
 #include "MainWindow.h"
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
-
-#include <QXmlStreamWriter>
 
 namespace qfsm {
 
@@ -147,6 +146,7 @@ void Project::saveTo(QIODevice* a_device, bool a_onlySelected)
   xml.writeAttribute("transfontsize", QString::number(m_machine->getTFont().pointSize()));
   xml.writeAttribute("transfontweight", QString::number(m_machine->getTFont().weight()));
   xml.writeAttribute("transfontitalic", QString::number(m_machine->getTFont().italic()));
+  xml.writeAttribute("arrowtype", QString::number(m_machine->getArrowType()));
   xml.writeAttribute("draw_it", QString::number(m_machine->getDrawITrans()));
 
   xml.writeTextElement(QStringLiteral("outputnames_moore"), m_machine->getMooreOutputNames());
@@ -166,33 +166,112 @@ void Project::saveTo(QIODevice* a_device, bool a_onlySelected)
   }
 
   const QList<GState*>& statesList = m_machine->getSList();
+  QList<GTransition*> transitionsList{};
+
   for (const GState* state : statesList) {
     if (!state || state->isDeleted() || (a_onlySelected && !state->isSelected())) {
       continue;
     }
-    const QPointF position = state->position();
+    writeState(xml, state);
 
-    xml.writeStartElement(QStringLiteral("state"));
+    transitionsList.append(state->tlist);
+  }
 
-    xml.writeAttribute("description", state->getDescription());
-    xml.writeAttribute("code", QString::number(state->getEncoding()));
-    xml.writeAttribute("moore_outputs", state->getMooreOutputsStr());
-    xml.writeAttribute("xpos", QString::number(position.x()));
-    xml.writeAttribute("ypos", QString::number(position.y()));
-    xml.writeAttribute("radius", QString::number(state->getRadius()));
-    xml.writeAttribute("pencolor", QString::number(state->getColor().rgb() & 0xffffff));
-    xml.writeAttribute("linewidth", QString::number(state->getLineWidth()));
-    xml.writeAttribute("finalstate", QString::number(state->isFinalState()));
-    xml.writeAttribute("entry_actions", state->getEntryActions());
-    xml.writeAttribute("exit_actions", state->getExitActions());
+  for (const GTransition* transition : transitionsList) {
+    if (!transition || transition->isDeleted() || (a_onlySelected && !transition->isSelected())) {
+      continue;
+    }
+    writeTransition(xml, transition, a_onlySelected);
+  }
 
-    xml.writeCharacters(state->getStateName());
-
-    xml.writeEndElement();
+  const GState* phantomState = m_machine->getPhantomState();
+  if (phantomState) {
+    const QList<GTransition*>& phantomTransitions = phantomState->tlist;
+    for (const GTransition* transition : phantomTransitions) {
+      if (!transition || transition->isDeleted() || (a_onlySelected && !transition->isSelected())) {
+        continue;
+      }
+      writeTransition(xml, transition, a_onlySelected, true);
+    }
   }
 
   xml.writeEndDocument();
 }
+
+void Project::writeState(QXmlStreamWriter& a_xml, const GState* a_state)
+{
+  const QPointF position = a_state->position();
+
+  a_xml.writeStartElement(QStringLiteral("state"));
+
+  a_xml.writeAttribute("description", a_state->getDescription());
+  a_xml.writeAttribute("code", QString::number(a_state->getEncoding()));
+  a_xml.writeAttribute("moore_outputs", a_state->getMooreOutputsStr());
+  a_xml.writeAttribute("xpos", QString::number(position.x()));
+  a_xml.writeAttribute("ypos", QString::number(position.y()));
+  a_xml.writeAttribute("radius", QString::number(a_state->getRadius()));
+  a_xml.writeAttribute("pencolor", QString::number(a_state->getColor().rgb() & 0xffffff));
+  a_xml.writeAttribute("linewidth", QString::number(a_state->getLineWidth()));
+  a_xml.writeAttribute("finalstate", QString::number(a_state->isFinalState()));
+  a_xml.writeAttribute("entry_actions", a_state->getEntryActions());
+  a_xml.writeAttribute("exit_actions", a_state->getExitActions());
+
+  a_xml.writeCharacters(a_state->getStateName());
+
+  a_xml.writeEndElement();
+}
+
+void Project::writeTransition(QXmlStreamWriter& a_xml, const GTransition* a_transition, bool a_onlySelected,
+                              bool a_isPhantom)
+{
+  a_xml.writeStartElement(QStringLiteral("transition"));
+
+  const QPointF position = a_transition->position();
+  const QPointF endPosition = a_transition->endPosition();
+  const QPointF controlPoint1 = a_transition->controlPoint1();
+  const QPointF controlPoint2 = a_transition->controlPoint2();
+
+  a_xml.writeAttribute("type", QString::number(a_transition->getInfo()->getType()));
+  a_xml.writeAttribute("xpos", QString::number(position.x(), 'f'));
+  a_xml.writeAttribute("ypos", QString::number(position.y(), 'f'));
+  a_xml.writeAttribute("endx", QString::number(endPosition.x(), 'f'));
+  a_xml.writeAttribute("endy", QString::number(endPosition.y(), 'f'));
+  a_xml.writeAttribute("c1x", QString::number(controlPoint1.x(), 'f'));
+  a_xml.writeAttribute("c1y", QString::number(controlPoint1.y(), 'f'));
+  a_xml.writeAttribute("c2x", QString::number(controlPoint2.x(), 'f'));
+  a_xml.writeAttribute("c2y", QString::number(controlPoint2.y(), 'f'));
+  a_xml.writeAttribute("straight", QString::number(a_transition->isStraight()));
+  a_xml.writeAttribute("description", a_transition->getDescription());
+
+  if (!a_isPhantom) {
+    const GState* stateFrom = static_cast<const GState*>(a_transition->getStart());
+    if (!a_onlySelected || stateFrom->isSelected()) {
+      a_xml.writeTextElement(QStringLiteral("from"), QString::number(stateFrom->getEncoding()));
+    }
+  }
+
+  const GState* stateTo = static_cast<const GState*>(a_transition->getEnd());
+  if (!a_onlySelected || stateTo->isSelected()) {
+    a_xml.writeTextElement(QStringLiteral("to"), QString::number(stateTo->getEncoding()));
+  }
+
+  a_xml.writeStartElement(QStringLiteral("inputs"));
+
+  if (!a_isPhantom) {
+    const IOInfo* inputInfo = a_transition->getInfo()->getInputInfo();
+    a_xml.writeAttribute("invert", QString::number(inputInfo->isInverted()));
+    a_xml.writeAttribute("any", QString::number(inputInfo->getAnyInput()));
+    a_xml.writeAttribute("default", QString::number(inputInfo->isDefault()));
+  }
+
+  a_xml.writeCharacters(a_transition->getInfo()->getInputsStr());
+  a_xml.writeEndElement();
+
+  a_xml.writeTextElement(QStringLiteral("outputs"), a_transition->getInfo()->getOutputsStr());
+
+  a_xml.writeEndElement();
+}
+
 /**
  * Creates a DOM document of this project and returns it.
  *
@@ -201,253 +280,253 @@ void Project::saveTo(QIODevice* a_device, bool a_onlySelected)
  * @param obj If != NULL, only @a obj is used from the project
  * @returns The DOM document
  */
-QDomDocument Project::getDomDocument(bool onlyselected /*=false*/, GObject* obj /*=NULL*/)
-{
-  Machine* m = m_machine;
-  m->correctCodes();
-  QString prolog =
-      "<?xml version=\"1.0\"?>\n"
-      "<!DOCTYPE qfsmproject SYSTEM \"qfsm.dtd\">\n\n"
-      "<qfsmproject>\n"
-      "</qfsmproject>\n";
+// QDomDocument Project::getDomDocument(bool onlyselected /*=false*/, GObject* obj /*=NULL*/)
+// {
+//   Machine* m = m_machine;
+//   m->correctCodes();
+//   QString prolog =
+//       "<?xml version=\"1.0\"?>\n"
+//       "<!DOCTYPE qfsmproject SYSTEM \"qfsm.dtd\">\n\n"
+//       "<qfsmproject>\n"
+//       "</qfsmproject>\n";
 
-  QDomDocument domdoc;
-  QDomElement root, me, one, ine, onme, itranse;
-  QDomText ontext, intext, onmtext;
-  QString stmp;
-  int inits;
-  GState* s;
-  GITransition* initt;
-  GTransition* t;
-  QList<GState*> slist;
-  QList<GTransition*> tlist;
-  double xpos, ypos, endx, endy, c1x, c1y, c2x, c2y;
+//   QDomDocument domdoc;
+//   QDomElement root, me, one, ine, onme, itranse;
+//   QDomText ontext, intext, onmtext;
+//   QString stmp;
+//   int inits;
+//   GState* s;
+//   GITransition* initt;
+//   GTransition* t;
+//   QList<GState*> slist;
+//   QList<GTransition*> tlist;
+//   double xpos, ypos, endx, endy, c1x, c1y, c2x, c2y;
 
-  domdoc.setContent(prolog);
+//   domdoc.setContent(prolog);
 
-  if (!m)
-    return domdoc;
+//   if (!m)
+//     return domdoc;
 
-  root = domdoc.documentElement();
+//   root = domdoc.documentElement();
 
-  // Machine
+//   // Machine
 
-  root.setAttribute("author", "Qfsm");
-  root.setAttribute("version", qfsm::AppInfo::getVersion());
-  me = domdoc.createElement("machine");
-  me.setAttribute("name", m->getName());
-  me.setAttribute("version", m->getVersion());
-  me.setAttribute("author", m->getAuthor());
-  me.setAttribute("description", m->getDescription());
-  me.setAttribute("type", m->getType());
-  me.setAttribute("nummooreout", m->getNumMooreOutputs());
-  me.setAttribute("numbits", m->getNumEncodingBits());
-  me.setAttribute("numin", m->getNumInputs());
-  me.setAttribute("numout", m->getNumOutputs());
-  s = m->getInitialState();
-  if (s) {
-    inits = s->getEncoding();
-    me.setAttribute("initialstate", inits);
-  }
-  me.setAttribute("statefont", m->getSFont().family());
-  me.setAttribute("statefontsize", m->getSFont().pointSize());
-  me.setAttribute("statefontweight", m->getSFont().weight());
-  me.setAttribute("statefontitalic", m->getSFont().italic());
-  me.setAttribute("transfont", m->getTFont().family());
-  me.setAttribute("transfontsize", m->getTFont().pointSize());
-  me.setAttribute("transfontweight", m->getTFont().weight());
-  me.setAttribute("transfontitalic", m->getTFont().italic());
-  me.setAttribute("arrowtype", m->getArrowType());
-  me.setAttribute("draw_it", m->getDrawITrans());
+//   root.setAttribute("author", "Qfsm");
+//   root.setAttribute("version", qfsm::AppInfo::getVersion());
+//   me = domdoc.createElement("machine");
+//   me.setAttribute("name", m->getName());
+//   me.setAttribute("version", m->getVersion());
+//   me.setAttribute("author", m->getAuthor());
+//   me.setAttribute("description", m->getDescription());
+//   me.setAttribute("type", m->getType());
+//   me.setAttribute("nummooreout", m->getNumMooreOutputs());
+//   me.setAttribute("numbits", m->getNumEncodingBits());
+//   me.setAttribute("numin", m->getNumInputs());
+//   me.setAttribute("numout", m->getNumOutputs());
+//   s = m->getInitialState();
+//   if (s) {
+//     inits = s->getEncoding();
+//     me.setAttribute("initialstate", inits);
+//   }
+//   me.setAttribute("statefont", m->getSFont().family());
+//   me.setAttribute("statefontsize", m->getSFont().pointSize());
+//   me.setAttribute("statefontweight", m->getSFont().weight());
+//   me.setAttribute("statefontitalic", m->getSFont().italic());
+//   me.setAttribute("transfont", m->getTFont().family());
+//   me.setAttribute("transfontsize", m->getTFont().pointSize());
+//   me.setAttribute("transfontweight", m->getTFont().weight());
+//   me.setAttribute("transfontitalic", m->getTFont().italic());
+//   me.setAttribute("arrowtype", m->getArrowType());
+//   me.setAttribute("draw_it", m->getDrawITrans());
 
-  root.appendChild(me);
+//   root.appendChild(me);
 
-  // Input/Output names
+//   // Input/Output names
 
-  onme = domdoc.createElement("outputnames_moore");
-  ine = domdoc.createElement("inputnames");
-  one = domdoc.createElement("outputnames");
-  intext = domdoc.createTextNode(m->getMealyInputNames());
-  ontext = domdoc.createTextNode(m->getMealyOutputNames());
-  onmtext = domdoc.createTextNode(m->getMooreOutputNames());
-  ine.appendChild(intext);
-  one.appendChild(ontext);
-  onme.appendChild(onmtext);
-  me.appendChild(onme);
-  me.appendChild(ine);
-  me.appendChild(one);
+//   onme = domdoc.createElement("outputnames_moore");
+//   ine = domdoc.createElement("inputnames");
+//   one = domdoc.createElement("outputnames");
+//   intext = domdoc.createTextNode(m->getMealyInputNames());
+//   ontext = domdoc.createTextNode(m->getMealyOutputNames());
+//   onmtext = domdoc.createTextNode(m->getMooreOutputNames());
+//   ine.appendChild(intext);
+//   one.appendChild(ontext);
+//   onme.appendChild(onmtext);
+//   me.appendChild(onme);
+//   me.appendChild(ine);
+//   me.appendChild(one);
 
-  // Initial Transition
+//   // Initial Transition
 
-  initt = m->getInitialTransition();
-  if (initt) {
-    initt->getPos(xpos, ypos);
-    initt->getEndPos(endx, endy);
-    itranse = domdoc.createElement("itransition");
-    itranse.setAttribute("xpos", xpos);
-    itranse.setAttribute("ypos", ypos);
-    itranse.setAttribute("endx", endx);
-    itranse.setAttribute("endy", endy);
+//   initt = m->getInitialTransition();
+//   if (initt) {
+//     initt->getPos(xpos, ypos);
+//     initt->getEndPos(endx, endy);
+//     itranse = domdoc.createElement("itransition");
+//     itranse.setAttribute("xpos", xpos);
+//     itranse.setAttribute("ypos", ypos);
+//     itranse.setAttribute("endx", endx);
+//     itranse.setAttribute("endy", endy);
 
-    me.appendChild(itranse);
-  }
+//     me.appendChild(itranse);
+//   }
 
-  // States
+//   // States
 
-  slist = m->getSList();
-  QListIterator<GState*> sit(slist);
+//   slist = m->getSList();
+//   QListIterator<GState*> sit(slist);
 
-  for (; sit.hasNext();) {
-    s = sit.next();
-    if (!s->isDeleted() && (!onlyselected || s->isSelected() || (s == obj && s != NULL))) {
-      s->getPos(xpos, ypos);
-      QDomElement se = domdoc.createElement("state");
-      QDomText st = domdoc.createTextNode(s->getStateName());
+//   for (; sit.hasNext();) {
+//     s = sit.next();
+//     if (!s->isDeleted() && (!onlyselected || s->isSelected() || (s == obj && s != NULL))) {
+//       s->getPos(xpos, ypos);
+//       QDomElement se = domdoc.createElement("state");
+//       QDomText st = domdoc.createTextNode(s->getStateName());
 
-      se.setAttribute("description", s->getDescription());
-      se.setAttribute("code", s->getEncoding());
-      se.setAttribute("moore_outputs", s->getMooreOutputsStr());
-      se.setAttribute("xpos", xpos);
-      se.setAttribute("ypos", ypos);
-      se.setAttribute("radius", s->getRadius());
-      se.setAttribute("pencolor", s->getColor().rgb() & 0xffffff);
-      se.setAttribute("linewidth", s->getLineWidth());
-      se.setAttribute("finalstate", s->isFinalState());
-      se.setAttribute("entry_actions", s->getEntryActions());
-      se.setAttribute("exit_actions", s->getExitActions());
+//       se.setAttribute("description", s->getDescription());
+//       se.setAttribute("code", s->getEncoding());
+//       se.setAttribute("moore_outputs", s->getMooreOutputsStr());
+//       se.setAttribute("xpos", xpos);
+//       se.setAttribute("ypos", ypos);
+//       se.setAttribute("radius", s->getRadius());
+//       se.setAttribute("pencolor", s->getColor().rgb() & 0xffffff);
+//       se.setAttribute("linewidth", s->getLineWidth());
+//       se.setAttribute("finalstate", s->isFinalState());
+//       se.setAttribute("entry_actions", s->getEntryActions());
+//       se.setAttribute("exit_actions", s->getExitActions());
 
-      se.appendChild(st);
+//       se.appendChild(st);
 
-      me.appendChild(se);
-    }
-  }
+//       me.appendChild(se);
+//     }
+//   }
 
-  // Transitions
+//   // Transitions
 
-  sit.toFront();
-  for (; sit.hasNext();) {
-    s = sit.next();
-    QListIterator<GTransition*> tit(s->tlist);
-    GState* send;
+//   sit.toFront();
+//   for (; sit.hasNext();) {
+//     s = sit.next();
+//     QListIterator<GTransition*> tit(s->tlist);
+//     GState* send;
 
-    for (; tit.hasNext();) {
-      t = tit.next();
-      if (!t->isDeleted() && (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
-        t->getPos(xpos, ypos);
-        t->getEndPos(endx, endy);
-        t->getCPoint1(c1x, c1y);
-        t->getCPoint2(c2x, c2y);
-        QDomElement te = domdoc.createElement("transition");
+//     for (; tit.hasNext();) {
+//       t = tit.next();
+//       if (!t->isDeleted() && (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
+//         t->getPos(xpos, ypos);
+//         t->getEndPos(endx, endy);
+//         t->getCPoint1(c1x, c1y);
+//         t->getCPoint2(c2x, c2y);
+//         QDomElement te = domdoc.createElement("transition");
 
-        te.setAttribute("type", t->getInfo()->getType());
-        te.setAttribute("xpos", xpos);
-        te.setAttribute("ypos", ypos);
-        te.setAttribute("endx", endx);
-        te.setAttribute("endy", endy);
-        te.setAttribute("c1x", c1x);
-        te.setAttribute("c1y", c1y);
-        te.setAttribute("c2x", c2x);
-        te.setAttribute("c2y", c2y);
-        te.setAttribute("straight", t->isStraight());
-        te.setAttribute("description", t->getDescription());
+//         te.setAttribute("type", t->getInfo()->getType());
+//         te.setAttribute("xpos", xpos);
+//         te.setAttribute("ypos", ypos);
+//         te.setAttribute("endx", endx);
+//         te.setAttribute("endy", endy);
+//         te.setAttribute("c1x", c1x);
+//         te.setAttribute("c1y", c1y);
+//         te.setAttribute("c2x", c2x);
+//         te.setAttribute("c2y", c2y);
+//         te.setAttribute("straight", t->isStraight());
+//         te.setAttribute("description", t->getDescription());
 
-        send = (GState*)t->getEnd();
+//         send = (GState*)t->getEnd();
 
-        if (!onlyselected || s->isSelected()) {
-          QDomElement from = domdoc.createElement("from");
-          QString sfrom = QString::number(s->getEncoding());
-          QDomText fromt = domdoc.createTextNode(sfrom);
-          from.appendChild(fromt);
-          te.appendChild(from);
-        }
+//         if (!onlyselected || s->isSelected()) {
+//           QDomElement from = domdoc.createElement("from");
+//           QString sfrom = QString::number(s->getEncoding());
+//           QDomText fromt = domdoc.createTextNode(sfrom);
+//           from.appendChild(fromt);
+//           te.appendChild(from);
+//         }
 
-        if (send && (!onlyselected || send->isSelected())) {
-          QDomElement to = domdoc.createElement("to");
-          QString sto = QString::number(send->getEncoding());
-          // sto.sprintf("%d", send->getEncoding());
-          QDomText tot = domdoc.createTextNode(sto);
-          to.appendChild(tot);
-          te.appendChild(to);
-        }
+//         if (send && (!onlyselected || send->isSelected())) {
+//           QDomElement to = domdoc.createElement("to");
+//           QString sto = QString::number(send->getEncoding());
+//           // sto.sprintf("%d", send->getEncoding());
+//           QDomText tot = domdoc.createTextNode(sto);
+//           to.appendChild(tot);
+//           te.appendChild(to);
+//         }
 
-        QDomElement inpute, outpute;
-        QDomText inputt, outputt;
+//         QDomElement inpute, outpute;
+//         QDomText inputt, outputt;
 
-        inpute = domdoc.createElement("inputs");
-        inpute.setAttribute("invert", t->getInfo()->getInputInfo()->isInverted());
-        inpute.setAttribute("any", t->getInfo()->getInputInfo()->getAnyInput());
-        inpute.setAttribute("default", t->getInfo()->getInputInfo()->isDefault());
-        outpute = domdoc.createElement("outputs");
+//         inpute = domdoc.createElement("inputs");
+//         inpute.setAttribute("invert", t->getInfo()->getInputInfo()->isInverted());
+//         inpute.setAttribute("any", t->getInfo()->getInputInfo()->getAnyInput());
+//         inpute.setAttribute("default", t->getInfo()->getInputInfo()->isDefault());
+//         outpute = domdoc.createElement("outputs");
 
-        inputt = domdoc.createTextNode(t->getInfo()->getInputsStr(NULL));
-        outputt = domdoc.createTextNode(t->getInfo()->getOutputsStr(NULL));
+//         inputt = domdoc.createTextNode(t->getInfo()->getInputsStr(NULL));
+//         outputt = domdoc.createTextNode(t->getInfo()->getOutputsStr(NULL));
 
-        inpute.appendChild(inputt);
-        outpute.appendChild(outputt);
+//         inpute.appendChild(inputt);
+//         outpute.appendChild(outputt);
 
-        te.appendChild(inpute);
-        te.appendChild(outpute);
+//         te.appendChild(inpute);
+//         te.appendChild(outpute);
 
-        me.appendChild(te);
-      }
-    }
-  }
+//         me.appendChild(te);
+//       }
+//     }
+//   }
 
-  // Phantom State
+//   // Phantom State
 
-  s = m->getPhantomState();
-  QListIterator<GTransition*> tit(s->tlist);
-  GState* send;
+//   s = m->getPhantomState();
+//   QListIterator<GTransition*> tit(s->tlist);
+//   GState* send;
 
-  for (; tit.hasNext();) {
-    t = tit.next();
-    if (!t->isDeleted() && (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
-      t->getPos(xpos, ypos);
-      t->getEndPos(endx, endy);
-      t->getCPoint1(c1x, c1y);
-      t->getCPoint2(c2x, c2y);
-      QDomElement te = domdoc.createElement("transition");
+//   for (; tit.hasNext();) {
+//     t = tit.next();
+//     if (!t->isDeleted() && (!onlyselected || t->isSelected() || (t == obj && t != NULL))) {
+//       t->getPos(xpos, ypos);
+//       t->getEndPos(endx, endy);
+//       t->getCPoint1(c1x, c1y);
+//       t->getCPoint2(c2x, c2y);
+//       QDomElement te = domdoc.createElement("transition");
 
-      te.setAttribute("type", t->getInfo()->getType());
-      te.setAttribute("xpos", xpos);
-      te.setAttribute("ypos", ypos);
-      te.setAttribute("endx", endx);
-      te.setAttribute("endy", endy);
-      te.setAttribute("c1x", c1x);
-      te.setAttribute("c1y", c1y);
-      te.setAttribute("c2x", c2x);
-      te.setAttribute("c2y", c2y);
-      te.setAttribute("straight", t->isStraight());
+//       te.setAttribute("type", t->getInfo()->getType());
+//       te.setAttribute("xpos", xpos);
+//       te.setAttribute("ypos", ypos);
+//       te.setAttribute("endx", endx);
+//       te.setAttribute("endy", endy);
+//       te.setAttribute("c1x", c1x);
+//       te.setAttribute("c1y", c1y);
+//       te.setAttribute("c2x", c2x);
+//       te.setAttribute("c2y", c2y);
+//       te.setAttribute("straight", t->isStraight());
 
-      send = (GState*)t->getEnd();
-      if (send && (!onlyselected || send->isSelected())) {
-        QDomElement to = domdoc.createElement("to");
-        QString sto = QString::number(send->getEncoding());
-        QDomText tot = domdoc.createTextNode(sto);
-        to.appendChild(tot);
-        te.appendChild(to);
-      }
+//       send = (GState*)t->getEnd();
+//       if (send && (!onlyselected || send->isSelected())) {
+//         QDomElement to = domdoc.createElement("to");
+//         QString sto = QString::number(send->getEncoding());
+//         QDomText tot = domdoc.createTextNode(sto);
+//         to.appendChild(tot);
+//         te.appendChild(to);
+//       }
 
-      QDomElement inpute, outpute;
-      QDomText inputt, outputt;
+//       QDomElement inpute, outpute;
+//       QDomText inputt, outputt;
 
-      inpute = domdoc.createElement("inputs");
-      outpute = domdoc.createElement("outputs");
+//       inpute = domdoc.createElement("inputs");
+//       outpute = domdoc.createElement("outputs");
 
-      inputt = domdoc.createTextNode(t->getInfo()->getInputsStr(NULL));
-      outputt = domdoc.createTextNode(t->getInfo()->getOutputsStr(NULL));
+//       inputt = domdoc.createTextNode(t->getInfo()->getInputsStr(NULL));
+//       outputt = domdoc.createTextNode(t->getInfo()->getOutputsStr(NULL));
 
-      inpute.appendChild(inputt);
-      outpute.appendChild(outputt);
+//       inpute.appendChild(inputt);
+//       outpute.appendChild(outputt);
 
-      te.appendChild(inpute);
-      te.appendChild(outpute);
+//       te.appendChild(inpute);
+//       te.appendChild(outpute);
 
-      me.appendChild(te);
-    }
-  }
+//       me.appendChild(te);
+//     }
+//   }
 
-  return domdoc;
-}
+//   return domdoc;
+// }
 
 } // namespace qfsm

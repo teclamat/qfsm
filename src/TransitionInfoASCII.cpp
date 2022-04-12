@@ -26,14 +26,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoASCII.h"
 
 /// Constructor
-TransitionInfoASCII::TransitionInfoASCII() {
+TransitionInfoASCII::TransitionInfoASCII()
+{
   type = Ascii;
   inputs = new IOInfoASCII(IO_MealyIn);
   outputs = new IOInfoASCII(IO_MealyOut);
 }
 
 /// Constructor
-TransitionInfoASCII::TransitionInfoASCII(IOInfoASCII ain, IOInfoASCII aout) {
+TransitionInfoASCII::TransitionInfoASCII(IOInfoASCII ain, IOInfoASCII aout)
+{
   type = Ascii;
 
   inputs = new IOInfoASCII(ain);
@@ -41,7 +43,8 @@ TransitionInfoASCII::TransitionInfoASCII(IOInfoASCII ain, IOInfoASCII aout) {
 }
 
 /// Constructor
-TransitionInfoASCII::TransitionInfoASCII(QString sin, QString sout) {
+TransitionInfoASCII::TransitionInfoASCII(QString sin, QString sout)
+{
   type = Ascii;
 
   inputs = new IOInfoASCII(IO_MealyIn, sin);
@@ -49,7 +52,8 @@ TransitionInfoASCII::TransitionInfoASCII(QString sin, QString sout) {
 }
 
 /// Destructor
-TransitionInfoASCII::~TransitionInfoASCII() {
+TransitionInfoASCII::~TransitionInfoASCII()
+{
   if (inputs)
     delete inputs;
   if (outputs)
@@ -57,8 +61,9 @@ TransitionInfoASCII::~TransitionInfoASCII() {
 }
 
 /// Copy constructor
-TransitionInfoASCII::TransitionInfoASCII(const TransitionInfoASCII &t)
-    : TransitionInfo() {
+TransitionInfoASCII::TransitionInfoASCII(const TransitionInfoASCII& t)
+  : TransitionInfo()
+{
   //  IOInfoASCII ioascii;
 
   inputs = t.inputs->clone();
@@ -68,8 +73,8 @@ TransitionInfoASCII::TransitionInfoASCII(const TransitionInfoASCII &t)
 }
 
 /// Assignment operator
-TransitionInfoASCII &
-TransitionInfoASCII::operator=(const TransitionInfoASCII &t) {
+TransitionInfoASCII& TransitionInfoASCII::operator=(const TransitionInfoASCII& t)
+{
   if (this != &t) {
     if (inputs) {
       delete inputs;
@@ -89,8 +94,8 @@ TransitionInfoASCII::operator=(const TransitionInfoASCII &t) {
   return *this;
 }
 
-QString TransitionInfoASCII::getCompleteInputsStr(Machine *m /*=NULL*/,
-                                                  Options *opt /*=NULL*/) {
+QString TransitionInfoASCII::getCompleteInputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   QString res;
   res = getInputsStr(m, opt);
   if (opt) {
@@ -104,8 +109,8 @@ QString TransitionInfoASCII::getCompleteInputsStr(Machine *m /*=NULL*/,
   return res;
 }
 
-QString TransitionInfoASCII::getInputsStr(Machine *m /*=NULL*/,
-                                          Options *opt /*=NULL*/) {
+QString TransitionInfoASCII::getInputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return inputs->convertToString(m, opt); // getInfo();
 }
 
@@ -113,46 +118,53 @@ QString TransitionInfoASCII::getInputsStr(Machine *m /*=NULL*/,
  * Returns string containing the input condition in bin format.
  * @return String representing the input information in binary format.
  */
-QString TransitionInfoASCII::getInputsStrBin(Machine *m /*=NULL*/,
-                                             Options *opt /*=NULL*/) {
+QString TransitionInfoASCII::getInputsStrBin(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return inputs->convertToBinStr(m, opt);
 }
 
-QString TransitionInfoASCII::getOutputsStr(Machine *m /*=NULL*/,
-                                           Options *opt /*=NULL*/) {
+QString TransitionInfoASCII::getOutputsStr(Machine* m /*=NULL*/, Options* opt /*=NULL*/) const
+{
   return outputs->convertToString(m, opt); // getInfo();
 }
 
-QString TransitionInfoASCII::getOutputsStrBin(Machine * /*m=NULL*/,
-                                              Options * /*opt=NULL*/) {
+QString TransitionInfoASCII::getOutputsStrBin(Machine* /*m=NULL*/, Options* /*opt=NULL*/) const
+{
   Convert conv;
   unsigned char ascii[MAX_CHARARRAY_LENGTH];
   int length;
 
-  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH,
-                      length);
+  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH, length);
   return conv.asciiToBinStr(8, ascii, length); // getInfo());
 }
 
-QString TransitionInfoASCII::getOutputsStrHex() {
+QString TransitionInfoASCII::getOutputsStrHex() const
+{
   Convert conv;
   unsigned char ascii[MAX_CHARARRAY_LENGTH];
   int length;
 
-  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH,
-                      length);
+  conv.resolveEscapes(outputs->convertToString(), ascii, MAX_CHARARRAY_LENGTH, length);
   return conv.asciiToHexStr(ascii, length);
 }
 
-QString TransitionInfoASCII::getInputsStrASCII() { return getInputsStr(); }
+QString TransitionInfoASCII::getInputsStrASCII() const
+{
+  return getInputsStr();
+}
 
-QString TransitionInfoASCII::getOutputsStrASCII() { return getOutputsStr(); }
+QString TransitionInfoASCII::getOutputsStrASCII() const
+{
+  return getOutputsStr();
+}
 
-void TransitionInfoASCII::setInputs(QString sin, int numbits) {
+void TransitionInfoASCII::setInputs(QString sin, int numbits)
+{
   inputs->setString(sin, numbits);
 }
 
-void TransitionInfoASCII::setOutputs(QString sout, int numbits) {
+void TransitionInfoASCII::setOutputs(QString sout, int numbits)
+{
   outputs->setString(sout, numbits);
 }
 
@@ -160,7 +172,8 @@ void TransitionInfoASCII::setInputsSize(int) {}
 
 void TransitionInfoASCII::setOutputsSize(int) {}
 
-bool TransitionInfoASCII::matches(IOInfo *io) {
+bool TransitionInfoASCII::matches(IOInfo* io)
+{
   return inputs->matches(io);
   //  return inputs->equals(io);
 }

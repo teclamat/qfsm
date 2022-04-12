@@ -37,50 +37,45 @@ enum TransitionType { Binary, Ascii, Text };
  * @brief Base class for all kind of transition conditions.
  */
 class TransitionInfo {
-public:
+ public:
   TransitionInfo();
   virtual ~TransitionInfo();
 
   /// Produces an exact copy of this transition info and returns a pointer to it
-  virtual TransitionInfo *clone() = 0;
+  virtual TransitionInfo* clone() = 0;
 
   /// Returns the inputs
-  IOInfo *getInputInfo() { return inputs; };
+  IOInfo* getInputInfo() { return inputs; };
+  const IOInfo* getInputInfo() const { return inputs; };
   /// Returns the outputs
-  IOInfo *getOutputInfo() { return outputs; };
+  IOInfo* getOutputInfo() { return outputs; };
   /// Returns a string representing the inputs (including NOT, any, default
   /// etc.)
-  virtual QString getCompleteInputsStr(Machine *m = NULL, Options *opt = NULL) {
-    return getInputsStr();
-  };
+  virtual QString getCompleteInputsStr(Machine* m = NULL, Options* opt = NULL) const { return getInputsStr(); };
   /// Returns a string representing the inputs
-  virtual QString getInputsStr(Machine *m = NULL, Options *opt = NULL) = 0;
+  virtual QString getInputsStr(Machine* m = NULL, Options* opt = NULL) const = 0;
   /// Returns a string representing the outputs
-  virtual QString getOutputsStr(Machine *m = NULL, Options *opt = NULL) = 0;
+  virtual QString getOutputsStr(Machine* m = NULL, Options* opt = NULL) const = 0;
   /// Returns a binary string representing the inputs
-  virtual QString getInputsStrBin(Machine * = NULL, Options * = NULL) {
-    return "";
-  };
+  virtual QString getInputsStrBin(Machine* = NULL, Options* = NULL) const { return ""; };
   /// Returns a binary string representing the outputs
-  virtual QString getOutputsStrBin(Machine * = NULL, Options * = NULL) {
-    return "";
-  };
+  virtual QString getOutputsStrBin(Machine* = NULL, Options* = NULL) const { return ""; };
   /// Returns a hexadecimal string representing the inputs
-  virtual QString getInputsStrHex(/*int*/) { return ""; };
+  virtual QString getInputsStrHex(/*int*/) const { return ""; };
   /// Returns a hexadecimal string representing the outputs
-  virtual QString getOutputsStrHex(/*int*/) { return ""; };
+  virtual QString getOutputsStrHex(/*int*/) const { return ""; };
   /// Returns an ASCII string representing the inputs
-  virtual QString getInputsStrASCII() { return ""; };
+  virtual QString getInputsStrASCII() const { return ""; };
   /// Returns an ASCII string representing the outputs
-  virtual QString getOutputsStrASCII() { return ""; };
+  virtual QString getOutputsStrASCII() const { return ""; };
   /// Returns the separator string used between inputs and outputs string
-  virtual QString getSeparator(Options *) { return ""; };
+  virtual QString getSeparator(Options*) const { return ""; };
   /// Sets the inputs
   virtual void setInputs(QString, int numin = -1) = 0;
   /// Sets the outputs
   virtual void setOutputs(QString, int numout = -1) = 0;
   /// Returns the type of the transition (Binary, ASCII).
-  int getType() { return type; };
+  int getType() const { return type; };
   /// Sets the type of the transition (Binary, ASCII).
   void setType(int t) { type = t; };
   /// Sets the input size (in bits)
@@ -89,14 +84,14 @@ public:
   virtual void setOutputsSize(int bits) = 0;
 
   /// Returns true if @a io matches this transition info, otherwise false
-  virtual bool matches(IOInfo *io) = 0;
-  bool intersection(TransitionInfo *);
+  virtual bool matches(IOInfo* io) = 0;
+  bool intersection(TransitionInfo*);
 
-protected:
+ protected:
   /// Inputs
-  IOInfo *inputs;
+  IOInfo* inputs;
   /// Outputs
-  IOInfo *outputs;
+  IOInfo* outputs;
   /// Type of the transition. 0: Binary / 1: ASCII
   int type;
 };

@@ -34,32 +34,33 @@ two IOInfo objects to keep simulator working
  * @brief Stores information about an ASCII transition condition.
  */
 class TransitionInfoText : public TransitionInfo {
-public:
+ public:
   TransitionInfoText();
   TransitionInfoText(IOInfoText ain, IOInfoText aout);
   TransitionInfoText(QString sin, QString sout);
-  TransitionInfoText(const TransitionInfoText &t);
+  TransitionInfoText(const TransitionInfoText& t);
   ~TransitionInfoText();
 
-  TransitionInfoText &operator=(const TransitionInfoText &t);
+  TransitionInfoText& operator=(const TransitionInfoText& t);
 
-  TransitionInfo *clone() { return new TransitionInfoText(*this); };
+  TransitionInfo* clone() { return new TransitionInfoText(*this); };
 
-  QString getInputsStr(Machine *m = NULL, Options *opt = NULL);
-  QString getOutputsStr(Machine *m = NULL, Options *opt = NULL);
-  QString getOutputsStrBin(Machine *m = NULL, Options *opt = NULL);
-  QString getOutputsStrHex();
-  QString getInputsStrASCII();
-  QString getOutputsStrASCII();
-  QString getSeparator(Options *) { return " / "; };
+  QString getInputsStr(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getOutputsStr(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getOutputsStrBin(Machine* m = nullptr, Options* opt = nullptr) const;
+  QString getOutputsStrHex() const;
+  QString getInputsStrASCII() const;
+  QString getOutputsStrASCII() const;
+  QString getSeparator(Options*) const { return " / "; };
+
   void setInputs(QString, int numin = -1);
   void setOutputs(QString, int numout = -1);
   void setInputsSize(int bits);
   void setOutputsSize(int bits);
 
-  bool matches(IOInfo *);
+  bool matches(IOInfo*);
 
-private:
+ private:
 };
 
 #endif
