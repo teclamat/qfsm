@@ -16,10 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "Convert.h"
 #include "Edit.h"
+
+#include "Convert.h"
 #include "Error.h"
 #include "Machine.h"
+#include "Project.h"
 #include "Selection.h"
 #include "TransitionInfo.h"
 #include "TransitionInfoASCII.h"
@@ -27,72 +29,70 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UndoBuffer.h"
 #include "XMLHandler.h"
 
-#include <QWidget>
+#include <QList>
 
-/// Constructor
-Edit::Edit(QWidget *parent, const char *name) : QObject(parent) {}
+namespace qfsm {
 
 /**
  * Deletes all selected objects.
  * @param sel selection object containing all selected objects
  * @param m machine containing the selected objects
  */
-void Edit::deleteSelection(Selection *sel, Machine *m) {
+void Edit::deleteSelection(Selection* sel, Machine* m)
+{
   //  QListIterator<GState> si(sel->getSList());
   //  QListIterator<GTransition> ti(sel->getTList());
-  QMutableListIterator<GState *> si(sel->getSList());
-  QMutableListIterator<GTransition *> ti(sel->getTList());
+  QMutableListIterator<GState*> si(sel->getSList());
+  QMutableListIterator<GTransition*> ti(sel->getTList());
 
-  GState *s;
-  GTransition *t;
-  GObject *obj;
+  GState* s;
+  GTransition* t;
+  GObject* obj;
   int type = 0;
 
-  obj = NULL; // sel->getContextObject(type);
-  if (obj) {
-    switch (type) {
-    case StateT:
-      s = (GState *)obj;
-      m->getProject()->undoBuffer()->deleteState(s);
+  // obj = NULL; // sel->getContextObject(type);
+  // if (obj) {
+  //   switch (type) {
+  //     case StateT:
+  //       s = (GState*)obj;
+  //       m->getProject()->undoBuffer()->deleteState(s);
 
-      if (s == m->getInitialState())
-        sel->selectITrans(false);
-      m->removeState(s);
-      break;
+  //       if (s == m->getInitialState())
+  //         sel->selectITrans(false);
+  //       m->removeState(s);
+  //       break;
 
-    case TransitionT:
-      t = (GTransition *)obj;
-      m->getProject()->undoBuffer()->deleteTransition(t);
+  //     case TransitionT:
+  //       t = (GTransition*)obj;
+  //       m->getProject()->undoBuffer()->deleteTransition(t);
 
-      s = (GState *)t->getStart();
-      s->removeTransition(t);
-      break;
+  //       s = (GState*)t->getStart();
+  //       s->removeTransition(t);
+  //       break;
 
-    default:
-      break;
-    }
-  } else {
-    m->getProject()->undoBuffer()->deleteSelection(&sel->getSList(),
-                                                      &sel->getTList());
+  //     default:
+  //       break;
+  //   }
+  // } else {
+  m->getProject()->undoBuffer()->deleteSelection(&sel->getSList(), &sel->getTList());
 
-    // delete Transitions
-    for (; ti.hasNext();) {
-      t = ti.next();
-      s = (GState *)t->getStart();
-      s->removeTransition(t);
-    }
-
-    // delete States
-    for (; si.hasNext();) {
-      s = si.next();
-      if (s == m->getInitialState())
-        sel->selectITrans(false);
-      m->removeState(s);
-    }
-
-    sel->getSList().clear();
-    sel->getTList().clear();
+  // delete Transitions
+  for (; ti.hasNext();) {
+    t = ti.next();
+    s = (GState*)t->getStart();
+    s->removeTransition(t);
   }
+
+  // delete States
+  for (; si.hasNext();) {
+    s = si.next();
+    if (s == m->getInitialState())
+      sel->selectITrans(false);
+    m->removeState(s);
+  }
+
+  sel->getSList().clear();
+  sel->getTList().clear();
 }
 
 /**
@@ -104,14 +104,12 @@ void Edit::deleteSelection(Selection *sel, Machine *m) {
  * @param s String that contains the XML data
  * @returns true if successful
  */
-bool Edit::copy(Selection*, qfsm::Project* p, Machine* m, QString& s)
+QString Edit::copy(const Project* a_project)
 {
-  if (!p || !m)
-    return false;
-
-  s = p->copy();
-
-  return !s.isEmpty();
+  if (a_project && a_project->isValid()) {
+    return a_project->copy();
+  }
+  return {};
 }
 
 /**
@@ -123,238 +121,16 @@ bool Edit::copy(Selection*, qfsm::Project* p, Machine* m, QString& s)
  * @param data XML string (produced by Edit::copy())
  * @returns true if successful
  */
-bool Edit::paste(Selection* sel, qfsm::Project* p, Machine* m, QString data)
+bool Edit::paste(Project* a_project, Selection* a_selection, const QString& a_data)
 {
-  if (!p || !m || data.isNull() || data.isEmpty())
+  if (!a_project || !a_project->isValid() || a_data.isEmpty()) {
     return false;
+  }
 
-  //    QTextStream s(&data, IO_ReadOnly);
-
-  // QXmlInputSource source;
-  // source.setData(data);
-  XMLHandler handler(p, sel, false, false);
-  handler.addData(data);
-  // QXmlSimpleReader reader;
-
-  // reader.setContentHandler(&handler);
+  XMLHandler handler(a_project, a_selection, false, false);
+  handler.addData(a_data);
 
   return handler.parse();
-
-  /*
-  int version_major, version_minor;
-  QString mname;
-  int numbits, numin, numout, initial;
-  int scode;
-  QString sname;
-  double xpos, ypos;
-  double c1x, c1y, c2x, c2y;
-  double endx, endy;
-  int radius, linewidth;
-  unsigned int pencolor, brushcolor;
-  QString sfamily, tfamily;
-  int dest_code, start_code, type;
-  QString in, out;
-  int straight;
-  GState *dest_state, *start_state;
-  Convert conv;
-  IOInfoBin bin, bout;
-  TransitionInfo* info=NULL;
-  int scount, tcount;
-  bool ok = false;
-  QList<GState> undostatelist;
-  QList<GTransition> undotranslist;
-  GState *oldinitialstate, *newinitialstate;
-  GITransition *oldinitialtrans, *newinitialtrans;
-  int oldnumbits, oldnumin, oldnumout;
-  QValueList<int> rstatelist;
-  QMap<int, int> codemap;
-  bool hasinitialstate;
-
-  if (m->getInitialState())
-    hasinitialstate=true;
-  else
-    hasinitialstate=false;
-
-  undostatelist.setAutoDelete(false);
-  undotranslist.setAutoDelete(false);
-
-  oldinitialstate = m->getInitialState();
-  oldinitialtrans = m->getInitialTransition();
-  newinitialstate = oldinitialstate;
-  newinitialtrans = oldinitialtrans;
-
-  s >> version_major;
-  s >> version_minor;
-  if (version_major==0 && version_minor<2)
-    return false;
-  s.readLine();
-  mname = s.readLine();
-  s >> numbits >> numin >> numout;
-  s.readLine();
-  s >> initial;
-  s >> scount >> tcount;
-
-  if (s.atEnd())
-    return false;
-
-  oldnumbits = m->getNumBits();
-  oldnumin = m->getNumInputs();
-  oldnumout = m->getNumOutputs();
-
-  if (numbits>m->getNumBits())
-  {
-    if (Error::warningOkCancel(tr("The number of moore outputs exceeds the limit
-" "of this machine.\nDo you want to increase the number of moore outputs of the
-" "machine?")) == QMessageBox::Ok)
-    {
-      m->setNumBits(numbits);
-    }
-  }
-  if (numin>m->getNumInputs())
-  {
-    if (Error::warningOkCancel(tr("The number of mealy inputs exceeds the limit
-" "of this machine.\nDo you want to increase the number of mealy inputs of the "
-      "machine?")) == QMessageBox::Ok)
-    {
-      m->setNumInputs(numin);
-    }
-  }
-  if (numout>m->getNumOutputs())
-
-  {
-    if (Error::warningOkCancel(tr("The number of mealy outputs exceeds the limit
-" "of this machine.\nDo you want to increase the number of mealy outputs of the
-" "machine?")) == QMessageBox::Ok)
-    {
-      m->setNumOutputs(numout);
-    }
-  }
-
-  for (int i=0; i<scount; i++)
-  {
-    s >> scode;
-    s.readLine();
-    sname=s.readLine();
-    s >> xpos >> ypos >> radius;
-    s >> pencolor >> linewidth;
-    s >> brushcolor;
-
-    QColor pcol((QRgb)pencolor);
-    QColor bcol((QRgb)brushcolor);
-    QPen pen(pcol, linewidth );
-    QBrush brush(bcol);
-    bool addstate=true;
-
-    if (m->getState(scode))
-    {
-      if (m->getType()==Binary)
-      {
-        if (Error::warningOkCancel(tr("State %1 has a code "
-            "(Moore outputs) that exists already.\nProceed with the remaining "
-            "objects?").arg(sname)) == QMessageBox::Cancel)
-          return ok;
-        else
-          rstatelist.append(scode);
-        addstate=false;
-      }
-      else
-      {
-        int newcode = m->getNewCode();
-        codemap.insert(scode, newcode);
-        scode=newcode;
-        addstate=true;
-      }
-    }
-    if (addstate)
-    {
-      m->addState(sname, scode, xpos, ypos, radius, 1.0, pen, false);
-      undostatelist.append(m->getSList().last());
-      sel->select(m->getSList().last());
-      ok = true;
-    }
-  }
-
-  QMap<int, int>::Iterator mit;
-  mit = codemap.find(initial);
-  if (mit!=codemap.end())
-    initial = mit.data();
-  if (!hasinitialstate && initial!=-1 && m->getState(initial))
-  {
-    m->setInitialState(m->getState(initial));
-    if (!oldinitialtrans)
-    {
-      m->setInitialTransition(new GITransition(m->getPhantomState(),
-        m->getState(initial)));
-    }
-  }
-  newinitialstate = m->getInitialState();
-  newinitialtrans=m->getInitialTransition();
-
-    for (int j=0; j<tcount; j++)
-    {
-      s >> start_code >> dest_code;
-      QMap<int, int>::Iterator mit;
-      mit = codemap.find(start_code);
-      if (mit!=codemap.end())
-        start_code = mit.data();
-      mit = codemap.find(dest_code);
-      if (mit!=codemap.end())
-        dest_code = mit.data();
-
-      if (dest_code==-1)
-        dest_state=NULL;
-      else
-        dest_state = m->getState(dest_code);
-      if (start_code==-1)
-        start_state = m->getPhantomState();
-      else
-        start_state = m->getState(start_code);
-
-      s >> type;
-      s >> in >> out;
-      s >> xpos >> ypos >> c1x >> c1y >> c2x >> c2y >> endx >> endy;
-      s >> straight;
-
-      if (type == Binary)
-      {
-        bin = conv.binStrToX10(m->getNumInputs(), in);
-
-        if (out!="<noout>")
-        {
-          bout = conv.binStrToX10(m->getNumOutputs(), out);
-        }
-
-        info = new TransitionInfoBin(bin, bout);
-      }
-      else
-      {
-        IOInfoASCII ain(in), aout(out);
-
-        info = new TransitionInfoASCII(ain, aout);
-      }
-
-      if (start_state)
-      {
-        GState* desttmp;
-        if (rstatelist.contains(start_state->getCode()))
-          start_state = m->getPhantomState();
-        desttmp=dest_state;
-        if (desttmp && rstatelist.contains(desttmp->getCode()))
-          desttmp = NULL;
-
-        start_state->addTransition(m->getProject(), desttmp, info, xpos, ypos,
-          endx, endy, c1x, c1y, c2x, c2y, (bool)straight, false);
-        undotranslist.append(start_state->tlist.last());
-        sel->select(start_state->tlist.last());
-        ok = true;
-      }
-
-    }
-
-m->getProject()->getUndoBuffer()->paste(&undostatelist, &undotranslist,
-  oldinitialstate, newinitialstate, oldinitialtrans, newinitialtrans,
-  oldnumbits, oldnumin, oldnumout);
-
-return ok;
-*/
 }
+
+} // namespace qfsm

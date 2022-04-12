@@ -33,13 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <qobject.h>
 #include <qsettings.h>
 #include <qtoolbutton.h>
+#include <QDebug>
 #include <sstream>
 #include <string>
-#include <QDebug>
 
 #include "AppInfo.h"
 #include "DocStatus.h"
 #include "DrawArea.h"
+#include "Edit.h"
 #include "Error.h"
 #include "ExportAHDL.h"
 #include "ExportEPS.h"
@@ -109,6 +110,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "IOInfo.h"
 
 // using namespace std;
+
+constexpr auto QFSM_MIME_DATA_TYPE = "text/qfsm-objects";
 
 /**
  * Constructor.
@@ -325,9 +328,9 @@ MainWindow::MainWindow(QObject* a_parent)
   statusbar = new StatusBar(this);
   setStatusBar(statusbar);
 
-  statemanager = new StateManager(this);
+  m_stateManager = new StateManager(this);
   machinemanager = new MachineManager(this);
-  transmanager = new TransitionManager(this);
+  m_transitionManager = new TransitionManager(this);
   fileio = new FileIO(this);
   printmanager = new PrintManager(this);
 
@@ -383,11 +386,10 @@ MainWindow::MainWindow(QObject* a_parent)
   view_io = new IOViewDlgImpl(this);
   simulator = new Simulator(this);
   ichecker = new ICheck(this);
-  edit = new Edit(this);
 
   shift_pressed = false;
   control_pressed = false;
-  bcut = false;
+  m_isCutOperation = false;
 
   setMode(DocStatus::Select);
   updateAll(); // MenuBar();
@@ -433,15 +435,14 @@ MainWindow::~MainWindow()
   if (m_project)
     delete m_project;
 
-  delete statemanager;
+  delete m_stateManager;
   delete machinemanager;
-  delete transmanager;
+  delete m_transitionManager;
   delete printmanager;
   delete fileio;
   delete statusbar;
   // delete tabdialog;
   delete simulator;
-  delete edit;
   delete ichecker;
 
   delete mb_changed;
@@ -747,7 +748,7 @@ void MainWindow::dropEvent(QDropEvent* e)
     m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
     data = QString(mm->data("text/qfsm-objects"));
 
-    if (edit->paste(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data)) {
+    if (qfsm::Edit::paste(m_project, m_mainView->getDrawArea()->getSelection(), data)) {
       emit objectsPasted();
       m_project->setChanged();
     }
@@ -2372,40 +2373,8 @@ void MainWindow::filePrint()
 /// Called when 'File->Quit' is clicked
 void MainWindow::fileQuit()
 {
-  /*
-  if (m_project && m_project->hasChanged())
-  {
-    switch(mb_changed->exec())
-    {
-      case QMessageBox::Yes:
-        if (!fileSave())
-          return;
-        break;
-      case QMessageBox::No:
-        break;
-      case QMessageBox::Cancel:
-        return;
-        break;
-    }
-  }
-  */
   close();
-  //  emit quitWindow(this);
 }
-
-/*
-/// Opens a new window
-void MainWindow::fileNewWindow()
-{
-//  MainWindow* wmain;
-
-//  wmain = new MainWindow();
-//  wmain->setLanguage(getLanguage());
-//  wmain->resize(600, 500);
-//  wmain->show();
-  m_control->newWindow(getLanguage());
-}
-*/
 
 /// Closes the current file.
 bool MainWindow::fileClose()
@@ -2459,17 +2428,15 @@ void MainWindow::editUndo()
 /// clipboard
 void MainWindow::editCut()
 {
-  int count = m_mainView->getDrawArea()->getSelection()->count();
+  const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
+  const QString cutOperationText = (selectionCount == 1) ? tr("object cut.") : tr("objects cut.");
 
-  bcut = true;
+  m_isCutOperation = true;
   editCopy();
   editDelete();
-  bcut = false;
+  m_isCutOperation = false;
 
-  if (count == 1)
-    statusbar->showMessage(QString::number(count) + " " + tr("object cut."), 2000);
-  else
-    statusbar->showMessage(QString::number(count) + " " + tr("objects cut."), 2000);
+  statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(cutOperationText), 2000);
 
   updatePaste();
 }
@@ -2477,77 +2444,63 @@ void MainWindow::editCut()
 /// Copies the selected objects to the clipboard
 void MainWindow::editCopy()
 {
-  QString data;
+  static const QString qfsmDataFormat{ QFSM_MIME_DATA_TYPE };
 
-  if (!m_project)
+  const QString data = qfsm::Edit::copy(m_project);
+  if (data.isEmpty()) {
     return;
-
-  if (!edit->copy(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data))
-    return;
-  //  qDebug(data);
-
-  QClipboard* cb = QApplication::clipboard();
-
-  MimeMachine* mm = new MimeMachine(data);
-  //  QTextDrag* td = new QTextDrag(data);
-  cb->setMimeData(mm);
-
-  if (!bcut) {
-    int count = m_mainView->getDrawArea()->getSelection()->count();
-    if (count == 1)
-      statusbar->showMessage(QString::number(count) + " " + tr("object copied."), 2000);
-    else
-      statusbar->showMessage(QString::number(count) + " " + tr("objects copied."), 2000);
   }
 
-  //  qDebug(cb->data()->format());
-  updatePaste();
+  QClipboard* clipboard = QApplication::clipboard();
+
+  QMimeData* mimeData = new QMimeData{};
+  mimeData->setData(qfsmDataFormat, data.toLocal8Bit());
+  mimeData->setText(data);
+
+  clipboard->setMimeData(mimeData);
+
+  if (!m_isCutOperation) {
+    const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
+    const QString copyOperationText = (selectionCount == 1) ? tr("object copied.") : tr("objects copied.");
+
+    statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(copyOperationText), 2000);
+    updatePaste();
+  }
 }
 
 /// Pastes the objects on the clipboard into the current machine
 void MainWindow::editPaste()
 {
-  if (!m_project)
+  static const QString qfsmDataFormat{ QFSM_MIME_DATA_TYPE };
+
+  if (m_project == nullptr) {
     return;
+  }
 
-  QString format;
-  //  QByteArray cbdata;
-  QString data;
-  MimeMachine* mm;
+  QClipboard* clipboard = QApplication::clipboard();
 
-  QClipboard* cb = QApplication::clipboard();
-
-  format = cb->mimeData()->formats().first();
-
-  //  qDebug(format);
-  if (format != "text/qfsm-objects")
+  const QMimeData* mimeData = clipboard->mimeData();
+  if (mimeData == nullptr || !mimeData->hasFormat(qfsmDataFormat)) {
     return;
+  }
 
-  mm = (MimeMachine*)cb->mimeData();
-  //  data = cb->text();
-
-  data = QString(mm->data("text/qfsm-objects"));
-
-  //  QString data = QString(cbdata);
-  //  qDebug(data);
-  //  data = cb->text();
-
-  if (data.isEmpty())
+  const QString data{ mimeData->data(qfsmDataFormat) };
+  if (data.isEmpty()) {
     return;
+  }
 
-  m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
+  Selection* selection = m_mainView->getDrawArea()->getSelection();
+  selection->deselectAll(m_project->machine());
 
-  if (edit->paste(m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data)) {
+  if (qfsm::Edit::paste(m_project, selection, data)) {
     emit objectsPasted();
     m_project->setChanged();
   }
 
-  int count = m_mainView->getDrawArea()->getSelection()->count();
-  if (count == 1)
-    statusbar->showMessage(QString::number(count) + " " + tr("object pasted."), 2000);
-  else
-    statusbar->showMessage(QString::number(count) + " " + tr("objects pasted."), 2000);
+  const int selectionCount = selection->count();
+  const QString pastedText = (selectionCount == 1) ? tr("object pasted.") : tr("objects pasted.");
 
+  statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(pastedText), 2000);
   m_mainView->widget()->repaint();
   updateAll();
 }
@@ -2555,15 +2508,13 @@ void MainWindow::editPaste()
 /// Delete the selected objects.
 void MainWindow::editDelete()
 {
-  int count = m_mainView->getDrawArea()->getSelection()->count();
+  const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
 
-  edit->deleteSelection(m_mainView->getDrawArea()->getSelection(), m_project->machine());
+  qfsm::Edit::deleteSelection(m_mainView->getDrawArea()->getSelection(), m_project->machine());
 
-  if (!bcut) {
-    if (count == 1)
-      statusbar->showMessage(QString::number(count) + " " + tr("object deleted."), 2000);
-    else
-      statusbar->showMessage(QString::number(count) + " " + tr("objects deleted."), 2000);
+  if (!m_isCutOperation) {
+    const QString deleteOperationText = (selectionCount == 1) ? tr("object deleted.") : tr("objects deleted.");
+    statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(deleteOperationText), 2000);
   }
 
   m_project->setChanged();
@@ -2607,41 +2558,45 @@ void MainWindow::editOptions()
 }
 
 /// Initiate a drag operation and process the drop result
-bool MainWindow::runDragOperation(bool force_copy)
+bool MainWindow::runDragOperation(bool a_forceCopy)
 {
-  bool ret = false;
-  QString data;
+  static const QString qfsmDataFormat{ QFSM_MIME_DATA_TYPE };
+  const QString data = qfsm::Edit::copy(m_project);
+  bool result = false;
 
-  if (edit->copy(this->m_mainView->getDrawArea()->getSelection(), m_project, m_project->machine(), data)) {
-    MimeMachine* mm = new MimeMachine(data);
+  if (!data.isEmpty()) {
+    QMimeData* mimeData = new QMimeData{};
+    mimeData->setData(qfsmDataFormat, data.toLocal8Bit());
+    mimeData->setText(data);
 
-    QDrag* drag = new QDrag(this);
-    drag->setMimeData(mm);
+    QDrag* drag = new QDrag{ this };
+    drag->setMimeData(mimeData);
 
-    Qt::DropAction dropAction;
-    if (force_copy)
-      dropAction = drag->exec(Qt::CopyAction);
-    else
-      dropAction = drag->exec(Qt::CopyAction);
+    const Qt::DropAction dropAction = drag->exec(Qt::MoveAction | Qt::CopyAction);
 
     switch (dropAction) {
-      case Qt::IgnoreAction:
+      case Qt::IgnoreAction: {
         qDebug("Drag action ignored");
         break;
+      }
       case Qt::CopyAction:
-      case Qt::LinkAction:
+        [[fallthrough]];
+      case Qt::LinkAction: {
         qDebug("Drag action finished");
-        ret = true;
+        result = true;
         break;
+      }
       case Qt::MoveAction:
-      case Qt::TargetMoveAction:
+        [[fallthrough]];
+      case Qt::TargetMoveAction: {
         qDebug("Drag action finished, deleting data");
-        ret = true;
-        this->editDelete();
+        editDelete();
+        result = true;
         break;
+      }
     }
   }
-  return ret;
+  return result;
 }
 
 /// Toggle view state encoding
@@ -2777,17 +2732,21 @@ void MainWindow::updateIOView(Machine* m)
 /// Edit the current machine.
 void MainWindow::machineEdit()
 {
-  machinemanager->editMachine(m_project);
-  updateAll();
-  m_mainView->widget()->repaint();
+  if (m_project && m_project->isValid()) {
+    machinemanager->editMachine(m_project);
+    updateAll();
+    m_mainView->widget()->repaint();
+  }
 }
 
 /// Automatically correct the state codes of the machine.
 void MainWindow::machineCorrectCodes()
 {
-  m_project->machine()->correctCodes();
-  updateAll();
-  m_mainView->widget()->repaint();
+  if (m_project && m_project->isValid()) {
+    m_project->machine()->correctCodes();
+    updateAll();
+    m_mainView->widget()->repaint();
+  }
 }
 
 /// Simulate the current machine.
@@ -2808,9 +2767,10 @@ void MainWindow::machineSimulate()
 /// Called when 'Machine->Check Integrity' is clicked
 void MainWindow::machineICheck()
 {
-  if (m_project && m_project->machine()) {
-    QCursor oldcursor1 = cursor();
-    QCursor oldcursor2 = m_mainView->viewport()->cursor();
+  if (m_project && m_project->isValid()) {
+    const QCursor oldCursorWindow = cursor();
+    const QCursor oldCursorViewport = m_mainView->viewport()->cursor();
+
     setCursor(Qt::WaitCursor);
     m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
@@ -2818,8 +2778,8 @@ void MainWindow::machineICheck()
     m_project->machine()->checkIntegrity(ichecker);
     statusbar->showMessage(tr("Check finished."), 2000);
 
-    setCursor(oldcursor1);
-    m_mainView->viewport()->setCursor(oldcursor2);
+    setCursor(oldCursorWindow);
+    m_mainView->viewport()->setCursor(oldCursorViewport);
   }
 }
 
@@ -2832,29 +2792,34 @@ void MainWindow::stateNew()
 /// Edit selected state.
 void MainWindow::stateEdit()
 {
-  GState* s;
-  int otype;
-  s = (GState*)m_mainView->getDrawArea()->getContextObject(otype);
+  if (m_project == nullptr) {
+    return;
+  }
 
-  if (!s)
-    s = m_mainView->getDrawArea()->getSelection()->getSList().front();
+  GState* state = static_cast<GState*>(m_mainView->getDrawArea()->getContextObject());
+  if (state == nullptr) {
+    state = m_mainView->getDrawArea()->getSelection()->getSList().front();
+  }
 
-  if (s && m_project)
-    statemanager->editState(s);
+  if (state) {
+    m_stateManager->editState(state);
+  }
 }
 
 /// Set selected state as initial state.
 void MainWindow::stateSetInitial()
 {
-  GState* s;
-  int otype;
-  s = (GState*)m_mainView->getDrawArea()->getContextObject(otype);
+  if (!m_project || !m_project->isValid()) {
+    return;
+  }
 
-  if (!s)
-    s = m_mainView->getDrawArea()->getSelection()->getSList().front();
+  GState* state = static_cast<GState*>(m_mainView->getDrawArea()->getContextObject());
+  if (state == nullptr) {
+    state = m_mainView->getDrawArea()->getSelection()->getSList().front();
+  }
 
-  if (s && m_project) {
-    statemanager->setInitialState(m_project->machine(), s);
+  if (state) {
+    m_stateManager->setInitialState(m_project->machine(), state);
     updateAll();
     m_mainView->widget()->repaint();
   }
@@ -2863,33 +2828,14 @@ void MainWindow::stateSetInitial()
 /// Set selected state as final state.
 void MainWindow::stateSetFinal()
 {
-  // GState* s;
-  //  int otype;
-  // s = NULL; //(GState*)m_mainView->getContextObject(otype);
-  Machine* m;
-
-  if (!m_project)
+  if (!m_project || !m_project->isValid()) {
     return;
-  m = m_project->machine();
-  if (!m)
-    return;
+  }
 
-  statemanager->setFinalStates(m, m_mainView->getDrawArea()->getSelection()->getSList());
+  m_stateManager->setFinalStates(m_project->machine(), m_mainView->getDrawArea()->getSelection()->getSList());
 
   updateAll();
   m_mainView->widget()->repaint();
-
-  /*
-  if (!s)
-    s = m_mainView->getSelection()->getSList().getFirst();
-
-  if (s && m_project)
-  {
-    statemanager->setEndState(m_project->machine(), s);
-    updateAll();
-    m_mainView->viewport()->repaint();
-  }
-  */
 }
 
 /// Add new transition.
@@ -2901,15 +2847,18 @@ void MainWindow::transNew()
 /// Edit selected transition.
 void MainWindow::transEdit()
 {
-  GTransition* t;
-  int otype;
-  t = (GTransition*)m_mainView->getDrawArea()->getContextObject(otype);
+  if (!m_project || !m_project->isValid()) {
+    return;
+  }
 
-  if (!t)
-    t = m_mainView->getDrawArea()->getSelection()->getTList().front();
+  GTransition* transition = static_cast<GTransition*>(m_mainView->getDrawArea()->getContextObject());
+  if (transition == nullptr) {
+    transition = m_mainView->getDrawArea()->getSelection()->getTList().front();
+  }
 
-  if (t && m_project)
-    transmanager->editTransition(m_project->machine(), t);
+  if (transition) {
+    m_transitionManager->editTransition(m_project->machine(), transition);
+  }
 }
 
 /// Straighten selected transitions.
@@ -2922,7 +2871,7 @@ void MainWindow::transStraighten()
     m_project->undoBuffer()->changeTransition(t);
     t->straighten();
   } else
-    transmanager->straightenSelection(&m_mainView->getDrawArea()->getSelection()->getTList());
+    m_transitionManager->straightenSelection(&m_mainView->getDrawArea()->getSelection()->getTList());
 
   m_project->setChanged();
   updateAll();

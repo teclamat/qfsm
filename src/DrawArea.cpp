@@ -126,9 +126,9 @@ DrawArea::~DrawArea()
  * @param type Type of the object returned (see #ObjectType)
  * @returns The object
  */
-GObject* DrawArea::getContextObject(int& type)
+GObject* DrawArea::getContextObject()
 {
-  return selection->getContextObject(type);
+  return selection->getContextObject();
 }
 
 /**
@@ -290,7 +290,7 @@ void DrawArea::mousePressEvent(QMouseEvent* e)
           break;
         case DocStatus::NewState:
           if (!drag_middle) {
-            if (main->statemanager->addState(mousex, mousey))
+            if (main->m_stateManager->addState(mousex, mousey))
               main->project()->setChanged();
           }
           break;
@@ -657,10 +657,10 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
 
             if (mainPoint.x() < 0 || mainPoint.y() < 0 || mainPoint.x() > main->width() ||
                 mainPoint.y() > main->height()) {
-              if (e->modifiers().testFlag(Qt::ControlModifier))
-                main->runDragOperation(true);
-              else
-                main->runDragOperation(false);
+              // if (e->modifiers().testFlag(Qt::ControlModifier))
+              main->runDragOperation(true);
+              // else
+              // main->runDragOperation(false);
               //   {
 
               // emulate the mouse release event that has been consumed by the
@@ -1307,9 +1307,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent* e)
               selectionRect.normalize();
               if (selection->selectRect(main->project()->machine(), selectionRect, main->shiftPressed()))
                 dragMultiple = true;
-            } else if (/*dragMultiple &&*/ onSelection) // move /*multiple*/
-                                                        // selection
-            {
+            } else if (/*dragMultiple &&*/ onSelection) {
               double movebyx, movebyy;
               movebyx = mousex - dragStartgX;
               movebyy = mousey - dragStartgY;
@@ -1383,7 +1381,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent* e)
               lastTransitionDragged->getCPoint1(c1x, c1y);
               lastTransitionDragged->getCPoint2(c2x, c2y);
 
-              if (main->transmanager->addTransition(lastStateClicked, s, main->project()->machine()->getNumInputs(),
+              if (main->m_transitionManager->addTransition(lastStateClicked, s, main->project()->machine()->getNumInputs(),
                                                     main->project()->machine()->getNumOutputs(), sx, sy, ex, ey, c1x,
                                                     c1y, c2x, c2y))
                 main->project()->setChanged();
@@ -1435,10 +1433,10 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent* e)
           obj = m->getObject(p, scale, type);
           switch (type) {
             case StateT:
-              main->statemanager->editState((GState*)obj);
+              main->m_stateManager->editState((GState*)obj);
               break;
             case TransitionT:
-              main->transmanager->editTransition(m, (GTransition*)obj);
+              main->m_transitionManager->editTransition(m, (GTransition*)obj);
               break;
           }
           break;

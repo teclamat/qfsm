@@ -26,30 +26,25 @@ replaced Qt 3 interator through Qt 4 iterators
 #ifndef EDIT_H
 #define EDIT_H
 
-#include <QObject>
 #include <QString>
-
-class QWidget;
 
 class Selection;
 class Machine;
+
 namespace qfsm {
+
 class Project;
-}
 
-/**
- * @class Edit
- * @brief Class providing various editing features.
- *
- */
-class Edit : public QObject {
-  Q_OBJECT
+/// Class providing various editing features.
+class Edit {
  public:
-  Edit(QWidget* parent = 0, const char* name = 0);
+  Edit() = delete;
 
-  void deleteSelection(Selection*, Machine*);
-  bool copy(Selection*, qfsm::Project*, Machine*, QString& data);
-  bool paste(Selection*, qfsm::Project*, Machine*, QString data);
+  static void deleteSelection(Selection*, Machine*);
+  static QString copy(const Project* a_project);
+  static bool paste(Project* a_project, Selection* a_selection, const QString& a_data);
 };
+
+} // namespace qfsm
 
 #endif

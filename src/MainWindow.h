@@ -67,7 +67,6 @@ All buttons must be added to the toolbar by calling addWidget.
 #include <QToolButton>
 
 #include "DocStatus.h"
-#include "Edit.h"
 #include "ExportAHDLDlg.h"
 #include "ExportRagelDlg.h"
 #include "ExportStateTableDlg.h"
@@ -160,11 +159,11 @@ class MainWindow : public QMainWindow {
   bool controlPressed() { return control_pressed; }
 
   /// State manager
-  StateManager* statemanager;
+  StateManager* m_stateManager;
   /// Machine manager
   MachineManager* machinemanager;
   /// Transition manager
-  TransitionManager* transmanager;
+  TransitionManager* m_transitionManager;
   /// File I/O
   FileIO* fileio;
   /// Print manager
@@ -386,8 +385,6 @@ class MainWindow : public QMainWindow {
   DocStatus doc_status;
   /// Options
   Options doc_options;
-  /// Edit object
-  Edit* edit;
 
   OptionsDlg* tabwidgetdialog;
   /// Tabdialog (options)
@@ -428,7 +425,7 @@ class MainWindow : public QMainWindow {
 
   /// true if a cut operation, false if a copy operation is performed (used in
   /// paste)
-  bool bcut;
+  bool m_isCutOperation;
   /// Language
   QString language;
   /// Previous view cursor (used when wait cursor is set)

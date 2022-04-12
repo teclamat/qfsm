@@ -86,7 +86,7 @@ public:
   QRect tooltipRect(const QPoint &p, QString &info);
 
   void showContext(QPoint p);
-  GObject *getContextObject(int &type);
+  GObject *getContextObject();
   void resetContext();
   bool event(QEvent *event);
 

@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Grid.h"
 #include "Machine.h"
 #include "MainWindow.h"
-#include "MimeMachine.h"
 #include "Project.h"
 #include "ScrollView.h"
 #include "Selection.h"

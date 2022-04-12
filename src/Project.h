@@ -70,6 +70,8 @@ class Project : public QObject {
   /// Machine (projects can currently contain only a single machine)
   Machine* machine() { return m_machine; }
 
+  bool isValid() const { return m_machine != nullptr; }
+
   QString copy() const;
 
   void saveTo(QIODevice* a_device, bool a_onlySelected = false) const;

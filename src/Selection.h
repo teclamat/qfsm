@@ -25,8 +25,8 @@ replaced Qt 3 iterators by Qt 4 iterators
 #define SELECTION_H
 
 // #include <q3ptrlist.h>
-#include <QObject>
 #include <QList>
+#include <QObject>
 //#include "ScrollView.h"
 #include "Machine.h"
 
@@ -40,40 +40,40 @@ class GState;
  */
 class Selection : public QObject {
   Q_OBJECT
-public:
-  Selection(QWidget *, const char *name = 0);
+ public:
+  Selection(QWidget*, const char* name = 0);
   ~Selection();
 
   /// Returns a list containing all selected states
-  QList<GState *> &getSList() { return ssel_list; }
+  QList<GState*>& getSList() { return ssel_list; }
   /// Returns a list containing all selected transitions
-  QList<GTransition *> &getTList() { return tsel_list; }
+  QList<GTransition*>& getTList() { return tsel_list; }
   /// Returns true if initial transition is selected otherwise false
   bool isITransSelected() { return itrans; }
   /// If @s is true selects initial transition otherwise deselects it
   void selectITrans(bool s = true) { itrans = s; }
-  bool isStateSelected(State *);
-  bool isTransitionSelected(Transition *);
+  bool isStateSelected(State*);
+  bool isTransitionSelected(Transition*);
 
-  GObject *select(DrawArea *, Machine *, QPoint, double, int &);
-  void select(GState *, bool sel = true);
-  void select(GTransition *, bool sel = true);
-  void select(GITransition *, bool sel = true);
-  bool selectRect(Machine *, DRect &, bool add);
-  bool selectAdd(DrawArea *, Machine *, QPoint, double);
+  GObject* select(DrawArea*, Machine*, QPoint, double, int&);
+  void select(GState*, bool sel = true);
+  void select(GTransition*, bool sel = true);
+  void select(GITransition*, bool sel = true);
+  bool selectRect(Machine*, DRect&, bool add);
+  bool selectAdd(DrawArea*, Machine*, QPoint, double);
   //    bool selectRectAdd(ScrollView*, Machine*, QPoint, double );
-  int selectControl(Machine *, QPoint, double, GTransition *&);
-  bool selectAll(Machine *, DRect &bound);
-  bool deselect(GState *);
-  bool deselect(GTransition *);
-  bool deselect(GITransition *);
-  void deselectAll(Machine *);
+  int selectControl(Machine*, QPoint, double, GTransition*&);
+  bool selectAll(Machine*, DRect& bound);
+  bool deselect(GState*);
+  bool deselect(GTransition*);
+  bool deselect(GITransition*);
+  void deselectAll(Machine*);
 
   bool onSelectionOld(QPoint, double);
-  bool onSelection(Machine *, QPoint, double);
-  void move(double, double, DrawArea *, Machine *);
-  void getBoundingRect(double &, double &, double &, double &, GState *);
-  void updateBoundingRect(DRect &, GState *);
+  bool onSelection(Machine*, QPoint, double);
+  void move(double, double, DrawArea*, Machine*);
+  void getBoundingRect(double&, double&, double&, double&, GState*);
+  void updateBoundingRect(DRect&, GState*);
 
   /// Returns the number of selected states.
   int countStates() { return ssel_list.count(); };
@@ -82,38 +82,37 @@ public:
   /// Returns the number of all selected objects.
   int count() { return ssel_list.count() + tsel_list.count(); };
   /// Deselects all selections.
-  void clear() {
+  void clear()
+  {
     ssel_list.clear();
     tsel_list.clear();
   };
 
   /// Sets the context object
-  void setContextObject(GObject *obj, int type) {
+  void setContextObject(GObject* obj, int type)
+  {
     context_object = obj;
     co_type = type;
   };
   /// Returns the context object
-  GObject *getContextObject(int &type) {
-    type = co_type;
-    return context_object;
-  };
+  GObject* getContextObject() { return context_object; };
 
-private:
-  void setMinMax(double, double, double &, double &, double &, double &);
+ private:
+  void setMinMax(double, double, double&, double&, double&, double&);
 
   /// List of selected states
-  QList<GState *> ssel_list;
+  QList<GState*> ssel_list;
   /// List of selected transitions
-  QList<GTransition *> tsel_list;
+  QList<GTransition*> tsel_list;
   /// If true, the initial transition is selected
   bool itrans;
 
   /// Context object (object under cursor when clicking the right mouse button)
-  GObject *context_object;
+  GObject* context_object;
   /// Type of context object (see #ObjectType)
   int co_type;
 
-signals:
+ signals:
   /// Emited when the main window needs to be updated
   void updateAll();
 };
