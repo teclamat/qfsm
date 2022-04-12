@@ -16,14 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-// #include <q3textstream.h>
-#include <QMap>
-#include <QMessageBox>
-#include <QString>
-#include <QTextStream>
-#include <QBuffer>
-
-// #include "AppInfo.h"
 #include "Convert.h"
 #include "Edit.h"
 #include "Error.h"
@@ -34,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "XMLHandler.h"
+
+#include <QWidget>
 
 /// Constructor
 Edit::Edit(QWidget *parent, const char *name) : QObject(parent) {}
@@ -115,111 +109,9 @@ bool Edit::copy(Selection*, qfsm::Project* p, Machine* m, QString& s)
   if (!p || !m)
     return false;
 
-  // QDomDocument domdoc;
+  s = p->copy();
 
-  // domdoc = p->getDomDocument(true);
-
-  // QTextStream tstream(&s, QIODevice::WriteOnly);
-  QBuffer pbuffer{};
-  p->saveTo(&pbuffer, true);
-
-  s.append(pbuffer.buffer());
-
-  // domdoc.save(tstream, 1);
-
-  return true;
-  /*
-  QList<GState> list;
-  QList<GTransition> tlist;
-  GState *state;
-  State* start_state;
-  State* dest_state;
-  GTransition* t;
-  QByteArray array;
-
-  list = sel->getSList();
-  tlist = sel->getTList();
-  QListIterator<GState> i(list);
-  AppInfo info((QWidget*)m->getProject()->getMain());
-  double xpos, ypos;
-  double c1x, c1y, c2x, c2y;
-  double endx, endy;
-  int initial;
-  QString transio;
-
-  s = QString::number(info.getVersionMajor()) + " "
-    + QString::number(info.getVersionMinor()) + "\n";
-  s += m->getName() +"\n";
-  s += QString::number(m->getNumBits()) + " " +
-  QString::number(m->getNumInputs())
-    + " " + QString::number(m->getNumOutputs()) + "\n";
-  state = m->getInitialState();
-  if (state && sel->isStateSelected(state) && sel->isITransSelected())
-    initial= state->getCode();
-  else
-    initial=-1;
-
-  s += QString::number(initial) + "\n";
-  s += QString::number(list.count()) + " " + QString::number(tlist.count()) +
-  "\n";
-
-  for(; i.current(); ++i)
-  {
-    state = i.current();
-
-    state->getPos(xpos, ypos);
-
-    s += QString::number(state->getCode()) + "\n";
-
-    s += state->getName() + "\n";
-    s += QString::number(xpos) + " " + QString::number(ypos) + " "
-      + QString::number(state->getRadius()) + "\n";
-    s += QString::number(state->getPen().color().rgb()) + " "
-      + QString::number(state->getLineWidth()) + "\n";
-    s += QString::number(state->getBrush().color().rgb()) + "\n";
-  }
-
-    QListIterator<GTransition> j(tlist);
-
-    for(; j.current(); ++j)
-    {
-      t = j.current();
-
-      start_state = t->getStart();
-      if (start_state && sel->isStateSelected(start_state))
-        s += QString::number(start_state->getCode()) + "\n";
-      else
-        s += "-1\n";
-
-      dest_state = t->getEnd();
-      if (dest_state && sel->isStateSelected(dest_state))
-        s += QString::number(dest_state->getCode()) + "\n";
-      else
-        s += "-1\n";
-
-      s += QString::number(t->getInfo()->getType()) + "\n";
-      s += t->getInfo()->getInputsStr() + " ";
-      transio = t->getInfo()->getOutputsStr();
-      if (transio.isEmpty())
-        transio="<noout>";
-      s += transio + "\n";
-
-      t->getPos(xpos, ypos);
-      t->getEndPos(endx, endy);
-      t->getCPoint1(c1x, c1y);
-      t->getCPoint2(c2x, c2y);
-
-      s += QString::number(xpos) + " " + QString::number(ypos) + " ";
-      s += QString::number(c1x) + " " + QString::number(c1y) + " "
-        + QString::number(c2x) + " " + QString::number(c2y) + " ";
-      s += QString::number(endx) + " " + QString::number(endy) + " ";
-      s += QString::number((int)t->isStraight()) + "\n";
-
-    }
-
-
-  return true;
-*/
+  return !s.isEmpty();
 }
 
 /**

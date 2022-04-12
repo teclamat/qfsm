@@ -55,7 +55,7 @@ class Project : public QObject {
   void removeMachine();
 
   /// Returns true if the project has changed otherwise false
-  bool hasChanged() { return m_changed; };
+  bool hasChanged() const { return m_changed; };
 
   /// Sets project changed flag.
   /// @param a_isChanged changed flag, defaulted to `true`.
@@ -70,7 +70,9 @@ class Project : public QObject {
   /// Machine (projects can currently contain only a single machine)
   Machine* machine() { return m_machine; }
 
-  void saveTo(QIODevice* a_device, bool a_onlySelected = false);
+  QString copy() const;
+
+  void saveTo(QIODevice* a_device, bool a_onlySelected = false) const;
 
   // QDomDocument getDomDocument(bool a_onlySelected = false, GObject* a_object = nullptr);
 

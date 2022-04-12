@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
 
+#include <QBuffer>
+
 namespace qfsm {
 
 Project::Project(QObject* a_parent)
@@ -102,7 +104,16 @@ void Project::connectMachine()
   connect(m_machine, &Machine::repaint, m_mainWindow, &MainWindow::repaintViewport);
 }
 
-void Project::saveTo(QIODevice* a_device, bool a_onlySelected)
+QString Project::copy() const
+{
+  QBuffer copyBuffer{};
+  copyBuffer.open(QIODevice::WriteOnly);
+  saveTo(&copyBuffer, true);
+  copyBuffer.close();
+  return QString{ copyBuffer.buffer() };
+}
+
+void Project::saveTo(QIODevice* a_device, bool a_onlySelected) const
 {
   if (!a_device || !a_device->isOpen() || !a_device->isWritable()) {
     return;

@@ -20,7 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define APPINFO_H
 
 #include <QString>
-#include <QWidget>
+
+class QWidget;
 
 /// @namespace qfsm
 namespace qfsm {

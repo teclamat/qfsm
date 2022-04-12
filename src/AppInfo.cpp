@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QMessageBox>
 #include <QObject>
 #include <QTextStream>
+#include <QWidget>
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #include <QtGlobal>

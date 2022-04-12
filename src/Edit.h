@@ -26,8 +26,10 @@ replaced Qt 3 interator through Qt 4 iterators
 #ifndef EDIT_H
 #define EDIT_H
 
-#include <qobject.h>
-#include <qstring.h>
+#include <QObject>
+#include <QString>
+
+class QWidget;
 
 class Selection;
 class Machine;
