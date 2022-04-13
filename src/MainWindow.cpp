@@ -24,9 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QMenu>
 #include <QPixmap>
 #include <QUrl>
-#include <fstream>
-// #include <q3textstream.h>
-// #include <q3toolbar.h>
 #include <qapplication.h>
 #include <qclipboard.h>
 #include <qcursor.h>
@@ -34,6 +31,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <qsettings.h>
 #include <qtoolbutton.h>
 #include <QDebug>
+#include <QMimeData>
+
+#include <fstream>
 #include <sstream>
 #include <string>
 
@@ -60,7 +60,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ImportGraphviz.h"
 #include "MainControl.h"
 #include "MainWindow.h"
-#include "MimeMachine.h"
 #include "PrintManager.h"
 #include "Project.h"
 #include "ScrollView.h"
@@ -748,7 +747,7 @@ void MainWindow::dropEvent(QDropEvent* e)
     m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
     data = QString(mm->data("text/qfsm-objects"));
 
-    if (qfsm::Edit::paste(m_project, m_mainView->getDrawArea()->getSelection(), data)) {
+    if (qfsm::edit::paste(m_project, m_mainView->getDrawArea()->getSelection(), data)) {
       emit objectsPasted();
       m_project->setChanged();
     }
@@ -2446,7 +2445,7 @@ void MainWindow::editCopy()
 {
   static const QString qfsmDataFormat{ QFSM_MIME_DATA_TYPE };
 
-  const QString data = qfsm::Edit::copy(m_project);
+  const QString data = qfsm::edit::copy(m_project);
   if (data.isEmpty()) {
     return;
   }
@@ -2492,7 +2491,7 @@ void MainWindow::editPaste()
   Selection* selection = m_mainView->getDrawArea()->getSelection();
   selection->deselectAll(m_project->machine());
 
-  if (qfsm::Edit::paste(m_project, selection, data)) {
+  if (qfsm::edit::paste(m_project, selection, data)) {
     emit objectsPasted();
     m_project->setChanged();
   }
@@ -2508,9 +2507,13 @@ void MainWindow::editPaste()
 /// Delete the selected objects.
 void MainWindow::editDelete()
 {
-  const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
+  Selection* selection = m_mainView->getDrawArea()->getSelection();
+  const int selectionCount = selection ? selection->count() : 0;
 
-  qfsm::Edit::deleteSelection(m_mainView->getDrawArea()->getSelection(), m_project->machine());
+  const bool result = qfsm::edit::deleteSelection(m_project, selection);
+  if (!result) {
+    return;
+  }
 
   if (!m_isCutOperation) {
     const QString deleteOperationText = (selectionCount == 1) ? tr("object deleted.") : tr("objects deleted.");
@@ -2561,7 +2564,7 @@ void MainWindow::editOptions()
 bool MainWindow::runDragOperation(bool a_forceCopy)
 {
   static const QString qfsmDataFormat{ QFSM_MIME_DATA_TYPE };
-  const QString data = qfsm::Edit::copy(m_project);
+  const QString data = qfsm::edit::copy(m_project);
   bool result = false;
 
   if (!data.isEmpty()) {

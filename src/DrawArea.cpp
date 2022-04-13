@@ -17,7 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "DrawArea.h"
-#include <list>
 #include "Const.h"
 #include "DocStatus.h"
 #include "Draw.h"
@@ -25,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Grid.h"
 #include "Machine.h"
 #include "MainWindow.h"
-#include "MimeMachine.h"
 #include "Project.h"
 #include "ScrollView.h"
 #include "Selection.h"
@@ -128,7 +126,7 @@ DrawArea::~DrawArea()
  */
 GObject* DrawArea::getContextObject()
 {
-  return selection->getContextObject();
+  return selection->contextItem().item;
 }
 
 /**

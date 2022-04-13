@@ -18,93 +18,84 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Edit.h"
 
-#include "Convert.h"
-#include "Error.h"
+#include "GState.h"
+#include "GTransition.h"
 #include "Machine.h"
 #include "Project.h"
 #include "Selection.h"
-#include "TransitionInfo.h"
-#include "TransitionInfoASCII.h"
-#include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "XMLHandler.h"
 
 #include <QList>
 
-namespace qfsm {
+namespace qfsm::edit {
 
-/**
- * Deletes all selected objects.
- * @param sel selection object containing all selected objects
- * @param m machine containing the selected objects
- */
-void Edit::deleteSelection(Selection* sel, Machine* m)
+bool deleteSelection(Project* a_project, Selection* a_selection)
 {
-  //  QListIterator<GState> si(sel->getSList());
-  //  QListIterator<GTransition> ti(sel->getTList());
-  QMutableListIterator<GState*> si(sel->getSList());
-  QMutableListIterator<GTransition*> ti(sel->getTList());
-
-  GState* s;
-  GTransition* t;
-  GObject* obj;
-  int type = 0;
-
-  // obj = NULL; // sel->getContextObject(type);
-  // if (obj) {
-  //   switch (type) {
-  //     case StateT:
-  //       s = (GState*)obj;
-  //       m->getProject()->undoBuffer()->deleteState(s);
-
-  //       if (s == m->getInitialState())
-  //         sel->selectITrans(false);
-  //       m->removeState(s);
-  //       break;
-
-  //     case TransitionT:
-  //       t = (GTransition*)obj;
-  //       m->getProject()->undoBuffer()->deleteTransition(t);
-
-  //       s = (GState*)t->getStart();
-  //       s->removeTransition(t);
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-  // } else {
-  m->getProject()->undoBuffer()->deleteSelection(&sel->getSList(), &sel->getTList());
-
-  // delete Transitions
-  for (; ti.hasNext();) {
-    t = ti.next();
-    s = (GState*)t->getStart();
-    s->removeTransition(t);
+  if (!a_project || !a_project->isValid() || !a_selection) {
+    return false;
   }
 
-  // delete States
-  for (; si.hasNext();) {
-    s = si.next();
-    if (s == m->getInitialState())
-      sel->selectITrans(false);
-    m->removeState(s);
+  Machine* machine = a_project->machine();
+  QList<GState*>& states = a_selection->getSList();
+  QList<GTransition*>& transitions = a_selection->getTList();
+
+  if (a_selection->hasContextItem()) {
+    const ContextItem& contextItem = a_selection->contextItem();
+    switch (contextItem.type) {
+      case ObjectType::StateT: {
+        GState* state = static_cast<GState*>(contextItem.item);
+        if (state) {
+          a_project->undoBuffer()->deleteState(state);
+          if (state == machine->getInitialState()) {
+            a_selection->selectITrans(false);
+          }
+          machine->removeState(state);
+        }
+        break;
+      }
+      case ObjectType::TransitionT: {
+        GTransition* transition = static_cast<GTransition*>(contextItem.item);
+        if (transition) {
+          a_project->undoBuffer()->deleteTransition(transition);
+          GState* state = static_cast<GState*>(transition->getStart());
+          if (state) {
+            state->removeTransition(transition);
+          }
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  } else {
+    a_project->undoBuffer()->deleteSelection(states, transitions);
+
+    // Mark selected transitions as deleted in parent states.
+    for (GTransition* transition : transitions) {
+      if (transition) {
+        GState* state = static_cast<GState*>(transition->getStart());
+        if (state) {
+          state->removeTransition(transition);
+        }
+      }
+    }
+
+    // Mark selected states as deleted in parent machine.
+    for (GState* state : states) {
+      if (state && (state == machine->getInitialState())) {
+        a_selection->selectITrans(false);
+      }
+      machine->removeState(state);
+    }
   }
 
-  sel->getSList().clear();
-  sel->getTList().clear();
+  a_selection->clear();
+
+  return true;
 }
 
-/**
- * Serializes the selected objects into a string (to be put in the clipboard).
- * The string is in the same format as a .fsm file (XML).
- *
- * @param p Pointer to the project that contains the objects to copy.
- * @param m Pointer to the machine that contains the objects to copy.
- * @param s String that contains the XML data
- * @returns true if successful
- */
-QString Edit::copy(const Project* a_project)
+QString copy(const Project* a_project)
 {
   if (a_project && a_project->isValid()) {
     return a_project->copy();
@@ -112,16 +103,7 @@ QString Edit::copy(const Project* a_project)
   return {};
 }
 
-/**
- * Pastes objects into the the current machine.
- *
- * @param sel Pointer to the selection object.
- * @param p Project to paste the objects into
- * @param m Machine to paste the objects into
- * @param data XML string (produced by Edit::copy())
- * @returns true if successful
- */
-bool Edit::paste(Project* a_project, Selection* a_selection, const QString& a_data)
+bool paste(Project* a_project, Selection* a_selection, const QString& a_data)
 {
   if (!a_project || !a_project->isValid() || a_data.isEmpty()) {
     return false;
@@ -133,4 +115,4 @@ bool Edit::paste(Project* a_project, Selection* a_selection, const QString& a_da
   return handler.parse();
 }
 
-} // namespace qfsm
+} // namespace qfsm::edit

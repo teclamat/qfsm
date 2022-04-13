@@ -76,7 +76,6 @@ set(QFSM_HEADERS
   src/MachinePropertiesDlg.h
   src/MainControl.h
   src/MainWindow.h
-  src/MimeMachine.h
   src/OptDisplayDlg.h
   src/OptGeneral.h
   src/OptGeneralDlg.h
@@ -167,7 +166,6 @@ set(QFSM_SOURCES
   src/MachinePropertiesDlg.cpp
   src/MainControl.cpp
   src/MainWindow.cpp
-  src/MimeMachine.cpp
   src/OptDisplayDlg.cpp
   src/OptGeneral.cpp
   src/OptGeneralDlg.cpp

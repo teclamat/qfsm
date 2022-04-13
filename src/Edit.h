@@ -32,19 +32,34 @@ class Selection;
 class Machine;
 
 namespace qfsm {
-
 class Project;
+}
 
-/// Class providing various editing features.
-class Edit {
- public:
-  Edit() = delete;
+/// Provides editing features.
+/// @namespace qfsm::edit
+namespace qfsm::edit {
 
-  static void deleteSelection(Selection*, Machine*);
-  static QString copy(const Project* a_project);
-  static bool paste(Project* a_project, Selection* a_selection, const QString& a_data);
-};
+/// Deletes selected items.
+/// @param a_project current project.
+/// @param a_selection items selection.
+/// @retval true delete operation succeeded.
+/// @return false otherwise.
+bool deleteSelection(Project* a_project, Selection* a_selection);
 
-} // namespace qfsm
+/// Serializes selected items into string (to be put into clipboard or used as drag'n'drop data).
+/// Resulting string os of same format as qfsm project file (XML).
+/// @param a_project current project.
+/// @return String in XML format containing selected items. If operation fails, returned string is empty.
+QString copy(const Project* a_project);
+
+/// Pastes items into current project.
+/// @param a_project current project.
+/// @param a_selection current selection.
+/// @param a_data data to be put into project (as Qfsm project XML format).
+/// @retval true data processed properly.
+/// @retval false otjerwise.
+bool paste(Project* a_project, Selection* a_selection, const QString& a_data);
+
+} // namespace qfsm::edit
 
 #endif

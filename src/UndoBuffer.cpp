@@ -276,7 +276,7 @@ void UndoBuffer::moveMultiple(QList<GState*>* sl, QList<GTransition*>* tl, doubl
  * @param sl list of deleted states
  * @param tl list of deleted transitions
  */
-void UndoBuffer::deleteSelection(QList<GState*>* sl, QList<GTransition*>* tl)
+void UndoBuffer::deleteSelection(const QList<GState*>& sl, const QList<GTransition*>& tl)
 {
   Undo* undo = new Undo(project);
   undo->setModified(project->hasChanged());
@@ -284,8 +284,8 @@ void UndoBuffer::deleteSelection(QList<GState*>* sl, QList<GTransition*>* tl)
 
   //  QListIterator<GState> si(*undo->getSList());
   //  QListIterator<GTransition> ti(*undo->getTList());
-  QListIterator<GState*> si(*sl);
-  QListIterator<GTransition*> ti(*tl);
+  QListIterator<GState*> si(sl);
+  QListIterator<GTransition*> ti(tl);
   GTransition* t;
   GITransition* it = NULL;
 

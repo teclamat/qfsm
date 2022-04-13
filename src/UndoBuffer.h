@@ -81,7 +81,7 @@ public:
   void changeInitialTransition(GITransition *);
   void changeTransitions(QList<GTransition *> *);
   void moveMultiple(QList<GState *> *, QList<GTransition *> *, double, double);
-  void deleteSelection(QList<GState *> *, QList<GTransition *> *);
+  void deleteSelection(const QList<GState *> &, const QList<GTransition *> &);
   void deleteState(GState *);
   void deleteTransition(GTransition *);
   void setInitialState(GITransition *);

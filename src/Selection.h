@@ -33,6 +33,12 @@ replaced Qt 3 iterators by Qt 4 iterators
 class DrawArea;
 class GState;
 
+/// Represents item under cursor when clicking the right mouse button (opening context menu).
+struct ContextItem {
+  int type;      ///< Item type.
+  GObject* item; ///< Pointer to item object.
+};
+
 /**
  * @class Selection
  * @brief Class responsible for all informations and operations concerning the
@@ -86,16 +92,23 @@ class Selection : public QObject {
   {
     ssel_list.clear();
     tsel_list.clear();
+    clearContextItem();
   };
 
   /// Sets the context object
   void setContextObject(GObject* obj, int type)
   {
-    context_object = obj;
-    co_type = type;
+    m_contextItem.type = type;
+    m_contextItem.item = obj;
   };
   /// Returns the context object
-  GObject* getContextObject() { return context_object; };
+  void clearContextItem()
+  {
+    m_contextItem.type = ObjectType::NoT;
+    m_contextItem.item = nullptr;
+  }
+  bool hasContextItem() const { return (m_contextItem.type != ObjectType::NoT) && (m_contextItem.item != nullptr); }
+  const ContextItem& contextItem() const { return m_contextItem; };
 
  private:
   void setMinMax(double, double, double&, double&, double&, double&);
@@ -107,10 +120,7 @@ class Selection : public QObject {
   /// If true, the initial transition is selected
   bool itrans;
 
-  /// Context object (object under cursor when clicking the right mouse button)
-  GObject* context_object;
-  /// Type of context object (see #ObjectType)
-  int co_type;
+  ContextItem m_contextItem{};
 
  signals:
   /// Emited when the main window needs to be updated
