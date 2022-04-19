@@ -66,7 +66,6 @@ All buttons must be added to the toolbar by calling addWidget.
 #include <QMessageBox>
 #include <QToolButton>
 
-#include "DocStatus.h"
 #include "ExportAHDLDlg.h"
 #include "ExportRagelDlg.h"
 #include "ExportStateTableDlg.h"
@@ -78,14 +77,17 @@ All buttons must be added to the toolbar by calling addWidget.
 #include "ExportVerilogDlg.h"
 #include "IOViewDlg.h"
 #include "MachineManager.h"
-#include "OptionsDlg.h"
 #include "OptDisplayDlg.h"
 #include "OptGeneralDlg.h"
 #include "OptPrintingDlg.h"
 #include "Options.h"
+#include "OptionsDlg.h"
 #include "ScrollView.h"
 #include "StateManager.h"
 #include "TransitionManager.h"
+
+#include "gui/scene.hpp"
+#include "gui/view.hpp"
 
 // class QTranslator;
 class QToolBar;
@@ -99,7 +101,20 @@ class QAction;
 namespace qfsm {
 class MainControl;
 class Project;
+class OptionsManager;
+namespace gui {
+class ActionsManager;
+} // namespace gui
 } // namespace qfsm
+
+enum class DocumentMode {
+  Select,        ///< Select
+  Pan,           ///< Pan view
+  NewState,      ///< Add new states
+  NewTransition, ///< Add new transitions
+  Zooming,       ///< Zoom in/out
+  Simulating     ///< Simultate the machine
+};
 
 /**
  * @class MainWindow
@@ -111,7 +126,7 @@ class Project;
 class MainWindow : public QMainWindow {
   Q_OBJECT
  public:
-  MainWindow(QObject* a_parentf = nullptr);
+  MainWindow(QObject* a_parent = nullptr);
   ~MainWindow();
 
   /// Returns the options.
@@ -119,8 +134,14 @@ class MainWindow : public QMainWindow {
   /// Returns the scroll view.
   ScrollView* getScrollView() { return m_mainView; }
   /// Returns the status bar.
-  StatusBar* getStatusBar() { return statusbar; }
+  StatusBar* getStatusBar() { return m_statusBar; }
   qfsm::Project* project() { return m_project; }
+  qfsm::OptionsManager* options() { return m_optionsManager; }
+  qfsm::gui::View* view() { return m_view; }
+  qfsm::gui::Scene* scene() { return m_view->scene(); }
+  qfsm::gui::ActionsManager* actionsManager() { return m_actionsManager; }
+  DocumentMode mode() const { return m_mode; }
+  QMenu* contextCommon() { return menu_edit; }
   /// Returns the tab dialog for the general options
   OptGeneralDlgImpl* getOptGeneral() { return opt_general; }
   /// Returns the tab dialog for the display options
@@ -159,21 +180,20 @@ class MainWindow : public QMainWindow {
   bool controlPressed() { return control_pressed; }
 
   /// State manager
-  StateManager* m_stateManager;
+  StateManager* m_stateManager{};
   /// Machine manager
-  MachineManager* machinemanager;
+  MachineManager* machinemanager{};
   /// Transition manager
-  TransitionManager* m_transitionManager;
+  TransitionManager* m_transitionManager{};
   /// File I/O
-  FileIO* fileio;
+  FileIO* fileio{};
   /// Print manager
-  PrintManager* printmanager;
+  PrintManager* printmanager{};
 
-  /// Returns the current mode.
-  int getMode() { return doc_status.getMode(); }
+  void setMode(DocumentMode a_mode);
 
   /// true if this window is about to close
-  bool aboutToClose;
+  bool aboutToClose{};
 
  protected:
   virtual void keyPressEvent(QKeyEvent*);
@@ -190,12 +210,13 @@ class MainWindow : public QMainWindow {
  private:
   /// Pointer to the main control.
   qfsm::MainControl* m_control;
-  /// Scroll view.
+  StatusBar* m_statusBar;
+  qfsm::OptionsManager* m_optionsManager;
+  qfsm::gui::ActionsManager* m_actionsManager;
+  qfsm::gui::View* m_view;
   ScrollView* m_mainView;
-  /// Main Menu bar.
-  QMenuBar* m_menuBar;
-  /// The project this window contains.
-  qfsm::Project* m_project;
+
+  qfsm::Project* m_project{ nullptr };
 
  private:
   /// File menu
@@ -218,12 +239,6 @@ class MainWindow : public QMainWindow {
   QMenu* menu_help;
   /// 'File->Most recently used' menu
   QMenu* menu_mru;
-  /// Context menu (state)
-  QMenu* cmenu_state;
-  /// Context menu (transition)
-  QMenu* cmenu_trans;
-  /// Context menu (scroll view)
-  QMenu* cmenu_sview;
   /// Toolbar
   QToolBar* toolbar;
   /// Application icon
@@ -232,10 +247,6 @@ class MainWindow : public QMainWindow {
   QPixmap* pnew;
   /// Open file icon
   QPixmap* popen;
-  /// Zoom in icon
-  QPixmap* pzoomin;
-  /// Zoom out icon
-  QPixmap* pzoomout;
   /// New file tool button
   QAction* tbnew;
   /// Open file tool button
@@ -244,60 +255,10 @@ class MainWindow : public QMainWindow {
   QAction* tbsave;
   /// Print file tool button
   QAction* tbprint;
-  /// Undo tool button
-  QAction* tbundo;
-  /// Cut tool button
-  QAction* tbcut;
-  /// Copy tool button
-  QAction* tbcopy;
-  /// Paste tool button
-  QAction* tbpaste;
-  /// Select tool button
-  QAction* tbselect;
-  /// Pan tool button
-  QAction* tbpan;
-  /// Zoom tool button
-  QAction* tbzoom;
-  /// New state tool button
-  QAction* tbstatenew;
-  /// New transition tool button
-  QAction* tbtransnew;
-  /// Simulate machine tool button
-  QAction* tbmachinesim;
-  /// Zoom in tool button
-  QAction* tbzoomin;
-  /// Zoom out tool button
-  QAction* tbzoomout;
-  /// Straighten transition tool button
-  QAction* tbtransstraighten;
   /// Save file icon set
   QIcon* saveset;
   /// Print file icon set
   QIcon* printset;
-  /// Undo icon set
-  QIcon* undoset;
-  /// Cut icon set
-  QIcon* cutset;
-  /// Copy icon set
-  QIcon* copyset;
-  /// Paste icon set
-  QIcon* pasteset;
-  /// Select icon set
-  QIcon* selset;
-  /// Pan icon set
-  QIcon* panset;
-  /// Zoom icon set
-  QIcon* zoomset;
-  /// New state icon set
-  QIcon* statenewset;
-  /// New transition icon set
-  QIcon* transnewset;
-  /// Straighten transition icon set
-  QIcon* transstraightenset;
-  /// Simulate machine icon set
-  QIcon* machinesimset;
-  /// Zoom cursor
-  QCursor* zoomCursor;
 
   // menu item IDs
   // file
@@ -318,73 +279,12 @@ class MainWindow : public QMainWindow {
   QAction* id_export_ragel;    ///< Menu id 'File->Export->Ragel'
   QAction* id_export_smc;      ///< Menu id 'File->Export->SMC'
 
-  // edit
-  QAction* id_undo;        ///< Menu id 'Edit->Undo'
-  QAction* id_cut;         ///< Menu id 'Edit->Cut'
-  QAction* id_copy;        ///< Menu id 'Edit->Copy'
-  QAction* id_paste;       ///< Menu id 'Edit->Paste'
-  QAction* id_delete;      ///< Menu id 'Edit->Delete'
-  QAction* id_select;      ///< Menu id 'Edit->Select'
-  QAction* id_selectall;   ///< Menu id 'Edit->Select all'
-  QAction* id_deselectall; ///< Menu id 'Edit->Deselect all'
-
-  // view
-  QAction* id_pan;          ///< Menu id 'View->Pan'
-  QAction* id_zoom;         ///< Menu id 'View->Zoom'
-  QAction* id_zoomin;       ///< Menu id 'View->Zoom in'
-  QAction* id_zoomout;      ///< Menu id 'View->Zoom out'
-  QAction* id_zoom100;      ///< Menu id 'View->Zoom 100%'
-  QAction* id_viewstateenc; ///< Menu id 'View->State codes'
-  QAction* id_viewmoore;    ///< Menu id 'View->Moore outputs'
-  QAction* id_viewmealyin;  ///< Menu id 'View->Mealy inputs'
-  QAction* id_viewmealyout; ///< Menu id 'View->Mealy outputs'
-  QAction* id_viewgrid;     ///< Menu id 'View->Grid'
-  QAction* id_viewshadows;  ///< Menu id 'View->Shadows'
-  QAction* id_ioview;       ///< Menu id 'View->IO View'
-
-  // machine
-  QAction* id_machineedit;   ///< Menu id 'Machine->Edit'
-  QAction* id_machinesim;    ///< Menu id 'Machine->Simulate'
-  QAction* id_correctcodes;  ///< Menu id 'Machine->Auto correct State Codes'
-  QAction* id_machineicheck; ///< Menu id 'Machine->Check integrity'
-
-  // state
-  QAction* id_editstate;  ///< Menu id 'State->Edit'
-  QAction* id_newstate;   ///< Menu id 'State->New'
-  QAction* id_setinitial; ///< Menu id 'State->Set initial'
-  QAction* id_setend;     ///< Menu id 'State->Toggle end state'
-
-  // transition
-  QAction* id_edittrans;      ///< Menu id 'Transition->Edit'
-  QAction* id_newtrans;       ///< Menu id 'Transition->New'
-  QAction* id_trans_straight; ///< Menu id 'Transition->Straighten'
-
-  // context menu item IDs
-  // state
-  QAction* id_ceditstate;  ///< Context menu id 'Edit state'
-  QAction* id_csetinitial; ///< Context menu id 'Set initial state'
-  QAction* id_csetend;     ///< Context menu id 'Toggle end state'
-  QAction* id_csundo;      ///< Context menu id 'Undo' (State)
-  QAction* id_cscut;       ///< Context menu id 'Cut' (State)
-  QAction* id_cscopy;      ///< Context menu id 'Copy' (State)
-  QAction* id_csdelete;    ///< Context menu id 'Delete' (State)
-
-  // transition
-  QAction* id_cedittrans;      ///< Context menu id 'Edit transition'
-  QAction* id_ctrans_straight; ///< Context menu id 'Straighten transition'
-  QAction* id_ctundo;          ///< Context menu id 'Undo' (Transition)
-  QAction* id_ctcut;           ///< Context menu id 'Cut' (Transition)
-  QAction* id_ctcopy;          ///< Context menu id 'Copy' (Transition)
-  QAction* id_ctdelete;        ///< Context menu id 'Delete' (Transition)
-
   /// Messagebox that is opend when the user wants to close a changed file
   QMessageBox* mb_changed;
-  /// Status bar
-  StatusBar* statusbar;
-  /// Doc status
-  DocStatus doc_status;
   /// Options
   Options doc_options;
+
+  DocumentMode m_mode{ DocumentMode::Select };
 
   OptionsDlg* tabwidgetdialog;
   /// Tabdialog (options)
@@ -431,6 +331,8 @@ class MainWindow : public QMainWindow {
   /// Previous view cursor (used when wait cursor is set)
   QCursor previous_viewcursor;
 
+  QIcon appIcon{};
+
  signals:
   /// Emited when 'Select all' is performed
   void allSelected();
@@ -443,9 +345,10 @@ class MainWindow : public QMainWindow {
   /// Emited when the escape key has been pressed
   void escapePressed();
 
+  void modeChanged(DocumentMode);
+
  public slots:
   void refreshMRU();
-  void setMode(int);
   void repaintViewport();
   void updateAll();
   void updatePaste();
@@ -454,7 +357,7 @@ class MainWindow : public QMainWindow {
   void updateStatusBar();
   void updateVVVV();
 
-  void menuItemActivated(QAction* id);
+  // void menuItemActivated(QAction* id);
   void editMenuAboutToShow();
   void showContextState();
   void showContextTrans();

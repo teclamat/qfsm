@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QPaintEvent>
 
 #include "Const.h"
-#include "DocStatus.h"
 #include "Draw.h"
 #include "GState.h"
 #include "Grid.h"
@@ -208,8 +207,6 @@ private:
   void paintEvent(QPaintEvent *);
 
 signals:
-  /// Emited when the mode of the document changes
-  void setMode(int);
   /// Emited when the canvas size changed
   void updateCanvasSize(int, int, double);
   /// Emited when zoomed to a certain percentage

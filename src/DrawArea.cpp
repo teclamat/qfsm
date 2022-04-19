@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "DrawArea.h"
 #include "Const.h"
-#include "DocStatus.h"
 #include "Draw.h"
 #include "GState.h"
 #include "Grid.h"
@@ -57,7 +56,6 @@ DrawArea::DrawArea(QWidget* parent, MainWindow* m, const char* name)
   draw = new Draw(this, main->getOptions());
   grid = new Grid(main->getOptions());
 
-  connect(this, SIGNAL(setMode(int)), main, SLOT(setMode(int)));
   connect(selection, SIGNAL(updateAll()), main, SLOT(updateAll()));
 }
 
@@ -210,8 +208,8 @@ void DrawArea::mousePressEvent(QMouseEvent* e)
     case Qt::LeftButton:
       resetContext();
       lastLClicked = p;
-      switch (main->getMode()) {
-        case DocStatus::Select:
+      switch (main->mode()) {
+        case DocumentMode::Select:
           if (!drag_middle) {
             left_down = true;
             firstTransitionDraw = true;
@@ -283,16 +281,16 @@ void DrawArea::mousePressEvent(QMouseEvent* e)
             }
           }
           break;
-        case DocStatus::Pan:
+        case DocumentMode::Pan:
           left_down = true;
           break;
-        case DocStatus::NewState:
+        case DocumentMode::NewState:
           if (!drag_middle) {
             if (main->m_stateManager->addState(mousex, mousey))
               main->project()->setChanged();
           }
           break;
-        case DocStatus::NewTransition:
+        case DocumentMode::NewTransition:
           if (!drag_middle) {
             lastStateClicked = m->getState(lastLClicked, scale);
             if (lastStateClicked) {
@@ -308,7 +306,7 @@ void DrawArea::mousePressEvent(QMouseEvent* e)
               left_down = true;
           }
           break;
-        case DocStatus::Zooming:
+        case DocumentMode::Zooming:
           int spx, spy;
           QPoint sp;
           if (main->controlPressed()) {
@@ -333,8 +331,8 @@ void DrawArea::mousePressEvent(QMouseEvent* e)
       //      main->updateAll();
       break;
     case Qt::RightButton:
-      switch (main->getMode()) {
-        case DocStatus::Simulating:
+      switch (main->mode()) {
+        case DocumentMode::Simulating:
           break;
         default:
           if (!drag && !drag_middle)
@@ -383,8 +381,8 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
   QRect udrect; // rectangle to update when calling repaintContents()
   udrect = QRect(0, 0, width(), height());
 
-  switch (main->getMode()) {
-    case DocStatus::Select:
+  switch (main->mode()) {
+    case DocumentMode::Select:
 
       if (left_down) {
         drag = true;
@@ -689,7 +687,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
         repaint(udrect);
       }
       break;
-    case DocStatus::Pan:
+    case DocumentMode::Pan:
       if (left_down) {
         drag = true;
         left_down = false;
@@ -701,7 +699,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
         emit scrollWidget(int(lastMousePosX * scale - p.x()), int(lastMousePosY * scale - p.y()));
       }
       break;
-    case DocStatus::NewTransition:
+    case DocumentMode::NewTransition:
       if (left_down) {
         drag = true;
         left_down = false;
@@ -804,9 +802,9 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
     dragITransition->getEndPos(lastEndPointX, lastEndPointY);
   }
 
-  /*  switch (main->getMode())
+  /*  switch (main->mode())
   {
-    case DocStatus::Select:
+    case DocumentMode::Select:
       if (left_down)
       {
   drag=true;
@@ -1099,7 +1097,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
   firstTransitionDraw=false;
       }
       break;
-    case DocStatus::Pan:
+    case DocumentMode::Pan:
       if (left_down)
       {
   drag=true;
@@ -1112,7 +1110,7 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
   scrollBy(int(lastMousePosX*scale-p.x()), int(lastMousePosY*scale-p.y()));
       }
       break;
-    case DocStatus::NewTransition:
+    case DocumentMode::NewTransition:
       if (left_down)
       {
   drag=true;
@@ -1241,8 +1239,8 @@ void DrawArea::mouseReleaseEvent(QMouseEvent* e)
     case Qt::LeftButton:
       left_down = false;
 
-      switch (main->getMode()) {
-        case DocStatus::Select:
+      switch (main->mode()) {
+        case DocumentMode::Select:
           if (drag) {
             drag = false;
             GState* sover;
@@ -1353,11 +1351,11 @@ void DrawArea::mouseReleaseEvent(QMouseEvent* e)
           //          left_down=false;
           //          drag=false;
           break;
-        case DocStatus::Pan:
+        case DocumentMode::Pan:
           if (drag)
             drag = false;
           break;
-        case DocStatus::NewTransition:
+        case DocumentMode::NewTransition:
           if (drag) {
             drag = false;
             s = main->project()->machine()->getState(e->pos(), scale);
@@ -1426,8 +1424,8 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent* e)
 
   switch (e->button()) {
     case Qt::LeftButton:
-      switch (main->getMode()) {
-        case DocStatus::Select:
+      switch (main->mode()) {
+        case DocumentMode::Select:
           obj = m->getObject(p, scale, type);
           switch (type) {
             case StateT:
@@ -1456,8 +1454,8 @@ void DrawArea::escapePressed()
   if (main && main->project())
     m = main->project()->machine();
 
-  switch (main->getMode()) {
-    case DocStatus::Select:
+  switch (main->mode()) {
+    case DocumentMode::Select:
       if (drag) {
         drag = false;
 
@@ -1479,11 +1477,11 @@ void DrawArea::escapePressed()
       }
       dragMultiple = false;
       break;
-    case DocStatus::Pan:
+    case DocumentMode::Pan:
       if (drag)
         drag = false;
       break;
-    case DocStatus::NewTransition:
+    case DocumentMode::NewTransition:
       if (drag) {
         drag = false;
         delete lastTransitionDragged;
@@ -1562,14 +1560,14 @@ void DrawArea::paintEvent(QPaintEvent* pe)
 
       pa.setViewport(-contx, -conty, int(window.width() * scale), int(window.height() * scale));
 
-      if (main->getMode() == DocStatus::NewTransition) // draw new Transition
+      if (main->mode() == DocumentMode::NewTransition) // draw new Transition
       {
         offset = QPoint(0, 0);
         draw->drawTransition(m, lastTransitionDragged, &pa, offset.x(), offset.y(), scale, m->getNumInputs(),
                              m->getNumOutputs(), false, false);
       }
-      //      else if (main->getMode()==DocStatus::Select) // BUG FIX
-      else if (lastTransitionControl && main->getMode() == DocStatus::Select) { // draw Trans. being dragged
+      //      else if (main->mode()==DocumentMode::Select) // BUG FIX
+      else if (lastTransitionControl && main->mode() == DocumentMode::Select) { // draw Trans. being dragged
         offset = QPoint(0, 0);
         if (!dragITransition) // draw normal Transition
         {

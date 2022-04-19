@@ -67,6 +67,12 @@ GState::GState(Machine* m, const QString n, QString d, int c, IOInfo* moore, dou
   radius = r;
   mark = false;
 
+  m_visualData.outlineColor = p.color().rgb();
+  m_visualData.outlineWidth = p.width();
+  m_visualData.radius = r;
+  m_visualData.x = x;
+  m_visualData.y = y;
+
   //  tlist.setAutoDelete(true);
   //  reflist.setAutoDelete(false);
 }

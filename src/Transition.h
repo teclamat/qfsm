@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define TRANSITION_H
 
 #include <qstring.h>
+#include <QPointF>
 
 class State;
 class TransitionInfo;
@@ -31,38 +32,49 @@ class TransitionInfo;
  * Base class for the graphical object GTransition.
  */
 class Transition {
-public:
-  Transition(State *, State *, TransitionInfo *);
-  Transition(const Transition &);
+ public:
+  struct VisualData {
+    QPointF begin{};
+    QPointF cp1{};
+    QPointF cp2{};
+    QPointF end{};
+  };
+
+  Transition(State*, State*, TransitionInfo*);
+  Transition(const Transition&);
   ~Transition();
 
-  Transition &operator=(const Transition &);
+  Transition& operator=(const Transition&);
 
   /// Returns starting state
-  State *getStart() { return start; };
+  State* getStart() { return start; };
   const State* getStart() const { return start; };
   /// Sets starting state
-  void setStart(State *s) { start = s; };
+  void setStart(State* s) { start = s; };
   /// Returns end state
-  State *getEnd() { return end; };
+  State* getEnd() { return end; };
   const State* getEnd() const { return end; };
   /// Sets end state.
-  void setEnd(State *s) { end = s; };
+  void setEnd(State* s) { end = s; };
   /// Returns transition info (condition)
-  TransitionInfo *getInfo() { return info; };
+  TransitionInfo* getInfo() { return info; };
   const TransitionInfo* getInfo() const { return info; };
   /// Sets the transition condition to @a i
-  void setInfo(TransitionInfo *i) { info = i; };
+  void setInfo(TransitionInfo* i) { info = i; };
 
   static int conditionValid(int type, QString, bool input = true);
 
-protected:
+  VisualData& visualData() { return m_visualData; };
+  const VisualData& visualData() const { return m_visualData; }
+
+ protected:
   /// Start state
-  State *start;
+  State* start;
   /// End state
-  State *end;
+  State* end;
   /// Inputs and outputs of the transition condition
-  TransitionInfo *info;
+  TransitionInfo* info;
+  VisualData m_visualData{};
 };
 
 #endif

@@ -53,20 +53,20 @@ enum ObjectType { NoT, StateT, TransitionT, ITransitionT };
  */
 class Machine : public QObject {
   Q_OBJECT
-public:
-  Machine(QObject *parent = NULL, const char *name = 0);
-  Machine(QObject *name, const QString, QString, QString, QString, int type,
-          int, QString, int, QString, int, QString, QFont, QFont, int);
+ public:
+  Machine(QObject* parent = NULL, const char* name = 0);
+  Machine(QObject* name, const QString, QString, QString, QString, int type, int, QString, int, QString, int, QString,
+          QFont, QFont, int);
   ~Machine();
 
   /// Returns initial state of the machine
-  GState *getInitialState() { return initial_state; };
+  GState* getInitialState() { return initial_state; };
   /// Sets the initial state of the machine to @a s.
-  void setInitialState(GState *s) { initial_state = s; };
+  void setInitialState(GState* s) { initial_state = s; };
   /// Returns the initial transition
-  GITransition *getInitialTransition() { return initial_transition; };
+  GITransition* getInitialTransition() { return initial_transition; };
   /// Sets the initial transition
-  void setInitialTransition(GITransition *t) { initial_transition = t; };
+  void setInitialTransition(GITransition* t) { initial_transition = t; };
   /// Attaches initial transition graphically to the initial state.
   void attachInitialTransition();
 
@@ -75,11 +75,12 @@ public:
    * A phantom state is the state containing all the transitions which have
    * no starting states.
    */
-  GState *getPhantomState() { return phantom_state; };
+  GState* getPhantomState() { return phantom_state; };
+  const GState* getPhantomState() const { return phantom_state; };
   /// Sets the phantom state
-  void setPhantomState(GState *s) { phantom_state = s; };
+  void setPhantomState(GState* s) { phantom_state = s; };
   /// Returns the state list
-  QList<GState *> &getSList() { return state_list; };
+  QList<GState*>& getSList() { return state_list; };
   /// Returns the name of the machine
   QString getName() { return name; };
   /// Sets the name of the machine
@@ -99,7 +100,7 @@ public:
   void setDescription(QString d) { description = d; };
 
   /// Returns the type of the machine. 0: Binary / 1: ASCII
-  int getType() { return type; };
+  int getType() const { return type; };
   /// Sets the type of the machine to @a t
   void setType(int t) { type = t; };
   /// Returns the number of bits used to code the state
@@ -117,13 +118,13 @@ public:
   /// Returns the effective number of encoding bits
   int getNumEncodingBits();
   /// Returns the font used to draw the state names
-  QFont &getSFont() { return state_font; };
+  const QFont& getSFont() const { return state_font; };
   /// Sets the font used to draw the state names
-  void setSFont(const QFont &f) { state_font = f; };
+  void setSFont(const QFont& f) { state_font = f; };
   /// Returns the font used to draw the transition conditions
-  QFont &getTFont() { return transition_font; };
+  QFont& getTFont() { return transition_font; };
   /// Sets the font used to draw the transition conditions
-  void setTFont(const QFont &f) { transition_font = f; };
+  void setTFont(const QFont& f) { transition_font = f; };
   /// Returns the arrow type (0: unfilled, 1: filled)
   int getArrowType() { return arrow_type; };
   /// Sets the arrow type (0: unfilled, 1: filled)
@@ -131,26 +132,26 @@ public:
   /// Returns a pointer to the current project
   void setProject(qfsm::Project* p) { project = p; };
   /// Returns a pointer to the project
-  qfsm::Project *getProject() { return project; };
+  qfsm::Project* getProject() { return project; };
   int countStates();
   int getNewCode();
   void correctCodes();
   bool checkStateCodes();
   QStringList translateNames(QString);
   QString retranslateNames(QStringList);
-  bool addState(const QString, QString, int code, IOInfo *mooreout, double,
-                double, int, double, QPen, bool endstate, bool withundo = true,
-                QString entry_actions = "", QString exit_actions = "");
-  bool addState(GState *, bool withundo = true);
-  GState *getState(QPoint, double);
-  GObject *getObject(QPoint p, double scale, int &type);
-  void removeState(GState *);
-  GState *getState(int);
-  GState *getState(QString name);
-  QList<GState *> getFinalStates();
+  bool addState(const QString, QString, int code, IOInfo* mooreout, double, double, int, double, QPen, bool endstate,
+                bool withundo = true, QString entry_actions = "", QString exit_actions = "");
+  bool addState(GState*, bool withundo = true);
+  GState* getState(QPoint, double);
+  GObject* getObject(QPoint p, double scale, int& type);
+  void removeState(GState*);
+  GState* getState(int);
+  GState* getState(QString name);
+  QList<GState*> getFinalStates();
 
   /// Returns current canvas size
-  void getCanvasSize(int &w, int &h) {
+  void getCanvasSize(int& w, int& h)
+  {
     w = canvas_size.width();
     h = canvas_size.height();
   };
@@ -183,66 +184,66 @@ public:
   bool getDrawITrans() { return drawITrans; };
   void setDrawITrans(bool di) { drawITrans = di; };
 
-  static void replaceChar(QString &s, QChar c1, QChar c2);
+  static void replaceChar(QString& s, QChar c1, QChar c2);
 
-  void checkIntegrity(ICheck *);
+  void checkIntegrity(ICheck*);
 
-  void getEventList(IOInfoList &, Options *opt);
+  void getEventList(IOInfoList&, Options* opt);
   void updateDefaultTransitions();
   void addDefaultTransitionsToEveryState();
 
-private:
+ private:
   /// Pointer to the project this machine belongs to
- qfsm::Project* project;
- /// Name of the machine
- QString name;
- /// Version of the machine
- QString version;
- /// Author of the machine
- QString author;
- /// Description of the machine
- QString description;
- /// Type: 0: Binary / 1: ASCII / 2: Free Text
- int type;
- /// Number of bits for the Moore outputs
- int num_moore_output;
- /// Number of bits for the input conditions
- int num_input;
- /// Number of bits for the outputs
- int num_output;
- /// Names of the input bits
- QStringList input_names;
- /// Names of the output bits
- QStringList output_names;
- /// Names of the moore outputs (state coding)
- QStringList output_names_moore;
- /// Font for the state name
- QFont state_font;
- /// Font for the transition
- QFont transition_font;
- /// Arrow type: 0: line arrow / 1: solid arrow
- int arrow_type;
- /// List of states
- QList<GState*> state_list;
- /// Pointer to the start state (initial state)
- GState* initial_state;
- /// Phantom state
- GState* phantom_state;
- /// Start transition (initial transition)
- GITransition* initial_transition;
- /// Size of the drawingarea
- QSize canvas_size;
- /// Pointer to the integrity checker
- ICheck* checker;
+  qfsm::Project* project;
+  /// Name of the machine
+  QString name;
+  /// Version of the machine
+  QString version;
+  /// Author of the machine
+  QString author;
+  /// Description of the machine
+  QString description;
+  /// Type: 0: Binary / 1: ASCII / 2: Free Text
+  int type;
+  /// Number of bits for the Moore outputs
+  int num_moore_output;
+  /// Number of bits for the input conditions
+  int num_input;
+  /// Number of bits for the outputs
+  int num_output;
+  /// Names of the input bits
+  QStringList input_names;
+  /// Names of the output bits
+  QStringList output_names;
+  /// Names of the moore outputs (state coding)
+  QStringList output_names_moore;
+  /// Font for the state name
+  QFont state_font;
+  /// Font for the transition
+  QFont transition_font;
+  /// Arrow type: 0: line arrow / 1: solid arrow
+  int arrow_type;
+  /// List of states
+  QList<GState*> state_list;
+  /// Pointer to the start state (initial state)
+  GState* initial_state;
+  /// Phantom state
+  GState* phantom_state;
+  /// Start transition (initial transition)
+  GITransition* initial_transition;
+  /// Size of the drawingarea
+  QSize canvas_size;
+  /// Pointer to the integrity checker
+  ICheck* checker;
 
- bool drawITrans;
+  bool drawITrans;
 
-signals:
+ signals:
   /// Emited when the canvas size needs to be set to a new value
   void newCanvasSize(int, int);
   void repaint();
 
-public slots:
+ public slots:
   void updateCanvasSize(int, int, double);
   void updateCanvasSize(int, int);
   void resetMarks();

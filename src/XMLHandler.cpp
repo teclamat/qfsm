@@ -328,12 +328,20 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
         state->setMooreOutputs(iotmp);
       }
 
+      State::VisualData& visualData = state->visualData();
       state->setDescription(atts.value("description").toString());
       state->setXPos(atts.value("xpos").toDouble());
       state->setYPos(atts.value("ypos").toDouble());
+      const QPointF position = state->position();
+      visualData.x = position.x();
+      visualData.y = position.y();
       state->setRadius(atts.value("radius").toInt());
-      state->setColor(QRgb{ atts.value("pencolor").toUInt() });
+      visualData.radius = state->getRadius();
+      const QRgb penColor = QRgb{ atts.value("pencolor").toUInt() };
+      state->setColor(penColor);
+      visualData.outlineColor = penColor;
       state->setLineWidth(atts.value("linewidth").toInt());
+      visualData.outlineWidth = state->getLineWidth();
       state->setEntryActions(atts.value("entry_actions").toString());
       state->setExitActions(atts.value("exit_actions").toString());
       if (atts.hasAttribute("finalstate")) {
@@ -356,7 +364,7 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     hasto = false;
     if (machine) {
       transition = new GTransition{};
-
+      Transition::VisualData& visualData = transition->visualData();
       ttype = atts.hasAttribute("type") ? atts.value("type").toInt() : 1;
 
       transition->setDescription(atts.value("description").toString());
@@ -369,6 +377,10 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
       transition->setCPoint2X(atts.value("c2x").toDouble());
       transition->setCPoint2Y(atts.value("c2y").toDouble());
       transition->setStraight(atts.value("straight").toDouble());
+      visualData.begin = transition->position();
+      visualData.cp1 = transition->controlPoint1();
+      visualData.cp2 = transition->controlPoint2();
+      visualData.end = transition->endPosition();
     }
   } else if (qName == "from") {
     hasfrom = true;

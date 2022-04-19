@@ -1,0 +1,54 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file alias="icons/qfsm32.png">../desktop/32x32/apps/qfsm.png</file>
+    <file alias="icons/qfsm48.png">../desktop/48x48/apps/qfsm.png</file>
+
+    <file>icons/copy.png</file>
+    <file>icons/cut.png</file>
+    <file>icons/delete.png</file>
+    <file>icons/options.png</file>
+    <file>icons/paste.png</file>
+    <file>icons/undo.png</file>
+    <file>icons/panning.png</file>
+    <file>icons/zoomin.png</file>
+    <file>icons/zoomout.png</file>
+    <file>icons/zoom100.png</file>
+    <file>icons/select.png</file>
+    <file>icons/run.png</file>
+    <file>icons/addstate.png</file>
+    <file>icons/addtransition.png</file>
+    <file>icons/straighten.png</file>
+
+    <file>icons/lc_copy.png</file>
+    <file>icons/lc_cut.png</file>
+    <file>icons/lc_delete.png</file>
+    <file>icons/lc_options.png</file>
+    <file>icons/lc_paste.png</file>
+    <file>icons/lc_undo.png</file>
+    <file>icons/lc_panning.png</file>
+    <file>icons/lc_zoomin.png</file>
+    <file>icons/lc_zoomout.png</file>
+    <file>icons/lc_zoom100.png</file>
+    <file>icons/lc_select.png</file>
+    <file>icons/lc_run.png</file>
+    <file>icons/lc_addstate.png</file>
+    <file>icons/lc_addtransition.png</file>
+    <file>icons/lc_straighten.png</file>
+
+    <file>icons/sc_copy.png</file>
+    <file>icons/sc_cut.png</file>
+    <file>icons/sc_delete.png</file>
+    <file>icons/sc_options.png</file>
+    <file>icons/sc_paste.png</file>
+    <file>icons/sc_panning.png</file>
+    <file>icons/sc_zoomin.png</file>
+    <file>icons/sc_zoomout.png</file>
+    <file>icons/sc_zoom100.png</file>
+    <file>icons/sc_select.png</file>
+    <file>icons/sc_run.png</file>
+    <file>icons/sc_addstate.png</file>
+    <file>icons/sc_addtransition.png</file>
+    <file>icons/sc_straighten.png</file>
+  </qresource>
+</RCC>

@@ -30,8 +30,8 @@ class MainWindow;
  */
 class Options : public QObject {
   Q_OBJECT
-public:
-  Options(QObject *parent = NULL, const char *name = 0);
+ public:
+  Options(QObject* parent = NULL, const char* name = 0);
 
   /// Returns true if states encoding should be displayed otherwise false
   bool getViewStateEncoding() { return viewStateEncoding; }
@@ -207,16 +207,12 @@ public:
   /// Returns the 'synchronous reset' flag (Testbench export)
   bool getTestbenchSynchronousReset() { return testbench_synchronousreset; }
   /// Sets the 'synchronous reset' flag (Testbench export)
-  void setTestbenchSynchronousReset(bool sr) {
-    testbench_synchronousreset = sr;
-  }
+  void setTestbenchSynchronousReset(bool sr) { testbench_synchronousreset = sr; }
 
   /// Returns the 'synchronous enable' flag (Testbench export)
   bool getTestbenchSynchronousEnable() { return testbench_synchronousenable; }
   /// Sets the 'synchronous enable' flag (Testbench export)
-  void setTestbenchSynchronousEnable(bool se) {
-    testbench_synchronousenable = se;
-  }
+  void setTestbenchSynchronousEnable(bool se) { testbench_synchronousenable = se; }
 
   /// Returns the 'negated reset' flag (Testbench export)
   bool getTestbenchNegatedReset() { return testbench_negatedreset; }
@@ -270,9 +266,7 @@ public:
   /// Returns the 'resolve inverted conditions' option (State table export)
   bool getStateTableResolveInverted() { return statetable_resolve_inverted; }
   /// Sets the 'resolve inverted conditions outputs' option (State table export)
-  void setStateTableResolveInverted(bool ri) {
-    statetable_resolve_inverted = ri;
-  }
+  void setStateTableResolveInverted(bool ri) { statetable_resolve_inverted = ri; }
   /// Returns the orientation of the state table
   int getStateTableOrientation() { return statetable_orientation; }
   /// Sets the orientation of the state table
@@ -309,9 +303,9 @@ public:
   /// Sets the 'print header' option
   void setPrintHeader(bool ph) { print_header = ph; }
 
-  void applyOptions(MainWindow *);
+  void applyOptions(MainWindow*);
 
-private:
+ private:
   /// If true, state encodings are shown
   bool viewStateEncoding;
   /// If true, moore outputs are shown

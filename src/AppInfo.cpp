@@ -62,7 +62,7 @@ void AppInfo::about(QWidget* a_targetWidget)
   stream << QObject::tr("email: qfsm@duffner-net.de");
 
   QMessageBox messageBox{ a_targetWidget };
-  messageBox.setIconPixmap(a_targetWidget->windowIcon().pixmap(64, 64));
+  messageBox.setIconPixmap(a_targetWidget->windowIcon().pixmap(48, 48));
   messageBox.setWindowTitle(QObject::tr("About Qfsm"));
   messageBox.setText(text);
   messageBox.exec();

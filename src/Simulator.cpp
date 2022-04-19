@@ -95,7 +95,7 @@ bool Simulator::startSimulation(Machine *m) {
  * Stops the running simulation.
  */
 void Simulator::stopSimulation() {
-  main->setMode(DocStatus::Select);
+  main->setMode(DocumentMode::Select);
   main->getScrollView()->getDrawArea()->getSelection()->deselectAll(machine);
   main->repaintViewport();
 

@@ -43,6 +43,7 @@ QString loadLanguage(QTranslator* trans);
 int main(int argc, char** argv)
 {
   QApplication qfsmApp{ argc, argv };
+  QApplication::setOrganizationName(QStringLiteral("qfsm"));
 
   // QTranslator trans(0);
   // QString lang = loadLanguage(&trans);

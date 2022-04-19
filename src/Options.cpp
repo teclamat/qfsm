@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "MainWindow.h"
 #include "Options.h"
 
+#include <QSettings>
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #include <QtGlobal>
 namespace Qt {
@@ -116,6 +118,7 @@ Options::Options(QObject* parent /*=NULL*/, const char* name /*=0*/)
 void Options::applyOptions(MainWindow* pMain)
 {
   // General
+  QSettings settings{};
   QString lang;
   QString path;
   QDir dir = QDir::home();
@@ -138,6 +141,10 @@ void Options::applyOptions(MainWindow* pMain)
 
   stateShadows = pMain->getOptDisplay()->getShadows();
   stateShadowColor = pMain->getOptDisplay()->getShadowColor();
+  // settings.setValue("view/showShadows", stateShadows);
+  // settings.setValue("view/shadowColor", stateShadowColor.rgb());
+  // if (pMain->scene())
+  //   pMain->scene()->readOptions();
 
   tooltips = pMain->getOptDisplay()->getToolTips();
   iomark = pMain->getOptDisplay()->getIOMark();

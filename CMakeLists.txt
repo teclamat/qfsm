@@ -11,23 +11,32 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Core QUIET)
 if(Qt6_FOUND)
-  find_package(Qt6 COMPONENTS Core Widgets Svg PrintSupport)
-  set(QFSM_QT_LIBS Qt::Core Qt::Widgets Qt::Svg Qt::PrintSupport)
+  find_package(Qt6 COMPONENTS Core Widgets OpenGLWidgets Svg PrintSupport)
+  set(QFSM_QT_LIBS Qt6::Core Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg Qt6::PrintSupport)
 else()
   find_package(Qt5 COMPONENTS Core Widgets Svg PrintSupport)
   set(QFSM_QT_LIBS Qt5::Core Qt5::Widgets Qt5::Svg Qt5::PrintSupport)
 endif()
 
 set(QFSM_HEADERS
+  src/gui/scene.hpp
+  src/gui/stateitem.hpp
+  src/gui/view.hpp
+  src/gui/actionsmanager.hpp
+  src/gui/transitionitem.hpp
+  src/gui/controlhandleitem.hpp
+
+  src/optionsmanager.hpp
+
   # src/ListBoxItems.h
   src/AppInfo.h
   src/Const.h
   src/Convert.h
   src/DRect.h
-  src/DocStatus.h
   src/Draw.h
   src/DrawArea.h
   src/Edit.h
@@ -114,10 +123,18 @@ set(QFSM_HEADERS
 
 set(QFSM_SOURCES
   # src/ListBoxItems.cpp
+  src/gui/scene.cpp
+  src/gui/stateitem.cpp
+  src/gui/transitionitem.cpp
+  src/gui/view.cpp
+  src/gui/actionsmanager.cpp
+  src/gui/controlhandleitem.cpp
+
+  src/optionsmanager.cpp
+
   src/AppInfo.cpp
   src/Convert.cpp
   src/DRect.cpp
-  src/DocStatus.cpp
   src/Draw.cpp
   src/DrawArea.cpp
   src/Edit.cpp
@@ -203,7 +220,7 @@ set(QFSM_SOURCES
   src/main.cpp
 )
 
-add_executable(qfsm ${QFSM_HEADERS} ${QFSM_SOURCES})
+add_executable(qfsm ${QFSM_HEADERS} ${QFSM_SOURCES} res/resources.qrc)
 
 target_link_libraries(qfsm PRIVATE ${QFSM_QT_LIBS})
 
@@ -214,6 +231,8 @@ target_compile_definitions(qfsm PRIVATE
   QFSM_VERSION_MINOR=${PROJECT_VERSION_MINOR}
   QFSM_BUILD_DATE="${QFSM_BUILD_DATE}"
 )
+
+target_include_directories(qfsm PRIVATE src)
 
 if(MSVC)
   target_compile_definitions(qfsm PRIVATE

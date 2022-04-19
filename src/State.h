@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef STATE_H
 #define STATE_H
 
+#include <QRgb>
+
 #include <qstring.h>
 
 #include "IOInfoBin.h"
@@ -30,15 +32,22 @@ class Machine;
  * @brief Stores information about a State
  */
 class State {
-public:
-  State(Machine *m, const QString, QString, int cd, IOInfo *mooreout, bool ends,
-        QString ena = "", QString exa = "");
-  State(Machine *m);
-  State(const State &);
+ public:
+  struct VisualData {
+    double x{};
+    double y{};
+    QRgb outlineColor{ 0 };
+    int outlineWidth{ 1 };
+    int radius{ 40 };
+  };
+
+  State(Machine* m, const QString, QString, int cd, IOInfo* mooreout, bool ends, QString ena = "", QString exa = "");
+  State(Machine* m);
+  State(const State&);
   State();
   ~State();
 
-  State &operator=(const State &);
+  State& operator=(const State&);
 
   /// Sets the name of the state
   void setStateName(QString n) { sname = n; };
@@ -53,9 +62,9 @@ public:
   /// Returns the code of the state.
   int getEncoding() const { return code; };
   /// Sets the moore outputs of the state
-  void setMooreOutputs(IOInfo *o) { moore_outputs = o; };
+  void setMooreOutputs(IOInfo* o) { moore_outputs = o; };
   /// Returns the moore outputs of the state.
-  IOInfo *getMooreOutputs() { return moore_outputs; };
+  IOInfo* getMooreOutputs() { return moore_outputs; };
   /// Sets/clears the 'end state' flag
   void setFinalState(bool fs = true) { finalstate = fs; };
   /// Toggles the 'end state' flag
@@ -64,7 +73,7 @@ public:
   bool isFinalState() const { return finalstate; }
 
   QString getCodeStr(int type = -1);
-  QString getMooreOutputsStr(Machine *m = NULL, Options *opt = NULL) const;
+  QString getMooreOutputsStr(Machine* m = NULL, Options* opt = NULL) const;
 
   /// Returns the entry actions of the state
   QString getEntryActions() const { return entry_actions; };
@@ -78,9 +87,12 @@ public:
   static bool codeValid(int mtype, QString);
   static bool mooreOutputValid(int mtype, QString);
 
-protected:
+  VisualData& visualData() { return m_visualData; };
+  const VisualData& visualData() const { return m_visualData; }
+
+ protected:
   /// Pointer to the machine this state belongs to
-  Machine *machine;
+  Machine* machine;
   /// Name
   QString sname;
   /// Description
@@ -88,13 +100,14 @@ protected:
   /// Coding of the state
   int code;
   /// Moore outputs of the state
-  IOInfo *moore_outputs;
+  IOInfo* moore_outputs;
   /// If true, this state is a final state
   bool finalstate;
   /// Entry actions (used for Free-text-type machines and SMC export)
   QString entry_actions;
   /// Exit actions (used for Free-text-type machines and SMC export)
   QString exit_actions;
+  VisualData m_visualData;
 };
 
 #endif

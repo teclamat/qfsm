@@ -16,29 +16,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <QCloseEvent>
-#include <QDesktopServices>
-#include <QFocusEvent>
-#include <QKeyEvent>
-#include <QMainWindow>
-#include <QMenu>
-#include <QPixmap>
-#include <QUrl>
 #include <qapplication.h>
 #include <qclipboard.h>
 #include <qcursor.h>
 #include <qobject.h>
 #include <qsettings.h>
 #include <qtoolbutton.h>
+#include <QCloseEvent>
 #include <QDebug>
+#include <QDesktopServices>
+#include <QFocusEvent>
+#include <QKeyEvent>
+#include <QMainWindow>
+#include <QMenu>
 #include <QMimeData>
+#include <QPixmap>
+#include <QUrl>
 
 #include <fstream>
 #include <sstream>
 #include <string>
 
 #include "AppInfo.h"
-#include "DocStatus.h"
 #include "DrawArea.h"
 #include "Edit.h"
 #include "Error.h"
@@ -72,6 +71,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TableBuilderLatex.h"
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
+
+#include "gui/actionsmanager.hpp"
+#include "gui/stateitem.hpp"
+#include "gui/transitionitem.hpp"
+#include "gui/view.hpp"
+
+#include "optionsmanager.hpp"
 
 #include "../pics/c_mag.xpm"
 #include "../pics/editcopy.xpm"
@@ -108,6 +114,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "IOInfo.h"
 
+#include <QOpenGLWidget>
+
 // using namespace std;
 
 constexpr auto QFSM_MIME_DATA_TYPE = "text/qfsm-objects";
@@ -119,21 +127,28 @@ constexpr auto QFSM_MIME_DATA_TYPE = "text/qfsm-objects";
 MainWindow::MainWindow(QObject* a_parent)
   : QMainWindow{}
   , m_control{ qobject_cast<qfsm::MainControl*>(a_parent) }
+  , m_statusBar{ new StatusBar{ this } }
+  , m_optionsManager{ new qfsm::OptionsManager{ this } }
+  , m_actionsManager{ new qfsm::gui::ActionsManager{ this } }
+  , m_view{ new qfsm::gui::View{ this } }
   , m_mainView{ new ScrollView(this) }
-  , m_menuBar{ menuBar() }
-  , m_project{ nullptr }
 {
-  setCentralWidget(m_mainView);
+  m_mainView->setVisible(false);
+  // m_graphicsScene = new QGraphicsScene{ this };
+  // m_graphicsView = new QGraphicsView{ m_graphicsScene, this };
+  // m_graphicsView->setViewport(new QOpenGLWidget{});
+  setCentralWidget(m_view);
+  m_view->scene()->setSceneRect(0, 0, 800, 600);
+  // setCentralWidget(m_mainView);
   setAcceptDrops(true);
 
-  QPixmap paicon((const char**)qfsm_64_xpm);
-  setWindowIcon(paicon);
+  appIcon.addFile(":/icons/qfsm32.png", { 32, 32 });
+  appIcon.addFile(":/icons/qfsm48.png", { 48, 48 });
+  setWindowIcon(appIcon);
+
+  // QPixmap paicon((const char**)qfsm_64_xpm);
 
   createToolBar();
-
-  // m_menuBar = menuBar();
-  // m_menuBar=new QMenuBar(this);
-  // menu_mru = new QMenu(this);
 
   menu_import = new QMenu(this);
 #ifdef GRAPHVIZ_FOUND
@@ -207,125 +222,111 @@ MainWindow::MainWindow(QObject* a_parent)
   id_close = menu_file->addAction(tr("&Close"), this, &MainWindow::fileClose, Qt::CTRL | Qt::Key_W);
   menu_file->addAction(tr("&Quit"), this, &MainWindow::fileQuit, Qt::CTRL | Qt::Key_Q);
 
+  using Group = qfsm::gui::ActionsManager::Group;
+  using Action = qfsm::gui::ActionsManager::Action;
+
   // Edit
-  menu_edit = new QMenu(this);
-  // menu_edit->setCheckable(true);
-  menu_edit->setMouseTracking(true);
-  id_undo = menu_edit->addAction(*undoset, tr("U&ndo"), this, &MainWindow::editUndo, Qt::CTRL | Qt::Key_Z);
+  menu_edit = new QMenu{ this };
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Undo));
   menu_edit->addSeparator();
-  id_cut = menu_edit->addAction(*cutset, tr("C&ut"), this, &MainWindow::editCut, Qt::CTRL | Qt::Key_X);
-  id_copy = menu_edit->addAction(*copyset, tr("&Copy"), this, &MainWindow::editCopy, Qt::CTRL | Qt::Key_C);
-  id_paste = menu_edit->addAction(*pasteset, tr("&Paste"), this, &MainWindow::editPaste, Qt::CTRL | Qt::Key_V);
-  id_delete = menu_edit->addAction(tr("De&lete"), this, &MainWindow::editDelete, Qt::Key_Delete);
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Cut));
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Copy));
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Paste));
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Delete));
   menu_edit->addSeparator();
-  id_select =
-      menu_edit->addAction(*selset, tr("&Select"), this, &MainWindow::editSelect, Qt::CTRL | Qt::SHIFT | Qt::Key_S);
-  id_selectall = menu_edit->addAction(tr("Select &All"), this, &MainWindow::editSelectAll, Qt::CTRL | Qt::Key_A);
-  id_deselectall = menu_edit->addAction(tr("&Deselect All"), this, &MainWindow::editDeselectAll, Qt::CTRL | Qt::Key_D);
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::SelectAll));
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::ClearSelect));
   menu_edit->addSeparator();
-  menu_edit->addAction(tr("&Options"), this, SLOT(editOptions()));
+  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Options));
 
   // View
-  menu_view = new QMenu(this);
-  // menu_view->setCheckable(true);
-  menu_view->setMouseTracking(true);
-  id_viewstateenc = menu_view->addAction(tr("State &Codes"), this, SLOT(viewStateEncoding()));
-  id_viewmoore = menu_view->addAction(tr("Moo&re Outputs"), this, SLOT(viewMooreOutputs()), Qt::CTRL | Qt::Key_M);
-  id_viewmealyin = menu_view->addAction(tr("Mealy I&nputs"), this, SLOT(viewMealyInputs()));
-  id_viewmealyout = menu_view->addAction(tr("Mea&ly Outputs"), this, SLOT(viewMealyOutputs()));
+  menu_view = new QMenu{ this };
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::Codes));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::MooreOut));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::MealyIn));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::MealyOut));
   menu_view->addSeparator();
-  id_viewshadows = menu_view->addAction(tr("&Shadows"), this, SLOT(viewShadows()));
-  id_viewgrid = menu_view->addAction(tr("&Grid"), this, SLOT(viewGrid()));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::Shadows));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::Grid));
   menu_view->addSeparator();
-  id_ioview = menu_view->addAction(tr("&IO View"), this, SLOT(viewIOView()));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::IoView));
   menu_view->addSeparator();
-  id_pan = menu_view->addAction(*panset, tr("&Pan view"), this, SLOT(viewPan()), Qt::CTRL | Qt::SHIFT | Qt::Key_P);
-  id_zoom = menu_view->addAction(*zoomset, tr("&Zoom"), this, SLOT(viewZoom()), Qt::CTRL | Qt::SHIFT | Qt::Key_Z);
-  id_zoomin = menu_view->addAction(*pzoomin, tr("Zoom &In"), this, SLOT(viewZoomIn()), Qt::CTRL | Qt::Key_I);
-  id_zoomout = menu_view->addAction(*pzoomout, tr("Zoom &Out"), this, SLOT(viewZoomOut()), Qt::CTRL | Qt::Key_U);
-  id_zoom100 = menu_view->addAction(tr("Zoom &100%"), this, SLOT(viewZoom100()), Qt::CTRL | Qt::Key_R);
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::Select));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::Pan));
+  menu_view->addSeparator();
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::ZoomIn));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::ZoomOut));
+  menu_view->addAction(m_actionsManager->action(Group::View, Action::Zoom100));
 
   // Machine
-  menu_machine = new QMenu(this);
-  menu_machine->setMouseTracking(true);
-  id_machineedit = menu_machine->addAction(tr("&Edit..."), this, SLOT(machineEdit()));
-  id_correctcodes = menu_machine->addAction(tr("&Auto correct State Codes..."), this, SLOT(machineCorrectCodes()));
-  id_machinesim = menu_machine->addAction(*machinesimset, tr("&Simulate..."), this, SLOT(machineSimulate()),
-                                          Qt::CTRL | Qt::SHIFT | Qt::Key_I);
-  id_machineicheck = menu_machine->addAction(tr("&Integrity Check"), this, SLOT(machineICheck()));
+  menu_machine = new QMenu{ this };
+  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Simulate));
+  menu_machine->addSeparator();
+  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Check));
+  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Correct));
+  menu_machine->addSeparator();
+  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Edit));
 
   // State
-  menu_state = new QMenu(this);
-  // menu_state->setCheckable(true);
-  menu_state->setMouseTracking(true);
-  id_newstate =
-      menu_state->addAction(*statenewset, tr("&New"), this, SLOT(stateNew()), Qt::CTRL | Qt::SHIFT | Qt::Key_N);
-  id_editstate = menu_state->addAction(tr("&Edit..."), this, SLOT(stateEdit()));
-  id_setinitial = menu_state->addAction(tr("Set &Initial State"), this, SLOT(stateSetInitial()));
-  id_setend = menu_state->addAction(tr("&Toggle Final State"), this, SLOT(stateSetFinal()), Qt::CTRL | Qt::Key_E);
+  menu_state = new QMenu{ this };
+  menu_state->addAction(m_actionsManager->action(Group::State, Action::Add));
+  menu_state->addAction(m_actionsManager->action(Group::State, Action::Initial));
+  menu_state->addAction(m_actionsManager->action(Group::State, Action::Final));
+  menu_state->addSeparator();
+  menu_state->addAction(m_actionsManager->action(Group::State, Action::Edit));
 
   // Transition
-  menu_trans = new QMenu(this);
-  menu_trans->setMouseTracking(true);
-  id_newtrans =
-      menu_trans->addAction(*transnewset, tr("&New"), this, SLOT(transNew()), Qt::CTRL | Qt::SHIFT | Qt::Key_T);
-  id_edittrans = menu_trans->addAction(tr("&Edit..."), this, SLOT(transEdit()));
-  id_trans_straight = menu_trans->addAction(*transstraightenset, tr("&Straighten"), this, SLOT(transStraighten()),
-                                            Qt::CTRL | Qt::Key_T);
+  menu_trans = new QMenu{ this };
+  menu_trans->addAction(m_actionsManager->action(Group::Transition, Action::Add));
+  menu_trans->addAction(m_actionsManager->action(Group::Transition, Action::Straight));
+  menu_trans->addSeparator();
+  menu_trans->addAction(m_actionsManager->action(Group::Transition, Action::Edit));
 
   // Help
-  /*  menu_help = new QMenu(this);
-    menu_help->setMouseTracking(true);
-    menu_help->insertItem(tr("&About..."), this, SLOT(helpAbout()));
-    menu_help->insertSeparator();
-    menu_help->insertItem(tr("About &Qt..."), this, SLOT(helpAboutQt()));
-  */
-  menu_help = new QMenu(this);
-  menu_help->setMouseTracking(true);
-  menu_help->addAction(tr("Qfsm &Manual..."), this, SLOT(helpManual()), Qt::Key_F1);
+  menu_help = new QMenu{ this };
+  menu_help->addAction(m_actionsManager->action(Group::Help, Action::Manual));
   menu_help->addSeparator();
-  menu_help->addAction(tr("&About..."), this, SLOT(helpAbout()));
-  menu_help->addAction(tr("About &Qt..."), this, SLOT(helpAboutQt()));
+  menu_help->addAction(m_actionsManager->action(Group::Help, Action::About));
+  menu_help->addAction(m_actionsManager->action(Group::Help, Action::AboutQt));
 
-  m_menuBar->addMenu(menu_file)->setText(tr("&File"));
-  m_menuBar->addMenu(menu_edit)->setText(tr("&Edit"));
-  m_menuBar->addMenu(menu_view)->setText(tr("&View"));
-  m_menuBar->addMenu(menu_machine)->setText(tr("&Machine"));
-  m_menuBar->addMenu(menu_state)->setText(tr("&State"));
-  m_menuBar->addMenu(menu_trans)->setText(tr("&Transition"));
-  m_menuBar->addMenu(menu_help)->setText(tr("&Help"));
+  QMenuBar* mainMenuBar = menuBar();
+  mainMenuBar->addMenu(menu_file)->setText(tr("&File"));
+  mainMenuBar->addMenu(menu_edit)->setText(tr("&Edit"));
+  mainMenuBar->addMenu(menu_view)->setText(tr("&View"));
+  mainMenuBar->addMenu(menu_machine)->setText(tr("&Machine"));
+  mainMenuBar->addMenu(menu_state)->setText(tr("&State"));
+  mainMenuBar->addMenu(menu_trans)->setText(tr("&Transition"));
+  mainMenuBar->addMenu(menu_help)->setText(tr("&Help"));
 
   // Context Menu: State
-  cmenu_state = new QMenu(this);
-  cmenu_state->setMouseTracking(true);
-  id_csundo = cmenu_state->addAction(*undoset, tr("U&ndo"), this, SLOT(editUndo()), Qt::CTRL | Qt::Key_Z);
-  cmenu_state->addSeparator();
-  id_cscut = cmenu_state->addAction(*cutset, tr("C&ut"), this, SLOT(editCut()), Qt::CTRL | Qt::Key_X);
-  id_cscopy = cmenu_state->addAction(*copyset, tr("&Copy"), this, SLOT(editCopy()), Qt::CTRL | Qt::Key_C);
-  id_csdelete = cmenu_state->addAction(tr("De&lete"), this, SLOT(editDelete()), Qt::Key_Delete);
-  cmenu_state->addSeparator();
-  id_ceditstate = cmenu_state->addAction(tr("&Edit..."), this, SLOT(stateEdit()));
-  id_csetinitial = cmenu_state->addAction(tr("Set &Initial State"), this, SLOT(stateSetInitial()));
-  id_csetend = cmenu_state->addAction(tr("&Toggle Final State"), this, SLOT(stateSetFinal()));
+  // cmenu_state = new QMenu(this);
+  // id_csundo = cmenu_state->addAction(*undoset, tr("U&ndo"), this, SLOT(editUndo()), Qt::CTRL | Qt::Key_Z);
+  // cmenu_state->addSeparator();
+  // id_cscut = cmenu_state->addAction(*cutset, tr("C&ut"), this, SLOT(editCut()), Qt::CTRL | Qt::Key_X);
+  // id_cscopy = cmenu_state->addAction(*copyset, tr("&Copy"), this, SLOT(editCopy()), Qt::CTRL | Qt::Key_C);
+  // id_csdelete = cmenu_state->addAction(tr("De&lete"), this, SLOT(editDelete()), Qt::Key_Delete);
+  // cmenu_state->addSeparator();
+  // id_ceditstate = cmenu_state->addAction(tr("&Edit..."), this, SLOT(stateEdit()));
+  // id_csetinitial = cmenu_state->addAction(tr("Set &Initial State"), this, SLOT(stateSetInitial()));
+  // id_csetend = cmenu_state->addAction(tr("&Toggle Final State"), this, SLOT(stateSetFinal()));
 
   // Context Menu: Transition
-  cmenu_trans = new QMenu(this);
-  cmenu_trans->setMouseTracking(true);
-  id_ctundo = cmenu_trans->addAction(*undoset, tr("U&ndo"), this, SLOT(editUndo()), Qt::CTRL | Qt::Key_Z);
-  cmenu_trans->addSeparator();
-  id_ctcut = cmenu_trans->addAction(*cutset, tr("C&ut"), this, SLOT(editCut()), Qt::CTRL | Qt::Key_X);
-  id_ctcopy = cmenu_trans->addAction(*copyset, tr("&Copy"), this, SLOT(editCopy()), Qt::CTRL | Qt::Key_C);
-  id_ctdelete = cmenu_trans->addAction(tr("De&lete"), this, SLOT(editDelete()), Qt::Key_Delete);
-  cmenu_trans->addSeparator();
-  id_cedittrans = cmenu_trans->addAction(tr("&Edit..."), this, SLOT(transEdit()));
-  id_ctrans_straight = cmenu_trans->addAction(*transstraightenset, tr("&Straighten"), this, SLOT(transStraighten()),
-                                              Qt::CTRL | Qt::Key_T);
+  // cmenu_trans = new QMenu(this);
+  // cmenu_trans->setMouseTracking(true);
+  // id_ctundo = cmenu_trans->addAction(*undoset, tr("U&ndo"), this, SLOT(editUndo()), Qt::CTRL | Qt::Key_Z);
+  // cmenu_trans->addSeparator();
+  // id_ctcut = cmenu_trans->addAction(*cutset, tr("C&ut"), this, SLOT(editCut()), Qt::CTRL | Qt::Key_X);
+  // id_ctcopy = cmenu_trans->addAction(*copyset, tr("&Copy"), this, SLOT(editCopy()), Qt::CTRL | Qt::Key_C);
+  // id_ctdelete = cmenu_trans->addAction(tr("De&lete"), this, SLOT(editDelete()), Qt::Key_Delete);
+  // cmenu_trans->addSeparator();
+  // id_cedittrans = cmenu_trans->addAction(tr("&Edit..."), this, SLOT(transEdit()));
+  // id_ctrans_straight = cmenu_trans->addAction(*transstraightenset, tr("&Straighten"), this, SLOT(transStraighten()),
+  //                                             Qt::CTRL | Qt::Key_T);
 
   // Context Menu: ScrollView
-  cmenu_sview = menu_edit;
+  // cmenu_sview = menu_edit;
 
-  statusbar = new StatusBar(this);
-  setStatusBar(statusbar);
+  setStatusBar(m_statusBar);
 
   m_stateManager = new StateManager(this);
   machinemanager = new MachineManager(this);
@@ -390,7 +391,9 @@ MainWindow::MainWindow(QObject* a_parent)
   control_pressed = false;
   m_isCutOperation = false;
 
-  setMode(DocStatus::Select);
+  connect(this, &MainWindow::modeChanged, m_view, &qfsm::gui::View::onModeChanged);
+
+  setMode(DocumentMode::Select);
   updateAll(); // MenuBar();
 
   connect(menu_mru, SIGNAL(aboutToShow()), this, SLOT(refreshMRU()));
@@ -402,10 +405,10 @@ MainWindow::MainWindow(QObject* a_parent)
   connect(this, SIGNAL(objectsPasted()), m_mainView->getDrawArea(), SLOT(objectsPasted()));
   connect(this, SIGNAL(quitWindow(MainWindow*)), m_control, SLOT(quitWindow(MainWindow*)));
   connect(this, SIGNAL(escapePressed()), m_mainView->getDrawArea(), SLOT(escapePressed()));
-  connect(m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)), statusbar, SLOT(setZoom(int)));
+  connect(m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)), m_statusBar, SLOT(setZoom(int)));
   connect(this, SIGNAL(updateStatusZoom(int)), m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)));
   connect(fileio, SIGNAL(sbMessage(QString)), this, SLOT(sbMessage(QString)));
-  connect(m_menuBar, SIGNAL(triggered(QAction*)), this, SLOT(menuItemActivated(QAction*)));
+  // connect(m_menuBar, SIGNAL(triggered(QAction*)), this, SLOT(menuItemActivated(QAction*)));
   connect(menu_edit, SIGNAL(aboutToShow()), this, SLOT(editMenuAboutToShow()));
   connect(fileio, SIGNAL(setWaitCursor()), this, SLOT(setWaitCursor()));
   connect(fileio, SIGNAL(setPreviousCursor()), this, SLOT(setPreviousCursor()));
@@ -420,7 +423,6 @@ MainWindow::~MainWindow()
 
   destroyToolBar();
   delete m_mainView;
-  delete m_menuBar;
   delete menu_file;
   delete menu_import;
   delete menu_export;
@@ -429,8 +431,6 @@ MainWindow::~MainWindow()
   delete menu_machine;
   delete menu_state;
   delete menu_trans;
-  delete cmenu_state;
-  delete cmenu_trans;
   if (m_project)
     delete m_project;
 
@@ -439,7 +439,7 @@ MainWindow::~MainWindow()
   delete m_transitionManager;
   delete printmanager;
   delete fileio;
-  delete statusbar;
+  delete m_statusBar;
   // delete tabdialog;
   delete simulator;
   delete ichecker;
@@ -466,10 +466,6 @@ void MainWindow::createToolBar()
   tbnew = toolbar->addAction(*pnew, tr("New File"), this, SLOT(fileNew()));
   tbnew->setToolTip(tr("Creates a new file"));
 
-  // tbnew = new QToolButton(
-  //     *pnew, tr("New File"), tr("Creates a new file"), this, SLOT(fileNew()), toolbar);
-  // toolbar->addWidget(tbnew);
-
   popen = new QPixmap((const char**)fileopen);
   tbopen = toolbar->addAction(*popen, tr("Open File"), this, SLOT(fileOpen()));
   tbopen->setToolTip(tr("Opens a file"));
@@ -488,103 +484,38 @@ void MainWindow::createToolBar()
   tbprint = toolbar->addAction(*printset, tr("Print"), this, SLOT(filePrint()));
   tbprint->setToolTip(tr("Prints this file"));
 
-  QPixmap pundo((const char**)editundo);
-  QPixmap pundooff((const char**)editundooff);
-  undoset = new QIcon(pundo);
-  undoset->addPixmap(pundooff, QIcon::Disabled);
-  tbundo = toolbar->addAction(*undoset, tr("Undo"), this, SLOT(editUndo()));
-  tbundo->setToolTip(tr("Undo last action"));
+  using Group = qfsm::gui::ActionsManager::Group;
+  using Action = qfsm::gui::ActionsManager::Action;
 
-  QPixmap pcut((const char**)editcut);
-  QPixmap pcutoff((const char**)editcutoff);
-  cutset = new QIcon(pcut);
-  cutset->addPixmap(pcutoff, QIcon::Disabled);
-  tbcut = toolbar->addAction(*cutset, tr("Cut"), this, SLOT(editCut()));
-  tbcut->setToolTip(tr("Cuts Selection"));
-
-  QPixmap pcopy((const char**)editcopy);
-  QPixmap pcopyoff((const char**)editcopyoff);
-  copyset = new QIcon(pcopy);
-  copyset->addPixmap(pcopyoff, QIcon::Disabled);
-  tbcopy = toolbar->addAction(*copyset, tr("Copy"), this, SLOT(editCopy()));
-  tbcopy->setToolTip(tr("Copies Selection"));
-
-  QPixmap ppaste((const char**)editpaste);
-  QPixmap ppasteoff((const char**)editpasteoff);
-  pasteset = new QIcon(ppaste);
-  pasteset->addPixmap(ppasteoff, QIcon::Disabled);
-  tbpaste = toolbar->addAction(*pasteset, tr("Paste"), this, SLOT(editPaste()));
-  tbpaste->setToolTip(tr("Pastes the clipboard"));
+  // tbundo = toolbar->addAction(*undoset, tr("Undo"), this, SLOT(editUndo()));
+  // tbcut = toolbar->addAction(*cutset, tr("Cut"), this, SLOT(editCut()));
+  // tbcopy = toolbar->addAction(*copyset, tr("Copy"), this, SLOT(editCopy()));
+  // tbpaste = toolbar->addAction(*pasteset, tr("Paste"), this, SLOT(editPaste()));
+  // tbselect = toolbar->addAction(*selset, tr("Select"), this, SLOT(editSelect()));
+  // tbpan = toolbar->addAction(*panset, tr("Pan"), this, SLOT(viewPan()));
+  // tbstatenew = toolbar->addAction(*statenewset, tr("Add State"), this, SLOT(stateNew()));
+  // tbtransnew = toolbar->addAction(*transnewset, tr("Add Transition"), this, SLOT(transNew()));
+  // tbmachinesim = toolbar->addAction(*machinesimset, tr("Simulate"), this, SLOT(machineSimulate()));
+  // tbzoomin = toolbar->addAction(*pzoomin, tr("Zoom In"), this, SLOT(viewZoomIn()));
+  // tbzoomout = toolbar->addAction(*pzoomout, tr("Zoom Out"), this, SLOT(viewZoomOut()));
+  // tbtransstraighten = toolbar->addAction(*transstraightenset, tr("Straighten Transitions"), this,
+  // SLOT(transStraighten()));
 
   toolbar->addSeparator();
-
-  QPixmap pselect((const char**)sel);
-  QPixmap pselectoff((const char**)selectoff);
-  selset = new QIcon(pselect);
-  selset->addPixmap(pselectoff, QIcon::Disabled);
-  tbselect = toolbar->addAction(*selset, tr("Select"), this, SLOT(editSelect()));
-  tbselect->setToolTip(tr("Select objects"));
-  tbselect->setCheckable(true);
-
-  QPixmap ppan((const char**)pan);
-  QPixmap ppanoff((const char**)panoff);
-  panset = new QIcon(ppan);
-  panset->addPixmap(ppanoff, QIcon::Disabled);
-  tbpan = toolbar->addAction(*panset, tr("Pan"), this, SLOT(viewPan()));
-  tbpan->setToolTip(tr("Pan view"));
-  tbpan->setCheckable(true);
-
-  QPixmap pzoom((const char**)zoom);
-  QPixmap pzoomoff((const char**)zoomoff);
-  zoomset = new QIcon(pzoom);
-  zoomset->addPixmap(pzoomoff, QIcon::Disabled);
-  tbzoom = toolbar->addAction(*zoomset, tr("Zoom"), this, SLOT(viewZoom()));
-  tbzoom->setToolTip(tr("Switches to zoom mode"));
-  tbzoom->setCheckable(true);
-
-  QPixmap pstatenew((const char**)statenew);
-  QPixmap pstatenewoff((const char**)statenewoff);
-  statenewset = new QIcon(pstatenew);
-  statenewset->addPixmap(pstatenewoff, QIcon::Disabled);
-  tbstatenew = toolbar->addAction(*statenewset, tr("Add State"), this, SLOT(stateNew()));
-  tbstatenew->setToolTip(tr("Add new states"));
-  tbstatenew->setCheckable(true);
-
-  QPixmap ptransnew((const char**)transnew);
-  QPixmap ptransnewoff((const char**)transnewoff);
-  transnewset = new QIcon(ptransnew);
-  transnewset->addPixmap(ptransnewoff, QIcon::Disabled);
-  tbtransnew = toolbar->addAction(*transnewset, tr("Add Transition"), this, SLOT(transNew()));
-  tbtransnew->setToolTip(tr("Add new transitions"));
-  tbtransnew->setCheckable(true);
-
-  QPixmap pmachinesim((const char**)machinesim);
-  QPixmap pmachinesimoff((const char**)machinesimoff);
-  machinesimset = new QIcon(pmachinesim);
-  machinesimset->addPixmap(pmachinesimoff, QIcon::Disabled);
-  tbmachinesim = toolbar->addAction(*machinesimset, tr("Simulate"), this, SLOT(machineSimulate()));
-  tbmachinesim->setToolTip(tr("Simulates this machine"));
-  tbmachinesim->setCheckable(true);
-
+  toolbar->addAction(m_actionsManager->action(Group::Edit, Action::Undo));
+  toolbar->addAction(m_actionsManager->action(Group::Edit, Action::Cut));
+  toolbar->addAction(m_actionsManager->action(Group::Edit, Action::Copy));
+  toolbar->addAction(m_actionsManager->action(Group::Edit, Action::Paste));
   toolbar->addSeparator();
-
-  pzoomin = new QPixmap((const char**)zoomin);
-  tbzoomin = toolbar->addAction(*pzoomin, tr("Zoom In"), this, SLOT(viewZoomIn()));
-  tbzoomin->setToolTip(tr("Zooms into the view"));
-
-  pzoomout = new QPixmap((const char**)zoomout);
-  tbzoomout = toolbar->addAction(*pzoomout, tr("Zoom Out"), this, SLOT(viewZoomOut()));
-  tbzoomout->setToolTip(tr("Zoom out of the view"));
-
-  QPixmap ptransstraighten((const char**)transstraighten);
-  QPixmap ptransstraightenoff((const char**)transstraightenoff);
-  transstraightenset = new QIcon(ptransstraighten);
-  transstraightenset->addPixmap(ptransstraightenoff, QIcon::Disabled);
-  tbtransstraighten =
-      toolbar->addAction(*transstraightenset, tr("Straighten Transitions"), this, SLOT(transStraighten()));
-  tbtransstraighten->setToolTip(tr("Straightens selected transitions"));
-
-  zoomCursor = new QCursor(QPixmap((const char**)c_mag_xpm), 7, 7);
+  toolbar->addAction(m_actionsManager->action(Group::View, Action::Select));
+  toolbar->addAction(m_actionsManager->action(Group::View, Action::Pan));
+  toolbar->addAction(m_actionsManager->action(Group::State, Action::Add));
+  toolbar->addAction(m_actionsManager->action(Group::Transition, Action::Add));
+  toolbar->addAction(m_actionsManager->action(Group::Machine, Action::Simulate));
+  toolbar->addSeparator();
+  toolbar->addAction(m_actionsManager->action(Group::View, Action::ZoomIn));
+  toolbar->addAction(m_actionsManager->action(Group::View, Action::ZoomOut));
+  toolbar->addAction(m_actionsManager->action(Group::Transition, Action::Straight));
 }
 
 /// Destroys the toolbar
@@ -592,40 +523,13 @@ void MainWindow::destroyToolBar()
 {
   delete popen;
   delete pnew;
-  delete pzoomin;
-  delete pzoomout;
   delete saveset;
   delete printset;
-  delete undoset;
-  delete cutset;
-  delete copyset;
-  delete pasteset;
-  delete selset;
-  delete panset;
-  delete zoomset;
-  delete statenewset;
-  delete transnewset;
-  delete transstraightenset;
-  delete machinesimset;
   delete tbnew;
   delete tbopen;
   delete tbsave;
   delete tbprint;
-  delete tbundo;
-  delete tbcut;
-  delete tbcopy;
-  delete tbpaste;
-  delete tbselect;
-  delete tbpan;
-  delete tbzoom;
-  delete tbstatenew;
-  delete tbtransnew;
-  delete tbmachinesim;
-  delete tbzoomin;
-  delete tbzoomout;
-  delete tbtransstraighten;
   delete toolbar;
-  delete zoomCursor;
 }
 
 /// Called when a key is pressed
@@ -754,9 +658,9 @@ void MainWindow::dropEvent(QDropEvent* e)
 
     int count = m_mainView->getDrawArea()->getSelection()->count();
     if (count == 1)
-      statusbar->showMessage(QString::number(count) + " " + tr("object pasted."), 2000);
+      m_statusBar->showMessage(QString::number(count) + " " + tr("object pasted."), 2000);
     else
-      statusbar->showMessage(QString::number(count) + " " + tr("objects pasted."), 2000);
+      m_statusBar->showMessage(QString::number(count) + " " + tr("objects pasted."), 2000);
 
     m_mainView->widget()->repaint();
     updateAll();
@@ -766,10 +670,10 @@ void MainWindow::dropEvent(QDropEvent* e)
 }
 
 /// Called when a menu item is activated
-void MainWindow::menuItemActivated(QAction*)
-{
-  m_mainView->getDrawArea()->resetContext();
-}
+// void MainWindow::menuItemActivated(QAction*)
+// {
+//   m_mainView->getDrawArea()->resetContext();
+// }
 
 /// Called when the edit menu is about to show
 void MainWindow::editMenuAboutToShow()
@@ -780,111 +684,29 @@ void MainWindow::editMenuAboutToShow()
 /**
  * Sets the current mode and updates the menus.
  */
-void MainWindow::setMode(int m)
+void MainWindow::setMode(DocumentMode a_mode)
 {
-  doc_status.setMode(m);
+  if (m_mode == a_mode) {
+    return;
+  }
+  m_mode = a_mode;
+  emit modeChanged(m_mode);
 
-  switch (m) {
-    case DocStatus::Select:
-      id_select->setChecked(true);
-      id_pan->setChecked(false);
-      id_newstate->setChecked(false);
-      id_newtrans->setChecked(false);
-      id_zoom->setChecked(false);
-      id_machinesim->setChecked(false);
-      tbselect->setChecked(true);
-      tbpan->setChecked(false);
-      tbzoom->setChecked(false);
-      tbstatenew->setChecked(false);
-      tbtransnew->setChecked(false);
-      tbmachinesim->setChecked(false);
-      break;
-    case DocStatus::Pan:
-      id_select->setChecked(false);
-      id_pan->setChecked(true);
-      id_newstate->setChecked(false);
-      id_newtrans->setChecked(false);
-      id_zoom->setChecked(false);
-      id_machinesim->setChecked(false);
-      tbselect->setChecked(false);
-      tbpan->setChecked(true);
-      tbzoom->setChecked(false);
-      tbstatenew->setChecked(false);
-      tbtransnew->setChecked(false);
-      tbmachinesim->setChecked(false);
-      break;
-    case DocStatus::NewState:
-      id_select->setChecked(false);
-      id_pan->setChecked(false);
-      id_newstate->setChecked(true);
-      id_newtrans->setChecked(false);
-      id_zoom->setChecked(false);
-      id_machinesim->setChecked(false);
-      tbselect->setChecked(false);
-      tbpan->setChecked(false);
-      tbzoom->setChecked(false);
-      tbstatenew->setChecked(true);
-      tbtransnew->setChecked(false);
-      tbmachinesim->setChecked(false);
-      break;
-    case DocStatus::NewTransition:
-      id_select->setChecked(false);
-      id_pan->setChecked(false);
-      id_newstate->setChecked(false);
-      id_newtrans->setChecked(true);
-      id_zoom->setChecked(false);
-      id_machinesim->setChecked(false);
-      tbselect->setChecked(false);
-      tbpan->setChecked(false);
-      tbzoom->setChecked(false);
-      tbstatenew->setChecked(false);
-      tbtransnew->setChecked(true);
-      tbmachinesim->setChecked(false);
-      break;
-    case DocStatus::Zooming:
-      id_select->setChecked(false);
-      id_pan->setChecked(false);
-      id_newstate->setChecked(false);
-      id_newtrans->setChecked(false);
-      id_zoom->setChecked(true);
-      id_machinesim->setChecked(false);
-      tbselect->setChecked(false);
-      tbpan->setChecked(false);
-      tbzoom->setChecked(true);
-      tbstatenew->setChecked(false);
-      tbtransnew->setChecked(false);
-      tbmachinesim->setChecked(false);
-      break;
-    case DocStatus::Simulating:
-      id_select->setChecked(false);
-      id_pan->setChecked(false);
-      id_newstate->setChecked(false);
-      id_newtrans->setChecked(false);
-      id_zoom->setChecked(false);
-      id_machinesim->setChecked(true);
-      tbselect->setChecked(false);
-      tbpan->setChecked(false);
-      tbzoom->setChecked(false);
-      tbstatenew->setChecked(false);
-      tbtransnew->setChecked(false);
-      tbmachinesim->setChecked(true);
-      break;
-  }
-  switch (m) {
-    case DocStatus::Pan:
-      m_mainView->viewport()->setCursor(Qt::SizeAllCursor);
-      break;
-    case DocStatus::NewState:
-    case DocStatus::NewTransition:
-      m_mainView->viewport()->setCursor(Qt::CrossCursor);
-      break;
-    case DocStatus::Zooming:
-      m_mainView->viewport()->setCursor(*zoomCursor);
-      break;
-    default:
-      m_mainView->viewport()->setCursor(Qt::ArrowCursor);
-      break;
-  }
+  // switch (m_mode) {
+  //   case DocumentMode::Pan:
+  //     m_view->viewport()->setCursor(Qt::CursorShape::ClosedHandCursor);
+  //     m_mainView->viewport()->setCursor(Qt::SizeAllCursor);
+  //     break;
+  //   case DocumentMode::NewState:
+  //   case DocumentMode::NewTransition:
+  //     m_view->viewport()->setCursor(Qt::CursorShape::CrossCursor);
+  //     m_mainView->viewport()->setCursor(Qt::CrossCursor);
+  //     break;
+  //   default:
+  //     m_view->viewport()->setCursor(Qt::CursorShape::ArrowCursor);
+  //     m_mainView->viewport()->setCursor(Qt::ArrowCursor);
+  //     break;
+  // }
 }
 
 /// Repaints the scroll view
@@ -896,6 +718,8 @@ void MainWindow::repaintViewport()
 /// Updates all menus.
 void MainWindow::updateMenuBar()
 {
+  m_actionsManager->update();
+
   int numstates, numtrans;
 
   id_import->setEnabled(true);
@@ -907,10 +731,9 @@ void MainWindow::updateMenuBar()
     id_print->setEnabled(true);
     id_export->setEnabled(true);
     id_close->setEnabled(true);
-    id_selectall->setEnabled(true);
-    id_deselectall->setEnabled(true);
-    id_newstate->setEnabled(true);
-    id_newtrans->setEnabled(true);
+    // id_selectall->setEnabled(true);
+    // id_deselectall->setEnabled(true);
+    // id_newstate->setEnabled(true);
     // id_newtrans->setEnabled(true);
     if (m_project->machine() && m_project->machine()->getType() == Ascii)
       id_export_ragel->setEnabled(true);
@@ -924,9 +747,9 @@ void MainWindow::updateMenuBar()
       id_export_vvvv->setEnabled(true);
       id_export_scxml->setEnabled(true);
       id_export_smc->setEnabled(true);
-      id_viewstateenc->setEnabled(false);
-      id_viewmoore->setEnabled(false);
-      tbmachinesim->setEnabled(false);
+      // id_viewstateenc->setEnabled(false);
+      // id_viewmoore->setEnabled(false);
+      // tbmachinesim->setEnabled(false);
     } else {
       id_export_ahdl->setEnabled(true);
       id_export_vhdl->setEnabled(true);
@@ -935,69 +758,73 @@ void MainWindow::updateMenuBar()
       id_export_vvvv->setEnabled(false);
       id_export_scxml->setEnabled(false);
       id_export_smc->setEnabled(false);
-      id_viewstateenc->setEnabled(true);
-      id_viewmoore->setEnabled(true);
-      tbmachinesim->setEnabled(true);
+      // id_viewstateenc->setEnabled(true);
+      // id_viewmoore->setEnabled(true);
+      // tbmachinesim->setEnabled(true);
     }
-    id_viewmealyin->setEnabled(true);
-    id_viewmealyout->setEnabled(true);
-    id_viewgrid->setEnabled(true);
-    id_ioview->setEnabled(true);
-    id_viewshadows->setEnabled(true);
-    id_zoom->setEnabled(true);
-    id_zoomin->setEnabled(true);
-    id_zoomout->setEnabled(true);
-    id_zoom100->setEnabled(true);
-    id_select->setEnabled(true);
-    id_pan->setEnabled(true);
-    id_machineedit->setEnabled(true);
-    id_correctcodes->setEnabled(true);
-    id_machineicheck->setEnabled(true);
+    // id_viewmealyin->setEnabled(true);
+    // id_viewmealyout->setEnabled(true);
+    // id_viewgrid->setEnabled(true);
+    // id_ioview->setEnabled(true);
+    // id_viewshadows->setEnabled(true);
+
+    // id_zoom->setEnabled(true);
+    // id_zoomin->setEnabled(true);
+    // id_zoomout->setEnabled(true);
+    // id_zoom100->setEnabled(true);
+    // id_select->setEnabled(true);
+    // id_pan->setEnabled(true);
+    // tbselect->setEnabled(true);
+    // tbpan->setEnabled(true);
+    // tbzoom->setEnabled(true);
+    // tbzoomin->setEnabled(true);
+    // tbzoomout->setEnabled(true);
+
+    // id_machineedit->setEnabled(true);
+    // id_correctcodes->setEnabled(true);
+    // id_machineicheck->setEnabled(true);
     tbsave->setEnabled(true);
     tbprint->setEnabled(true);
-    tbselect->setEnabled(true);
-    tbpan->setEnabled(true);
-    tbzoom->setEnabled(true);
-    tbzoomin->setEnabled(true);
-    tbzoomout->setEnabled(true);
-    tbstatenew->setEnabled(true);
-    tbtransnew->setEnabled(true);
+    // tbstatenew->setEnabled(true);
+    // tbtransnew->setEnabled(true);
   } else {
     id_save->setEnabled(false);
     id_saveas->setEnabled(false);
     id_print->setEnabled(false);
     id_export->setEnabled(false);
     id_close->setEnabled(false);
-    id_selectall->setEnabled(false);
-    id_deselectall->setEnabled(false);
-    id_newstate->setEnabled(false);
-    id_newtrans->setEnabled(false);
-    id_viewstateenc->setEnabled(false);
-    id_viewmoore->setEnabled(false);
-    id_viewmealyin->setEnabled(false);
-    id_viewmealyout->setEnabled(false);
-    id_viewgrid->setEnabled(false);
-    id_viewshadows->setEnabled(false);
-    id_ioview->setEnabled(false);
-    id_zoom->setEnabled(false);
-    id_zoomin->setEnabled(false);
-    id_zoomout->setEnabled(false);
-    id_zoom100->setEnabled(false);
-    id_select->setEnabled(false);
-    id_pan->setEnabled(false);
-    id_machineedit->setEnabled(false);
-    id_correctcodes->setEnabled(false);
-    id_machineicheck->setEnabled(false);
+    // id_selectall->setEnabled(false);
+    // id_deselectall->setEnabled(false);
+    // id_newstate->setEnabled(false);
+    // id_newtrans->setEnabled(false);
+    // id_viewstateenc->setEnabled(false);
+    // id_viewmoore->setEnabled(false);
+    // id_viewmealyin->setEnabled(false);
+    // id_viewmealyout->setEnabled(false);
+    // id_viewgrid->setEnabled(false);
+    // id_viewshadows->setEnabled(false);
+    // id_ioview->setEnabled(false);
+
+    // id_zoom->setEnabled(false);
+    // id_zoomin->setEnabled(false);
+    // id_zoomout->setEnabled(false);
+    // id_zoom100->setEnabled(false);
+    // id_select->setEnabled(false);
+    // id_pan->setEnabled(false);
+    // tbselect->setEnabled(false);
+    // tbpan->setEnabled(false);
+    // tbzoom->setEnabled(false);
+    // tbzoomin->setEnabled(false);
+    // tbzoomout->setEnabled(false);
+
+    // id_machineedit->setEnabled(false);
+    // id_correctcodes->setEnabled(false);
+    // id_machineicheck->setEnabled(false);
     tbsave->setEnabled(false);
     tbprint->setEnabled(false);
-    tbselect->setEnabled(false);
-    tbpan->setEnabled(false);
-    tbzoom->setEnabled(false);
-    tbzoomin->setEnabled(false);
-    tbzoomout->setEnabled(false);
-    tbstatenew->setEnabled(false);
-    tbtransnew->setEnabled(false);
-    tbmachinesim->setEnabled(false);
+    // tbstatenew->setEnabled(false);
+    // tbtransnew->setEnabled(false);
+    // tbmachinesim->setEnabled(false);
   }
 
   numtrans = m_mainView->getDrawArea()->getSelection()->countTransitions();
@@ -1005,174 +832,177 @@ void MainWindow::updateMenuBar()
 
   if (m_project && m_project->machine() && m_project->machine()->getType() != Text &&
       m_project->machine()->getNumStates() > 0) {
-    id_machinesim->setEnabled(true);
-    tbmachinesim->setEnabled(true);
+    // id_machinesim->setEnabled(true);
+    // tbmachinesim->setEnabled(true);
   } else {
-    id_machinesim->setEnabled(false);
-    tbmachinesim->setEnabled(false);
+    // id_machinesim->setEnabled(false);
+    // tbmachinesim->setEnabled(false);
   }
 
   if (numtrans) {
-    id_trans_straight->setEnabled(true);
-    tbtransstraighten->setEnabled(true);
-    id_cedittrans->setEnabled(true);
-    id_ctrans_straight->setEnabled(true);
+    // id_trans_straight->setEnabled(true);
+    // tbtransstraighten->setEnabled(true);
+    // id_cedittrans->setEnabled(true);
+    // id_ctrans_straight->setEnabled(true);
   } else {
-    id_trans_straight->setEnabled(false);
-    tbtransstraighten->setEnabled(false);
-    id_cedittrans->setEnabled(false);
-    id_ctrans_straight->setEnabled(false);
+    // id_trans_straight->setEnabled(false);
+    // tbtransstraighten->setEnabled(false);
+    // id_cedittrans->setEnabled(false);
+    // id_ctrans_straight->setEnabled(false);
   }
 
   if (numstates > 0) {
-    id_setend->setEnabled(true);
-    id_csetend->setEnabled(true);
+    // id_setend->setEnabled(true);
+    // id_csetend->setEnabled(true);
   } else {
-    id_setend->setEnabled(false);
-    id_csetend->setEnabled(false);
+    // id_setend->setEnabled(false);
+    // id_csetend->setEnabled(false);
   }
   if (numstates == 1) {
-    id_setinitial->setEnabled(true);
-    id_editstate->setEnabled(true);
+    // id_setinitial->setEnabled(true);
+    // id_editstate->setEnabled(true);
   } else {
-    id_setinitial->setEnabled(false);
-    id_editstate->setEnabled(false);
+    // id_setinitial->setEnabled(false);
+    // id_editstate->setEnabled(false);
   }
 
   if (numtrans == 1) {
-    id_edittrans->setEnabled(true);
+    // id_edittrans->setEnabled(true);
   } else {
-    id_edittrans->setEnabled(false);
+    // id_edittrans->setEnabled(false);
   }
 
   if (numstates + numtrans > 0) {
-    id_delete->setEnabled(true);
-    id_cut->setEnabled(true);
-    id_copy->setEnabled(true);
-    id_csdelete->setEnabled(true);
-    id_cscut->setEnabled(true);
-    id_cscopy->setEnabled(true);
-    id_ctdelete->setEnabled(true);
-    id_ctcut->setEnabled(true);
-    id_ctcopy->setEnabled(true);
-    tbcut->setEnabled(true);
-    tbcopy->setEnabled(true);
+    // id_delete->setEnabled(true);
+    // id_cut->setEnabled(true);
+    // id_copy->setEnabled(true);
+    // id_csdelete->setEnabled(true);
+    // id_cscut->setEnabled(true);
+    // id_cscopy->setEnabled(true);
+    // id_ctdelete->setEnabled(true);
+    // id_ctcut->setEnabled(true);
+    // id_ctcopy->setEnabled(true);
+    // tbcut->setEnabled(true);
+    // tbcopy->setEnabled(true);
   } else {
-    id_delete->setEnabled(false);
-    id_cut->setEnabled(false);
-    id_copy->setEnabled(false);
-    id_csdelete->setEnabled(false);
-    id_cscut->setEnabled(false);
-    id_cscopy->setEnabled(false);
-    id_ctdelete->setEnabled(false);
-    id_ctcut->setEnabled(false);
-    id_ctcopy->setEnabled(false);
-    tbcut->setEnabled(false);
-    tbcopy->setEnabled(false);
+    // id_delete->setEnabled(false);
+    // id_cut->setEnabled(false);
+    // id_copy->setEnabled(false);
+    // id_csdelete->setEnabled(false);
+    // id_cscut->setEnabled(false);
+    // id_cscopy->setEnabled(false);
+    // id_ctdelete->setEnabled(false);
+    // id_ctcut->setEnabled(false);
+    // id_ctcopy->setEnabled(false);
+    // tbcut->setEnabled(false);
+    // tbcopy->setEnabled(false);
   }
 
   //  updatePaste();
 
-  if (doc_options.getViewStateEncoding())
-    id_viewstateenc->setChecked(true);
-  else
-    id_viewstateenc->setChecked(false);
+  // if (doc_options.getViewStateEncoding())
+  // id_viewstateenc->setChecked(true);
+  // else
+  // id_viewstateenc->setChecked(false);
 
-  if (doc_options.getViewMoore())
-    id_viewmoore->setChecked(true);
-  else
-    id_viewmoore->setChecked(false);
+  // if (doc_options.getViewMoore())
+  //   id_viewmoore->setChecked(true);
+  // else
+  //   id_viewmoore->setChecked(false);
 
-  if (doc_options.getViewMealyIn())
-    id_viewmealyin->setChecked(true);
-  else
-    id_viewmealyin->setChecked(false);
+  // if (doc_options.getViewMealyIn())
+  //   id_viewmealyin->setChecked(true);
+  // else
+  //   id_viewmealyin->setChecked(false);
 
-  if (doc_options.getViewMealyOut())
-    id_viewmealyout->setChecked(true);
-  else
-    id_viewmealyout->setChecked(false);
+  // if (doc_options.getViewMealyOut())
+  //   id_viewmealyout->setChecked(true);
+  // else
+  //   id_viewmealyout->setChecked(false);
 
-  if (doc_options.getViewGrid())
-    id_viewgrid->setChecked(true);
-  else
-    id_viewgrid->setChecked(false);
+  // if (doc_options.getViewGrid())
+  //   id_viewgrid->setChecked(true);
+  // else
+  //   id_viewgrid->setChecked(false);
 
-  if (doc_options.getViewIOView())
-    id_ioview->setChecked(true);
-  else
-    id_ioview->setChecked(false);
+  // if (doc_options.getViewIOView())
+  //   id_ioview->setChecked(true);
+  // else
+  //   id_ioview->setChecked(false);
 
-  if (doc_options.getStateShadows())
-    id_viewshadows->setChecked(true);
-  else
-    id_viewshadows->setChecked(false);
+  // if (doc_options.getStateShadows())
+  //   id_viewshadows->setChecked(true);
+  // else
+  //   id_viewshadows->setChecked(false);
 
   if (m_project && !m_project->undoBuffer()->isEmpty()) {
-    id_undo->setEnabled(true);
-    id_csundo->setEnabled(true);
-    id_ctundo->setEnabled(true);
-    tbundo->setEnabled(true);
+    // id_undo->setEnabled(true);
+    // id_csundo->setEnabled(true);
+    // id_ctundo->setEnabled(true);
+    // tbundo->setEnabled(true);
   } else {
-    id_undo->setEnabled(false);
-    id_csundo->setEnabled(false);
-    id_ctundo->setEnabled(false);
-    tbundo->setEnabled(false);
+    // id_undo->setEnabled(false);
+    // id_csundo->setEnabled(false);
+    // id_ctundo->setEnabled(false);
+    // tbundo->setEnabled(false);
   }
 
-  if (doc_status.getMode() == DocStatus::Simulating) {
-    id_undo->setEnabled(false);
-    id_csundo->setEnabled(false);
-    id_ctundo->setEnabled(false);
-    id_select->setEnabled(false);
-    id_pan->setEnabled(false);
-    id_cut->setEnabled(false);
-    id_copy->setEnabled(false);
-    id_paste->setEnabled(false);
-    id_delete->setEnabled(false);
-    id_cscut->setEnabled(false);
-    id_cscopy->setEnabled(false);
-    id_csdelete->setEnabled(false);
-    id_ctcut->setEnabled(false);
-    id_ctcopy->setEnabled(false);
-    id_ctdelete->setEnabled(false);
-    id_selectall->setEnabled(false);
-    id_deselectall->setEnabled(false);
-    id_zoom->setEnabled(false);
-    id_machineedit->setEnabled(false);
-    id_editstate->setEnabled(false);
-    id_setinitial->setEnabled(false);
-    id_ceditstate->setEnabled(false);
-    id_csetinitial->setEnabled(false);
-    id_setend->setEnabled(false);
-    id_newstate->setEnabled(false);
-    id_newtrans->setEnabled(false);
-    id_edittrans->setEnabled(false);
-    id_trans_straight->setEnabled(false);
-    id_cedittrans->setEnabled(false);
-    id_ctrans_straight->setEnabled(false);
-    tbselect->setEnabled(false);
-    tbpan->setEnabled(false);
-    tbzoom->setEnabled(false);
-    tbundo->setEnabled(false);
-    tbcut->setEnabled(false);
-    tbcopy->setEnabled(false);
-    tbstatenew->setEnabled(false);
-    tbtransnew->setEnabled(false);
-    tbtransstraighten->setEnabled(false);
+  if (m_mode == DocumentMode::Simulating) {
+    // id_undo->setEnabled(false);
+    // id_csundo->setEnabled(false);
+    // id_ctundo->setEnabled(false);
+    // id_cut->setEnabled(false);
+    // id_copy->setEnabled(false);
+    // id_paste->setEnabled(false);
+    // id_delete->setEnabled(false);
+    // id_cscut->setEnabled(false);
+    // id_cscopy->setEnabled(false);
+    // id_csdelete->setEnabled(false);
+    // id_ctcut->setEnabled(false);
+    // id_ctcopy->setEnabled(false);
+    // id_ctdelete->setEnabled(false);
+
+    // id_select->setEnabled(false);
+    // id_pan->setEnabled(false);
+    // id_newstate->setEnabled(false);
+    // id_newtrans->setEnabled(false);
+    // id_zoom->setEnabled(false);
+
+    // id_selectall->setEnabled(false);
+    // id_deselectall->setEnabled(false);
+    // id_machineedit->setEnabled(false);
+    // id_editstate->setEnabled(false);
+    // id_setinitial->setEnabled(false);
+    // id_ceditstate->setEnabled(false);
+    // id_csetinitial->setEnabled(false);
+    // id_setend->setEnabled(false);
+    // id_edittrans->setEnabled(false);
+    // id_trans_straight->setEnabled(false);
+    // id_cedittrans->setEnabled(false);
+    // id_ctrans_straight->setEnabled(false);
+
+    // tbselect->setEnabled(false);
+    // tbpan->setEnabled(false);
+    // tbzoom->setEnabled(false);
+    // tbundo->setEnabled(false);
+    // tbcut->setEnabled(false);
+    // tbcopy->setEnabled(false);
+    // tbstatenew->setEnabled(false);
+    // tbtransnew->setEnabled(false);
+    // tbtransstraighten->setEnabled(false);
   }
 }
 
 /// Updates the paste tool button and menu item
 void MainWindow::updatePaste()
 {
-  if (m_project && qApp->clipboard()->mimeData()->hasFormat("text/qfsm-objects")) {
-    id_paste->setEnabled(true);
-    tbpaste->setEnabled(true);
-  } else {
-    id_paste->setEnabled(false);
-    tbpaste->setEnabled(false);
-  }
+  // if (m_project && qApp->clipboard()->mimeData()->hasFormat("text/qfsm-objects")) {
+  //   id_paste->setEnabled(true);
+  //   tbpaste->setEnabled(true);
+  // } else {
+  //   id_paste->setEnabled(false);
+  //   tbpaste->setEnabled(false);
+  // }
 }
 
 /// Updates the title bar.
@@ -1197,19 +1027,19 @@ void MainWindow::updateTitleBar()
 /// Updates the status bar
 void MainWindow::updateStatusBar()
 {
-  int selected;
-  int scale;
+  // int selected;
+  // int scale;
 
-  if (m_project) {
-    selected = m_mainView->getDrawArea()->getSelection()->count();
-    scale = int(m_mainView->getDrawArea()->getScale() * 100 + 0.5);
-  } else {
-    selected = -1;
-    scale = -1;
-  }
+  // if (m_project) {
+  //   selected = m_mainView->getDrawArea()->getSelection()->count();
+  //   scale = int(m_mainView->getDrawArea()->getScale() * 100 + 0.5);
+  // } else {
+  //   selected = -1;
+  //   scale = -1;
+  // }
 
-  statusbar->setSelected(selected);
-  emit updateStatusZoom(scale);
+  // m_statusBar->setSelected(selected);
+  // emit updateStatusZoom(scale);
 }
 
 /// Updates menu, title bar and status bar
@@ -1274,31 +1104,31 @@ void MainWindow::refreshMRU()
 /// Shows the context menu for a state
 void MainWindow::showContextState()
 {
-  cmenu_state->popup(QCursor::pos());
+  // cmenu_state->popup(QCursor::pos());
 }
 
 /// Shows the context menu for a transition
 void MainWindow::showContextTrans()
 {
-  cmenu_trans->popup(QCursor::pos());
+  // cmenu_trans->popup(QCursor::pos());
 }
 
 /// Shows the context menu for the scrollview
 void MainWindow::showContext()
 {
-  cmenu_sview->popup(QCursor::pos());
+  // cmenu_sview->popup(QCursor::pos());
 }
 
 /// Sends a message @a s to the status bar
 void MainWindow::sbMessage(QString s)
 {
-  statusbar->showMessage(s);
+  m_statusBar->showMessage(s);
 }
 
 /// Sends a message @a s for time @a t to the status bar
 void MainWindow::sbMessage(QString s, int t)
 {
-  statusbar->showMessage(s, t);
+  m_statusBar->showMessage(s, t);
 }
 
 /// Creates a new file
@@ -1307,7 +1137,7 @@ void MainWindow::fileNew()
   int result;
   bool sim = false;
 
-  if (doc_status.getMode() == DocStatus::Simulating)
+  if (m_mode == DocumentMode::Simulating)
     sim = true;
 
   if (m_project && m_project->hasChanged()) {
@@ -1337,12 +1167,12 @@ void MainWindow::fileNew()
     m_project = p;
     fileio->setActFilePath(QString{});
 
-    statusbar->showMessage(m_project->machine()->getName() + " " + tr("created."), 2000);
+    m_statusBar->showMessage(m_project->machine()->getName() + " " + tr("created."), 2000);
   } else {
     return;
   }
 
-  setMode(DocStatus::Select);
+  setMode(DocumentMode::Select);
   m_mainView->getDrawArea()->reset();
   m_mainView->widget()->repaint();
 
@@ -1368,24 +1198,40 @@ void MainWindow::fileOpen()
     }
   }
 
+  m_view->scene()->clear();
+
   p = fileio->openFileXML();
   if (p) {
     if (m_project) {
       delete m_project;
       m_project = NULL;
     }
-    statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
+    m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
     m_project = p;
     p->undoBuffer()->clear();
+
+    for (GState* state : m_project->machine()->getSList()) {
+      qfsm::gui::StateItem* stateItem = new qfsm::gui::StateItem{ state };
+      m_view->scene()->addItem(stateItem);
+      // stateItem->update();
+      for (GTransition* transition : state->tlist) {
+        qfsm::gui::TransitionItem* transitionItem = new qfsm::gui::TransitionItem{ transition };
+        m_view->scene()->addItem(transitionItem);
+        // stateItem->update();
+      }
+    }
+
+    // m_graphicsScene->update();
+    // m_graphicsView->show();
 
     updateAll();
     m_mainView->updateBackground();
     m_mainView->getDrawArea()->resetState();
     // m_mainView->getDrawArea()->updateCanvasSize();
     m_mainView->updateSize();
-    if (doc_status.getMode() == DocStatus::Simulating) {
+    if (m_mode == DocumentMode::Simulating) {
       if (!simulator->startSimulation(m_project->machine()))
-        setMode(DocStatus::Select);
+        setMode(DocumentMode::Select);
     } else
       m_mainView->widget()->repaint();
 
@@ -1393,11 +1239,11 @@ void MainWindow::fileOpen()
     m_control->addMRUEntry(fileio->getActFilePath());
     fileio->saveMRU(m_control->getMRUList());
 
-    //      statusbar->showMessage(tr("File %1 opened").arg(fileio->getActFile()),
+    //      m_statusBar->showMessage(tr("File %1 opened").arg(fileio->getActFile()),
     //      3000);
   } else if (!fileio->getActFilePath().isNull()) {
     Error::info(tr("File %1 could not be opened").arg(fileio->getActFilePath()));
-    statusbar->clearMessage();
+    m_statusBar->clearMessage();
   }
   /*
   setCursor(oldcursor1);
@@ -1438,7 +1284,7 @@ void MainWindow::fileOpenRecent(QString fileName)
       delete m_project;
       m_project = NULL;
     }
-    statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
+    m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
     m_project = p;
     p->undoBuffer()->clear();
 
@@ -1447,9 +1293,9 @@ void MainWindow::fileOpenRecent(QString fileName)
     m_mainView->getDrawArea()->resetState();
     // m_mainView->getDrawArea()->updateCanvasSize();
     m_mainView->updateSize();
-    if (doc_status.getMode() == DocStatus::Simulating) {
+    if (m_mode == DocumentMode::Simulating) {
       if (!simulator->startSimulation(m_project->machine()))
-        setMode(DocStatus::Select);
+        setMode(DocumentMode::Select);
     } else
       m_mainView->widget()->repaint();
 
@@ -1458,7 +1304,7 @@ void MainWindow::fileOpenRecent(QString fileName)
     fileio->saveMRU(m_control->getMRUList());
   } else {
     Error::info(tr("File %1 could not be opened").arg(fileName));
-    statusbar->clearMessage();
+    m_statusBar->clearMessage();
     m_control->removeMRUEntry(fileName);
     fileio->saveMRU(m_control->getMRUList());
   }
@@ -1562,7 +1408,7 @@ bool MainWindow::fileSave()
     result = fileio->saveFile(m_project);
 
     if (result) {
-      statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
       m_project->undoBuffer()->clear();
       if (saveas) {
         m_control->addMRUEntry(fileio->getActFilePath());
@@ -1594,7 +1440,7 @@ bool MainWindow::fileSaveAs()
     result = fileio->saveFileAs(m_project);
 
     if (result) {
-      statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
       m_project->undoBuffer()->clear();
       m_control->addMRUEntry(fileio->getActFilePath());
       fileio->saveMRU(m_control->getMRUList());
@@ -1639,7 +1485,7 @@ void MainWindow::fileImportGraphviz()
       delete m_project;
       m_project = NULL;
     }
-    statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("imported."), 2000);
+    m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("imported."), 2000);
     m_project = p;
     p->undoBuffer()->clear();
 
@@ -1647,9 +1493,9 @@ void MainWindow::fileImportGraphviz()
     m_mainView->updateBackground();
     m_mainView->getDrawArea()->resetState();
     // m_mainView->getDrawArea()->updateCanvasSize();
-    if (doc_status.getMode() == DocStatus::Simulating) {
+    if (m_mode == DocumentMode::Simulating) {
       if (!simulator->startSimulation(m_project->machine()))
-        setMode(DocStatus::Select);
+        setMode(DocumentMode::Select);
     } else {
       // m_mainView->widget()->repaint();
       // m_mainView->getDrawArea()->zoomReset();
@@ -1657,7 +1503,7 @@ void MainWindow::fileImportGraphviz()
     }
   } else if (!fileio->getActImportFilePath().isNull()) {
     Error::info(tr("File %1 could not be opened").arg(fileio->getActFileName()));
-    statusbar->clearMessage();
+    m_statusBar->clearMessage();
   }
 }
 
@@ -1674,7 +1520,7 @@ bool MainWindow::fileExportEPS()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -1696,7 +1542,7 @@ bool MainWindow::fileExportSVG()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -1717,7 +1563,7 @@ bool MainWindow::fileExportPNG()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -1746,7 +1592,7 @@ bool MainWindow::fileExportAHDL()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -1785,7 +1631,7 @@ bool MainWindow::fileExportVHDL()
 
       Error::warningOk(errorMessage);
 
-      statusbar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
+      m_statusBar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
       delete exp;
       return false;
     }
@@ -1843,7 +1689,7 @@ bool MainWindow::fileExportVHDL()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -1862,7 +1708,7 @@ bool MainWindow::fileExportIODescription()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2036,7 +1882,7 @@ bool MainWindow::fileExportTestbench()
       errorMessage += invalidNames.join("\n");
       Error::warningOk(errorMessage);
 
-      statusbar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
+      m_statusBar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
       delete testvector_out;
       delete testbench_out;
       delete package_out;
@@ -2061,7 +1907,7 @@ bool MainWindow::fileExportTestbench()
     delete package_out;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2090,7 +1936,7 @@ bool MainWindow::fileExportVerilog()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2110,7 +1956,7 @@ bool MainWindow::fileExportKISS()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2129,7 +1975,7 @@ bool MainWindow::fileExportVVVV()
     vvvv_export->show();
     /*
     if (result)
-      statusbar->showMessage(tr("File")+" "+ fileio->getActExportFileName() + " " +
+      m_statusBar->showMessage(tr("File")+" "+ fileio->getActExportFileName() + " " +
           tr("exported."), 2000);
 
           */
@@ -2151,7 +1997,7 @@ bool MainWindow::fileExportSCXML()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2201,7 +2047,7 @@ bool MainWindow::fileExportSTASCII()
     delete tb;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     setCursor(oldcursor1);
     m_mainView->viewport()->setCursor(oldcursor2);
@@ -2239,7 +2085,7 @@ bool MainWindow::fileExportSTLatex()
     delete tb;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     setCursor(oldcursor1);
     m_mainView->viewport()->setCursor(oldcursor2);
@@ -2277,7 +2123,7 @@ bool MainWindow::fileExportSTHTML()
     delete tb;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     setCursor(oldcursor1);
     m_mainView->viewport()->setCursor(oldcursor2);
@@ -2327,7 +2173,7 @@ bool MainWindow::fileExportRagel()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2347,7 +2193,7 @@ bool MainWindow::fileExportSMC()
     delete exp;
 
     if (result)
-      statusbar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+      m_statusBar->showMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
 
     updateAll();
     return result;
@@ -2401,10 +2247,10 @@ bool MainWindow::fileClose()
     m_mainView->getDrawArea()->getSelection()->clear();
     m_mainView->getDrawArea()->repaint();
 
-    setMode(DocStatus::Select);
+    setMode(DocumentMode::Select);
     simulator->closeDlg();
 
-    statusbar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("closed."), 2000);
+    m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("closed."), 2000);
 
     updateAll();
 
@@ -2435,7 +2281,7 @@ void MainWindow::editCut()
   editDelete();
   m_isCutOperation = false;
 
-  statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(cutOperationText), 2000);
+  m_statusBar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(cutOperationText), 2000);
 
   updatePaste();
 }
@@ -2462,7 +2308,7 @@ void MainWindow::editCopy()
     const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
     const QString copyOperationText = (selectionCount == 1) ? tr("object copied.") : tr("objects copied.");
 
-    statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(copyOperationText), 2000);
+    m_statusBar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(copyOperationText), 2000);
     updatePaste();
   }
 }
@@ -2499,7 +2345,7 @@ void MainWindow::editPaste()
   const int selectionCount = selection->count();
   const QString pastedText = (selectionCount == 1) ? tr("object pasted.") : tr("objects pasted.");
 
-  statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(pastedText), 2000);
+  m_statusBar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(pastedText), 2000);
   m_mainView->widget()->repaint();
   updateAll();
 }
@@ -2517,7 +2363,7 @@ void MainWindow::editDelete()
 
   if (!m_isCutOperation) {
     const QString deleteOperationText = (selectionCount == 1) ? tr("object deleted.") : tr("objects deleted.");
-    statusbar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(deleteOperationText), 2000);
+    m_statusBar->showMessage(QString{ "%1 %2" }.arg(selectionCount).arg(deleteOperationText), 2000);
   }
 
   m_project->setChanged();
@@ -2528,25 +2374,27 @@ void MainWindow::editDelete()
 /// Set select mode.
 void MainWindow::editSelect()
 {
-  setMode(DocStatus::Select);
+  setMode(DocumentMode::Select);
 }
 
 /// Called when 'Edit->Select all' is clicked
 void MainWindow::editSelectAll()
 {
-  DRect bound;
-  if (m_mainView->getDrawArea()->getSelection()->selectAll(m_project->machine(), bound))
-    emit allSelected();
-  m_mainView->getDrawArea()->setSelectionRect(bound);
-  updateAll();
+  m_view->scene()->selectAll();
+  // DRect bound;
+  // if (m_mainView->getDrawArea()->getSelection()->selectAll(m_project->machine(), bound))
+  //   emit allSelected();
+  // m_mainView->getDrawArea()->setSelectionRect(bound);
+  // updateAll();
 }
 
 /// Called when 'Edit->Deselect all' is clicked
 void MainWindow::editDeselectAll()
 {
-  m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
-  m_mainView->widget()->repaint();
-  updateAll();
+  m_view->scene()->clearSelection();
+  // m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
+  // m_mainView->widget()->repaint();
+  // updateAll();
 }
 
 /// Edit options.
@@ -2605,56 +2453,65 @@ bool MainWindow::runDragOperation(bool a_forceCopy)
 /// Toggle view state encoding
 void MainWindow::viewStateEncoding()
 {
-  doc_options.setViewStateEncoding(!doc_options.getViewStateEncoding());
-  updateAll();
-  m_mainView->widget()->repaint();
+  m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::stateEncoding);
+
+  // doc_options.setViewStateEncoding(!doc_options.getViewStateEncoding());
+  // updateAll();
+  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view moore outputs.
 void MainWindow::viewMooreOutputs()
 {
-  doc_options.setViewMoore(!doc_options.getViewMoore());
-  updateAll();
-  m_mainView->widget()->repaint();
+  m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::mooreOutputs);
+
+  // doc_options.setViewMoore(!doc_options.getViewMoore());
+  // updateAll();
+  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view mealy outputs.
 void MainWindow::viewMealyOutputs()
 {
-  doc_options.setViewMealyOut(!doc_options.getViewMealyOut());
-  updateAll();
-  m_mainView->widget()->repaint();
+  m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::mealyOutputs);
+  // doc_options.setViewMealyOut(!doc_options.getViewMealyOut());
+  // updateAll();
+  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view mealy inputs.
 void MainWindow::viewMealyInputs()
 {
-  doc_options.setViewMealyIn(!doc_options.getViewMealyIn());
-  updateAll();
-  m_mainView->widget()->repaint();
+  m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::mealyInputs);
+  // doc_options.setViewMealyIn(!doc_options.getViewMealyIn());
+  // updateAll();
+  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view grid.
 void MainWindow::viewGrid()
 {
-  QString str;
-  doc_options.setViewGrid(!doc_options.getViewGrid());
-  if (doc_options.getViewGrid())
-    str = tr("on");
-  else
-    str = tr("off");
-  statusbar->showMessage(tr("Grid is %1.").arg(str), 2000);
+  // QString str;
+  // doc_options.setViewGrid(!doc_options.getViewGrid());
+  // if (doc_options.getViewGrid())
+  //   str = tr("on");
+  // else
+  //   str = tr("off");
 
-  updateAll();
-  m_mainView->widget()->repaint();
+  const bool value = m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::grid);
+  m_statusBar->showMessage(tr("Grid is %1").arg(value ? "on" : "off"), 2000);
+
+  // updateAll();
+  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view shadows.
 void MainWindow::viewShadows()
 {
-  doc_options.setStateShadows(!doc_options.getStateShadows());
-  updateAll();
-  m_mainView->widget()->repaint();
+  m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::shadows);
+  // doc_options.setStateShadows(!doc_options.getStateShadows());
+  // updateAll();
+  // m_mainView->widget()->repaint();
 }
 
 /// Set panning mode
@@ -2663,15 +2520,15 @@ void MainWindow::viewPan()
   //  QDragEnterEvent*ev=new QDragEnterEvent(QPoint(0,0),Qt::CopyAction,new
   //  QMimeData(),Qt::LeftButton,Qt::NoModifier); QPaintEvent*ev=new
   //  QPaintEvent(QRect(0,0,100,100)); QApplication::postEvent(m_mainView,ev);
-  m_mainView->widget()->repaint();
+  // m_mainView->widget()->repaint();
 
-  setMode(DocStatus::Pan);
+  setMode(DocumentMode::Pan);
 }
 
 /// Set zooming mode
 void MainWindow::viewZoom()
 {
-  setMode(DocStatus::Zooming);
+  setMode(DocumentMode::Zooming);
 }
 
 /// Zoom in the view.
@@ -2707,29 +2564,43 @@ void MainWindow::viewZoom100()
 /// Toggle IO view
 void MainWindow::viewIOView()
 {
-  doc_options.setViewIOView(!doc_options.getViewIOView());
-
-  if (doc_options.getViewIOView() && m_project)
+  const bool value = m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::ioView);
+  if (value && m_project) {
     view_io->show();
-  else
+  } else {
     view_io->hide();
+  }
+  // doc_options.setViewIOView(!doc_options.getViewIOView());
 
-  updateMenuBar();
+  // if (doc_options.getViewIOView() && m_project)
+  //   view_io->show();
+  // else
+  //   view_io->hide();
+
+  // updateMenuBar();
 }
 
 /// Update IOView text
-void MainWindow::updateIOView(Machine* m)
+void MainWindow::updateIOView(Machine* a_machine)
 {
-  if (m != NULL) {
-    view_io->updateIOList(m);
-
-    if (doc_options.getViewIOView())
+  if (a_machine) {
+    view_io->updateIOList(a_machine);
+    if (m_optionsManager->value<bool>(qfsm::option::Group::View, qfsm::option::ioView)) {
       view_io->show();
-    else
+    } else {
       view_io->hide();
-
-    updateMenuBar();
+    }
   }
+  // if (m != NULL) {
+  //   view_io->updateIOList(m);
+
+  //   if (doc_options.getViewIOView())
+  //     view_io->show();
+  //   else
+  //     view_io->hide();
+
+  //   updateMenuBar();
+  // }
 }
 
 /// Edit the current machine.
@@ -2755,14 +2626,14 @@ void MainWindow::machineCorrectCodes()
 /// Simulate the current machine.
 void MainWindow::machineSimulate()
 {
-  if (getMode() != DocStatus::Simulating) {
+  if (m_mode != DocumentMode::Simulating) {
     if (simulator->startSimulation(m_project->machine())) {
-      setMode(DocStatus::Simulating);
+      setMode(DocumentMode::Simulating);
       m_mainView->widget()->repaint();
     }
   } else {
     simulator->stopSimulation();
-    setMode(DocStatus::Select);
+    setMode(DocumentMode::Select);
   }
   updateAll();
 }
@@ -2777,9 +2648,9 @@ void MainWindow::machineICheck()
     setCursor(Qt::WaitCursor);
     m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
-    statusbar->showMessage(tr("Checking machine..."));
+    m_statusBar->showMessage(tr("Checking machine..."));
     m_project->machine()->checkIntegrity(ichecker);
-    statusbar->showMessage(tr("Check finished."), 2000);
+    m_statusBar->showMessage(tr("Check finished."), 2000);
 
     setCursor(oldCursorWindow);
     m_mainView->viewport()->setCursor(oldCursorViewport);
@@ -2789,7 +2660,7 @@ void MainWindow::machineICheck()
 /// Add new state to current machine.
 void MainWindow::stateNew()
 {
-  setMode(DocStatus::NewState);
+  setMode(DocumentMode::NewState);
 }
 
 /// Edit selected state.
@@ -2844,7 +2715,7 @@ void MainWindow::stateSetFinal()
 /// Add new transition.
 void MainWindow::transNew()
 {
-  setMode(DocStatus::NewTransition);
+  setMode(DocumentMode::NewTransition);
 }
 
 /// Edit selected transition.

@@ -39,6 +39,8 @@ StatusBar::StatusBar(QWidget* parent, const char* name)
   addWidget(zoom, 1);
   addWidget(selected, 1);
   addWidget(position, 1);
+
+  setSelected(0);
 }
 
 /// Destructor
@@ -55,10 +57,10 @@ void StatusBar::setSelected(int sel)
 /// Sets the cursor position to @a x, @a y
 void StatusBar::setPosition(double x, double y)
 {
-  QString s;
-  if (x >= 0 && y >= 0)
-    s = QString::asprintf("X: %6.1f  Y: %6.1f", x, y);
-  position->setText(s);
+  if (x >= 0 && y >= 0) {
+    QString s = QString::asprintf("X: %6.1f  Y: %6.1f", x, y);
+    position->setText(s);
+  }
 }
 
 /// Sets the current zoom factor (in percent)
