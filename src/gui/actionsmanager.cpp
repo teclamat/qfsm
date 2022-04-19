@@ -3,6 +3,7 @@
 #include "MainControl.h"
 #include "MainWindow.h"
 #include "UndoBuffer.h"
+#include "literals.hpp"
 #include "optionsmanager.hpp"
 
 #include <QAction>
@@ -10,6 +11,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMainWindow>
+#include <QMenu>
 #include <QMimeData>
 
 namespace qfsm::gui {
@@ -20,7 +22,172 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   , m_modeGroup{ new QActionGroup{ this } }
 {
   setupIcons();
+  setupActions();
+  setupMenus();
+  setupNames();
+}
 
+QAction* ActionsManager::action(Group a_group, Action a_action)
+{
+  return m_actions.value(a_group).value(a_action);
+}
+
+QMenu* ActionsManager::menu(Group a_group)
+{
+  return m_menus.value(a_group);
+}
+
+void ActionsManager::setEnabled(Group a_group, bool a_enabled)
+{
+  ActionGroup& group = m_actions[a_group];
+  for (auto actionIt = group.begin(); actionIt != group.end(); ++actionIt) {
+    actionIt.value()->setEnabled(a_enabled);
+  }
+}
+
+void ActionsManager::setEnabled(Group a_group, Action a_action, bool a_enabled)
+{
+  QAction* actionPtr = action(a_group, a_action);
+  if (actionPtr) {
+    actionPtr->setEnabled(a_enabled);
+  }
+}
+
+void ActionsManager::setEnabled(Group a_group, QList<Action> a_actions, bool a_enabled)
+{
+  ActionGroup& group = m_actions[a_group];
+  for (Action action : a_actions) {
+    QAction* actionPtr = group.value(action);
+    if (actionPtr) {
+      actionPtr->setEnabled(a_enabled);
+    }
+  }
+}
+
+void ActionsManager::update()
+{
+  const QClipboard* clipboard = qApp->clipboard();
+  const bool hasProject = m_window->project() && m_window->project()->isValid();
+  const bool hasUndoActions = hasProject && !m_window->project()->undoBuffer()->isEmpty();
+  const bool hasClipboardData = clipboard->mimeData() && clipboard->mimeData()->hasFormat(u"text/qfsm-objects"_qs);
+  const int selectedStatesCount = m_window->view()->selectedStates();
+  const int selectedTransitionsCount = m_window->view()->selectedTransitions();
+  const int selectedItemsCount = selectedStatesCount + selectedTransitionsCount;
+
+  setEnabled(Group::Transition, Action::Straight, selectedTransitionsCount > 0);
+  setEnabled(Group::Transition, Action::Edit, selectedTransitionsCount == 1);
+  setEnabled(Group::State, Action::Final, selectedStatesCount > 0);
+  setEnabled(Group::State, { Action::Initial, Action::Edit }, selectedStatesCount == 1);
+  setEnabled(Group::Edit, { Action::Cut, Action::Copy, Action::Delete }, selectedItemsCount > 0);
+  setEnabled(Group::Edit, Action::Paste, hasProject && hasClipboardData);
+  setEnabled(Group::Edit, Action::Undo, hasUndoActions);
+}
+
+void ActionsManager::setupNames()
+{
+  m_actions[Group::File][Action::New]->setText(tr("New..."));
+  m_actions[Group::File][Action::New]->setToolTip(tr("Creates a new file"));
+  m_actions[Group::File][Action::Open]->setText(tr("Open..."));
+  m_actions[Group::File][Action::Open]->setToolTip(tr("Opens a file"));
+  m_actions[Group::File][Action::Save]->setText(tr("Save"));
+  m_actions[Group::File][Action::Save]->setToolTip(tr("Saves this file"));
+  m_actions[Group::File][Action::SaveAs]->setText(tr("Save As..."));
+  m_actions[Group::File][Action::Print]->setText(tr("Print..."));
+  m_actions[Group::File][Action::Print]->setToolTip(tr("Prints this file"));
+  m_actions[Group::File][Action::NewWindow]->setText(tr("New Window"));
+  m_actions[Group::File][Action::Close]->setText(tr("Close"));
+  m_actions[Group::File][Action::Quit]->setText(tr("Quit"));
+
+  m_actions[Group::Edit][Action::Undo]->setText(tr("Undo"));
+  m_actions[Group::Edit][Action::Undo]->setToolTip(tr("Undo last action"));
+  m_actions[Group::Edit][Action::Cut]->setText(tr("Cut"));
+  m_actions[Group::Edit][Action::Cut]->setToolTip(tr("Cuts Selection"));
+  m_actions[Group::Edit][Action::Copy]->setText(tr("Copy"));
+  m_actions[Group::Edit][Action::Copy]->setToolTip(tr("Copies Selection"));
+  m_actions[Group::Edit][Action::Paste]->setText(tr("Paste"));
+  m_actions[Group::Edit][Action::Paste]->setToolTip(tr("Pastes the clipboard"));
+  m_actions[Group::Edit][Action::Delete]->setText(tr("Delete"));
+  m_actions[Group::Edit][Action::SelectAll]->setText(tr("Select All"));
+  m_actions[Group::Edit][Action::ClearSelect]->setText(tr("Clear selection"));
+  m_actions[Group::Edit][Action::Options]->setText(tr("Options"));
+
+  m_actions[Group::View][Action::Codes]->setText(tr("State Codes"));
+  m_actions[Group::View][Action::MooreOut]->setText(tr("Moore Outputs"));
+  m_actions[Group::View][Action::MealyIn]->setText(tr("Mealy Inputs"));
+  m_actions[Group::View][Action::MealyOut]->setText(tr("Mealy Outputs"));
+  m_actions[Group::View][Action::Shadows]->setText(tr("Shadows"));
+  m_actions[Group::View][Action::Grid]->setText(tr("Grid"));
+  m_actions[Group::View][Action::IoView]->setText(tr("IO View"));
+  m_actions[Group::View][Action::Select]->setText(tr("Select"));
+  m_actions[Group::View][Action::Select]->setToolTip(tr("Select objects"));
+  m_actions[Group::View][Action::Pan]->setText(tr("Pan view"));
+  m_actions[Group::View][Action::ZoomIn]->setText(tr("Zoom In"));
+  m_actions[Group::View][Action::ZoomIn]->setToolTip(tr("Zooms into the view"));
+  m_actions[Group::View][Action::ZoomOut]->setText(tr("Zoom Out"));
+  m_actions[Group::View][Action::ZoomOut]->setToolTip(tr("Zoom out of the view"));
+  m_actions[Group::View][Action::Zoom100]->setText(tr("Zoom 100%"));
+
+  m_actions[Group::Machine][Action::Simulate]->setText(tr("Simulate..."));
+  m_actions[Group::Machine][Action::Simulate]->setToolTip(tr("Simulates this machine"));
+  m_actions[Group::Machine][Action::Check]->setText(tr("Integrity Check"));
+  m_actions[Group::Machine][Action::Correct]->setText(tr("Auto correct State Codes..."));
+  m_actions[Group::Machine][Action::Edit]->setText(tr("Edit..."));
+
+  m_actions[Group::State][Action::Add]->setText(tr("New"));
+  m_actions[Group::State][Action::Add]->setToolTip(tr("Add new states"));
+  m_actions[Group::State][Action::Initial]->setText(tr("Set Initial State"));
+  m_actions[Group::State][Action::Final]->setText(tr("Toggle Final State"));
+  m_actions[Group::State][Action::Edit]->setText(tr("Edit..."));
+
+  m_actions[Group::Transition][Action::Add]->setText(tr("New"));
+  m_actions[Group::Transition][Action::Add]->setToolTip(tr("Add new transitions"));
+  m_actions[Group::Transition][Action::Straight]->setText(tr("Straighten"));
+  m_actions[Group::Transition][Action::Straight]->setToolTip(tr("Straightens selected transitions"));
+  m_actions[Group::Transition][Action::Edit]->setText(tr("Edit..."));
+
+  m_actions[Group::Help][Action::Manual]->setText(tr("Qfsm Manual..."));
+  m_actions[Group::Help][Action::About]->setText(tr("About..."));
+  m_actions[Group::Help][Action::AboutQt]->setText(tr("About Qt..."));
+
+  m_menus[Group::Recent]->setTitle(tr("Open Recent"));
+  m_menus[Group::Import]->setTitle(tr("Import"));
+  m_menus[Group::Export]->setTitle(tr("Export"));
+  m_menus[Group::File]->setTitle(tr("File"));
+  m_menus[Group::Edit]->setTitle(tr("Edit"));
+  m_menus[Group::View]->setTitle(tr("View"));
+  m_menus[Group::Machine]->setTitle(tr("Machine"));
+  m_menus[Group::State]->setTitle(tr("State"));
+  m_menus[Group::Transition]->setTitle(tr("Transition"));
+  m_menus[Group::Help]->setTitle(tr("Help"));
+}
+
+void ActionsManager::setupIcons()
+{
+  addIcon(u"addstate"_qs);
+  addIcon(u"addtransition"_qs);
+  addIcon(u"copy"_qs);
+  addIcon(u"cut"_qs);
+  addIcon(u"delete"_qs);
+  addIcon(u"newdoc"_qs);
+  addIcon(u"newwindow"_qs);
+  addIcon(u"open"_qs);
+  addIcon(u"options"_qs);
+  addIcon(u"panning"_qs);
+  addIcon(u"paste"_qs);
+  addIcon(u"print"_qs);
+  addIcon(u"run"_qs);
+  addIcon(u"save"_qs);
+  addIcon(u"saveas"_qs);
+  addIcon(u"select"_qs);
+  addIcon(u"straighten"_qs);
+  addIcon(u"undo"_qs);
+  addIcon(u"zoom100"_qs);
+  addIcon(u"zoomin"_qs);
+  addIcon(u"zoomout"_qs);
+}
+
+void ActionsManager::setupActions()
+{
   OptionsManager* options = m_window->options();
 
   QAction* action{};
@@ -28,32 +195,32 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   // File
 
   action = m_actions[Group::File][Action::New] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("newdoc")]);
+  action->setIcon(m_icons[u"newdoc"_qs]);
   action->setShortcut(QKeySequence::New);
   connect(action, &QAction::triggered, m_window, &MainWindow::fileNew);
 
   action = m_actions[Group::File][Action::Open] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("open")]);
+  action->setIcon(m_icons[u"open"_qs]);
   action->setShortcut(QKeySequence::Open);
   connect(action, &QAction::triggered, m_window, &MainWindow::fileOpen);
 
   action = m_actions[Group::File][Action::Save] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("save")]);
+  action->setIcon(m_icons[u"save"_qs]);
   action->setShortcut(QKeySequence::Save);
   connect(action, &QAction::triggered, m_window, &MainWindow::fileSave);
 
   action = m_actions[Group::File][Action::SaveAs] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("saveas")]);
+  action->setIcon(m_icons[u"saveas"_qs]);
   action->setShortcut(QKeySequence::SaveAs);
   connect(action, &QAction::triggered, m_window, &MainWindow::fileSaveAs);
 
   action = m_actions[Group::File][Action::Print] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("print")]);
+  action->setIcon(m_icons[u"print"_qs]);
   action->setShortcut(QKeySequence::Print);
   connect(action, &QAction::triggered, m_window, &MainWindow::filePrint);
 
   action = m_actions[Group::File][Action::NewWindow] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("newwindow")]);
+  action->setIcon(m_icons[u"newwindow"_qs]);
   connect(action, &QAction::triggered, m_window->control(), qOverload<>(&MainControl::newWindow));
 
   action = m_actions[Group::File][Action::Close] = new QAction{ this };
@@ -67,27 +234,27 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   // Edit
 
   action = m_actions[Group::Edit][Action::Undo] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("undo")]);
+  action->setIcon(m_icons[u"undo"_qs]);
   action->setShortcut(QKeySequence::Undo);
   connect(action, &QAction::triggered, m_window, &MainWindow::editUndo);
 
   action = m_actions[Group::Edit][Action::Cut] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("cut")]);
+  action->setIcon(m_icons[u"cut"_qs]);
   action->setShortcut(QKeySequence::Cut);
   connect(action, &QAction::triggered, m_window, &MainWindow::editCut);
 
   action = m_actions[Group::Edit][Action::Copy] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("copy")]);
+  action->setIcon(m_icons[u"copy"_qs]);
   action->setShortcut(QKeySequence::Copy);
   connect(action, &QAction::triggered, m_window, &MainWindow::editCopy);
 
   action = m_actions[Group::Edit][Action::Paste] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("paste")]);
+  action->setIcon(m_icons[u"paste"_qs]);
   action->setShortcut(QKeySequence::Paste);
   connect(action, &QAction::triggered, m_window, &MainWindow::editPaste);
 
   action = m_actions[Group::Edit][Action::Delete] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("delete")]);
+  action->setIcon(m_icons[u"delete"_qs]);
   action->setShortcut(QKeySequence::Delete);
   connect(action, &QAction::triggered, m_window, &MainWindow::editDelete);
 
@@ -100,7 +267,7 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   connect(action, &QAction::triggered, m_window, &MainWindow::editDeselectAll);
 
   action = m_actions[Group::Edit][Action::Options] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("options")]);
+  action->setIcon(m_icons[u"options"_qs]);
   connect(action, &QAction::triggered, m_window, &MainWindow::editOptions);
 
   // View
@@ -145,29 +312,29 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   action->setCheckable(true);
   action->setChecked(true);
   action->setActionGroup(m_modeGroup);
-  action->setIcon(m_icons[QStringLiteral("select")]);
+  action->setIcon(m_icons[u"select"_qs]);
   action->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_S);
   connect(action, &QAction::triggered, m_window, &MainWindow::editSelect);
 
   action = m_actions[Group::View][Action::Pan] = new QAction{ this };
   action->setCheckable(true);
   action->setActionGroup(m_modeGroup);
-  action->setIcon(m_icons[QStringLiteral("panning")]);
+  action->setIcon(m_icons[u"panning"_qs]);
   action->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_P);
   connect(action, &QAction::triggered, m_window, &MainWindow::viewPan);
 
   action = m_actions[Group::View][Action::ZoomIn] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("zoomin")]);
+  action->setIcon(m_icons[u"zoomin"_qs]);
   action->setShortcut(QKeySequence::ZoomIn);
   connect(action, &QAction::triggered, m_window, &MainWindow::viewZoomIn);
 
   action = m_actions[Group::View][Action::ZoomOut] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("zoomout")]);
+  action->setIcon(m_icons[u"zoomout"_qs]);
   action->setShortcut(QKeySequence::ZoomOut);
   connect(action, &QAction::triggered, m_window, &MainWindow::viewZoomOut);
 
   action = m_actions[Group::View][Action::Zoom100] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("zoom100")]);
+  action->setIcon(m_icons[u"zoom100"_qs]);
   action->setShortcut(Qt::CTRL | Qt::Key_0);
   connect(action, &QAction::triggered, m_window, &MainWindow::viewZoom100);
 
@@ -176,7 +343,7 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   action = m_actions[Group::Machine][Action::Simulate] = new QAction{ this };
   action->setCheckable(true);
   action->setActionGroup(m_modeGroup);
-  action->setIcon(m_icons[QStringLiteral("run")]);
+  action->setIcon(m_icons[u"run"_qs]);
   action->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_I);
   connect(action, &QAction::triggered, m_window, &MainWindow::machineSimulate);
 
@@ -194,7 +361,7 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   action = m_actions[Group::State][Action::Add] = new QAction{ this };
   action->setCheckable(true);
   action->setActionGroup(m_modeGroup);
-  action->setIcon(m_icons[QStringLiteral("addstate")]);
+  action->setIcon(m_icons[u"addstate"_qs]);
   action->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_N);
   connect(action, &QAction::triggered, m_window, &MainWindow::stateNew);
 
@@ -213,12 +380,12 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   action = m_actions[Group::Transition][Action::Add] = new QAction{ this };
   action->setCheckable(true);
   action->setActionGroup(m_modeGroup);
-  action->setIcon(m_icons[QStringLiteral("addtransition")]);
+  action->setIcon(m_icons[u"addtransition"_qs]);
   action->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_T);
   connect(action, &QAction::triggered, m_window, &MainWindow::transNew);
 
   action = m_actions[Group::Transition][Action::Straight] = new QAction{ this };
-  action->setIcon(m_icons[QStringLiteral("straighten")]);
+  action->setIcon(m_icons[u"straighten"_qs]);
   action->setShortcut(Qt::CTRL | Qt::Key_T);
   connect(action, &QAction::triggered, m_window, &MainWindow::transStraighten);
 
@@ -236,159 +403,112 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
 
   action = m_actions[Group::Help][Action::AboutQt] = new QAction{ this };
   connect(action, &QAction::triggered, m_window, &MainWindow::helpAboutQt);
-
-  setupNames();
 }
 
-QAction* ActionsManager::action(Group a_group, Action a_action)
+void ActionsManager::setupMenus()
 {
-  return m_actions.value(a_group).value(a_action);
-}
+  QMenu* menu{};
 
-void ActionsManager::setEnabled(Group a_group, bool a_enabled)
-{
-  ActionGroup& group = m_actions[a_group];
-  for (auto actionIt = group.begin(); actionIt != group.end(); ++actionIt) {
-    actionIt.value()->setEnabled(a_enabled);
-  }
-}
+  // Recents
+  menu = m_menus[Group::Recent] = new QMenu{ m_window };
+  connect(menu, &QMenu::aboutToShow, m_window, &MainWindow::refreshMRU);
 
-void ActionsManager::setEnabled(Group a_group, Action a_action, bool a_enabled)
-{
-  QAction* actionPtr = action(a_group, a_action);
-  if (actionPtr) {
-    actionPtr->setEnabled(a_enabled);
-  }
-}
+  // Import
+  m_menus[Group::Import] = new QMenu{ m_window };
 
-void ActionsManager::setEnabled(Group a_group, QList<Action> a_actions, bool a_enabled)
-{
-  ActionGroup& group = m_actions[a_group];
-  for (Action action : a_actions) {
-    QAction* actionPtr = group.value(action);
-    if (actionPtr) {
-      actionPtr->setEnabled(a_enabled);
-    }
-  }
-}
+  // Import
+  m_menus[Group::Export] = new QMenu{ m_window };
 
-void ActionsManager::update()
-{
-  const QClipboard* clipboard = qApp->clipboard();
-  const bool hasProject = m_window->project() && m_window->project()->isValid();
-  const bool hasUndoActions = hasProject && !m_window->project()->undoBuffer()->isEmpty();
-  const bool hasClipboardData = clipboard->mimeData() && clipboard->mimeData()->hasFormat("text/qfsm-objects");
-  const int selectedStatesCount = m_window->view()->selectedStates();
-  const int selectedTransitionsCount = m_window->view()->selectedTransitions();
-  const int selectedItemsCount = selectedStatesCount + selectedTransitionsCount;
+  // File
+  menu = m_menus[Group::File] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::File][Action::New]);
+  menu->addAction(m_actions[Group::File][Action::Open]);
+  menu->addMenu(m_menus[Group::Recent]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::File][Action::Save]);
+  menu->addAction(m_actions[Group::File][Action::SaveAs]);
+  menu->addSeparator();
+  menu->addMenu(m_menus[Group::Import]);
+  menu->addMenu(m_menus[Group::Export]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::File][Action::Print]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::File][Action::NewWindow]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::File][Action::Close]);
+  menu->addAction(m_actions[Group::File][Action::Quit]);
 
-  setEnabled(Group::Transition, Action::Straight, selectedTransitionsCount > 0);
-  setEnabled(Group::Transition, Action::Edit, selectedTransitionsCount == 1);
-  setEnabled(Group::State, Action::Final, selectedStatesCount > 0);
-  setEnabled(Group::State, { Action::Initial, Action::Edit }, selectedStatesCount == 1);
-  setEnabled(Group::Edit, { Action::Cut, Action::Copy, Action::Delete }, selectedItemsCount > 0);
-  setEnabled(Group::Edit, Action::Paste, hasProject && hasClipboardData);
-  setEnabled(Group::Edit, Action::Undo, hasUndoActions);
-}
+  // Edit
+  menu = m_menus[Group::Edit] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::Edit][Action::Undo]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Edit][Action::Cut]);
+  menu->addAction(m_actions[Group::Edit][Action::Copy]);
+  menu->addAction(m_actions[Group::Edit][Action::Paste]);
+  menu->addAction(m_actions[Group::Edit][Action::Delete]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Edit][Action::SelectAll]);
+  menu->addAction(m_actions[Group::Edit][Action::ClearSelect]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Edit][Action::Options]);
 
-void ActionsManager::setupNames()
-{
-  m_actions[Group::File][Action::New]->setText(tr("&New..."));
-  m_actions[Group::File][Action::New]->setToolTip(tr("Creates a new file"));
-  m_actions[Group::File][Action::Open]->setText(tr("&Open..."));
-  m_actions[Group::File][Action::Open]->setToolTip(tr("Opens a file"));
-  m_actions[Group::File][Action::Save]->setText(tr("&Save"));
-  m_actions[Group::File][Action::Save]->setToolTip(tr("Saves this file"));
-  m_actions[Group::File][Action::SaveAs]->setText(tr("Save &As..."));
-  m_actions[Group::File][Action::Print]->setText(tr("&Print..."));
-  m_actions[Group::File][Action::Print]->setToolTip(tr("Prints this file"));
-  m_actions[Group::File][Action::NewWindow]->setText(tr("New &Window"));
-  m_actions[Group::File][Action::Close]->setText(tr("&Close"));
-  m_actions[Group::File][Action::Quit]->setText(tr("&Quit"));
+  // View
+  menu = m_menus[Group::View] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::View][Action::Codes]);
+  menu->addAction(m_actions[Group::View][Action::MooreOut]);
+  menu->addAction(m_actions[Group::View][Action::MealyIn]);
+  menu->addAction(m_actions[Group::View][Action::MealyOut]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::View][Action::Shadows]);
+  menu->addAction(m_actions[Group::View][Action::Grid]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::View][Action::IoView]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::View][Action::Select]);
+  menu->addAction(m_actions[Group::View][Action::Pan]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::View][Action::ZoomIn]);
+  menu->addAction(m_actions[Group::View][Action::ZoomOut]);
+  menu->addAction(m_actions[Group::View][Action::Zoom100]);
 
-  m_actions[Group::Edit][Action::Undo]->setText(tr("U&ndo"));
-  m_actions[Group::Edit][Action::Undo]->setToolTip(tr("Undo last action"));
-  m_actions[Group::Edit][Action::Cut]->setText(tr("C&ut"));
-  m_actions[Group::Edit][Action::Cut]->setToolTip(tr("Cuts Selection"));
-  m_actions[Group::Edit][Action::Copy]->setText(tr("&Copy"));
-  m_actions[Group::Edit][Action::Copy]->setToolTip(tr("Copies Selection"));
-  m_actions[Group::Edit][Action::Paste]->setText(tr("&Paste"));
-  m_actions[Group::Edit][Action::Paste]->setToolTip(tr("Pastes the clipboard"));
-  m_actions[Group::Edit][Action::Delete]->setText(tr("De&lete"));
-  m_actions[Group::Edit][Action::SelectAll]->setText(tr("Select &All"));
-  m_actions[Group::Edit][Action::ClearSelect]->setText(tr("&Clear selection"));
-  m_actions[Group::Edit][Action::Options]->setText(tr("&Options"));
+  // Machine
+  menu = m_menus[Group::Machine] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::Machine][Action::Simulate]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Machine][Action::Check]);
+  menu->addAction(m_actions[Group::Machine][Action::Correct]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Machine][Action::Edit]);
 
-  m_actions[Group::View][Action::Codes]->setText(tr("State &Codes"));
-  m_actions[Group::View][Action::MooreOut]->setText(tr("Moo&re Outputs"));
-  m_actions[Group::View][Action::MealyIn]->setText(tr("Mealy I&nputs"));
-  m_actions[Group::View][Action::MealyOut]->setText(tr("Mea&ly Outputs"));
-  m_actions[Group::View][Action::Shadows]->setText(tr("&Shadows"));
-  m_actions[Group::View][Action::Grid]->setText(tr("&Grid"));
-  m_actions[Group::View][Action::IoView]->setText(tr("&IO View"));
-  m_actions[Group::View][Action::Select]->setText(tr("&Select"));
-  m_actions[Group::View][Action::Select]->setToolTip(tr("Select objects"));
-  m_actions[Group::View][Action::Pan]->setText(tr("&Pan view"));
-  m_actions[Group::View][Action::ZoomIn]->setText(tr("Zoom &In"));
-  m_actions[Group::View][Action::ZoomIn]->setToolTip(tr("Zooms into the view"));
-  m_actions[Group::View][Action::ZoomOut]->setText(tr("Zoom &Out"));
-  m_actions[Group::View][Action::ZoomOut]->setToolTip(tr("Zoom out of the view"));
-  m_actions[Group::View][Action::Zoom100]->setText(tr("Zoom &100%"));
+  // State
+  menu = m_menus[Group::State] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::State][Action::Add]);
+  menu->addAction(m_actions[Group::State][Action::Initial]);
+  menu->addAction(m_actions[Group::State][Action::Final]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::State][Action::Edit]);
 
-  m_actions[Group::Machine][Action::Simulate]->setText(tr("&Simulate..."));
-  m_actions[Group::Machine][Action::Simulate]->setToolTip(tr("Simulates this machine"));
-  m_actions[Group::Machine][Action::Check]->setText(tr("&Integrity Check"));
-  m_actions[Group::Machine][Action::Correct]->setText(tr("&Auto correct State Codes..."));
-  m_actions[Group::Machine][Action::Edit]->setText(tr("&Edit..."));
+  // Transition
+  menu = m_menus[Group::Transition] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::Transition][Action::Add]);
+  menu->addAction(m_actions[Group::Transition][Action::Straight]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Transition][Action::Edit]);
 
-  m_actions[Group::State][Action::Add]->setText(tr("&New"));
-  m_actions[Group::State][Action::Add]->setToolTip(tr("Add new states"));
-  m_actions[Group::State][Action::Initial]->setText(tr("Set &Initial State"));
-  m_actions[Group::State][Action::Final]->setText(tr("&Toggle Final State"));
-  m_actions[Group::State][Action::Edit]->setText(tr("&Edit..."));
-
-  m_actions[Group::Transition][Action::Add]->setText(tr("&New"));
-  m_actions[Group::Transition][Action::Add]->setToolTip(tr("Add new transitions"));
-  m_actions[Group::Transition][Action::Straight]->setText(tr("Straighten"));
-  m_actions[Group::Transition][Action::Straight]->setToolTip(tr("Straightens selected transitions"));
-  m_actions[Group::Transition][Action::Edit]->setText(tr("&Edit..."));
-
-  m_actions[Group::Help][Action::Manual]->setText(tr("Qfsm &Manual..."));
-  m_actions[Group::Help][Action::About]->setText(tr("&About..."));
-  m_actions[Group::Help][Action::AboutQt]->setText(tr("About &Qt..."));
-}
-
-void ActionsManager::setupIcons()
-{
-  addIcon(QStringLiteral("addstate"));
-  addIcon(QStringLiteral("addtransition"));
-  addIcon(QStringLiteral("copy"));
-  addIcon(QStringLiteral("cut"));
-  addIcon(QStringLiteral("delete"));
-  addIcon(QStringLiteral("newdoc"));
-  addIcon(QStringLiteral("newwindow"));
-  addIcon(QStringLiteral("open"));
-  addIcon(QStringLiteral("options"));
-  addIcon(QStringLiteral("panning"));
-  addIcon(QStringLiteral("paste"));
-  addIcon(QStringLiteral("print"));
-  addIcon(QStringLiteral("run"));
-  addIcon(QStringLiteral("save"));
-  addIcon(QStringLiteral("saveas"));
-  addIcon(QStringLiteral("select"));
-  addIcon(QStringLiteral("straighten"));
-  addIcon(QStringLiteral("undo"));
-  addIcon(QStringLiteral("zoom100"));
-  addIcon(QStringLiteral("zoomin"));
-  addIcon(QStringLiteral("zoomout"));
+  // Help
+  menu = m_menus[Group::Help] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::Help][Action::Manual]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Help][Action::About]);
+  menu->addAction(m_actions[Group::Help][Action::AboutQt]);
 }
 
 void ActionsManager::addIcon(const QString& a_iconName)
 {
   QIcon& icon = m_icons[a_iconName];
-  // icon.addFile(QStringLiteral(":/icons/%1.png").arg(a_iconName));
-  icon.addFile(QStringLiteral(":/icons/sc_%1.png").arg(a_iconName), { 16, 16 });
-  // icon.addFile(QStringLiteral(":/icons/lc_%1.png").arg(a_iconName), { 24, 24 });
+  // icon.addFile(u":/icons/%1.png"_qs.arg(a_iconName));
+  icon.addFile(u":/icons/sc_%1.png"_qs.arg(a_iconName), { 16, 16 });
+  // icon.addFile(u":/icons/lc_%1.png"_qs.arg(a_iconName), { 24, 24 });
 }
 
 } // namespace qfsm::gui

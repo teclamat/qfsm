@@ -1,33 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
-<context>
-    <name>AppInfo</name>
-    <message>
-        <source>Qfsm - A graphical tool for designing and simulating finite state machines</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version %1.%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Development version %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>email: qfsm@duffner-net.de</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>About Qfsm</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copyright 2000-2015 by </source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
+<TS version="2.1" language="en">
 <context>
     <name>ExportAHDLDlg</name>
     <message>
@@ -118,10 +91,6 @@ This file is necessary to create code that can be compiled.</source>
     </message>
     <message>
         <source>Resolve inverted conditions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -340,14 +309,6 @@ This file is necessary to create code that can be compiled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add &quot;Reset&quot; transition for every state</source>
         <translation type="unfinished"></translation>
     </message>
@@ -373,6 +334,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Segoe UI&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Sans Serif&apos;; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -503,18 +472,6 @@ p, li { white-space: pre-wrap; }
         <source>Final state</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Start state</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>End states reachable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>End state</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>IOViewDlg</name>
@@ -524,9 +481,9 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Segoe UI&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Inputs:&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Moore Outputs:&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Mealy Outputs:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -590,19 +547,7 @@ Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Moore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Outputs:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Names:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mealy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -655,13 +600,6 @@ Do you want to proceed?</source>
     </message>
     <message>
         <source>Moore:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MainControl</name>
-    <message>
-        <source>English</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -764,130 +702,6 @@ Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>U&amp;ndo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C&amp;ut</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>De&amp;lete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Deselect All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State &amp;Codes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Moo&amp;re Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mealy I&amp;nputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mea&amp;ly Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Shadows</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Grid</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;IO View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Pan view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Zoom</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom &amp;In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom &amp;Out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom &amp;100%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Auto correct State Codes...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Simulate...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Integrity Check</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;New</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Toggle Final State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Straighten</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qfsm &amp;Manual...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;About...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>About &amp;Qt...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -932,10 +746,6 @@ Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Qfsm Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;General</source>
         <translation type="unfinished"></translation>
     </message>
@@ -945,142 +755,6 @@ Do you want to proceed?</source>
     </message>
     <message>
         <source>&amp;Printing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a new file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Opens a file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saves this file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Print</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prints this file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Undo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Undo last action</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cuts Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copies Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pastes the clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pan view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switches to zoom mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add new states</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Transition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add new transitions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Simulate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Simulates this machine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zooms into the view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom out of the view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Straighten Transitions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Straightens selected transitions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1182,27 +856,11 @@ Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>on</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Grid is %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Checking machine...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Check finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set &amp;Initial State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1233,13 +891,13 @@ Create it?</source>
         <source>SM&amp;C...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Grid is %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>OptDisplayDlg</name>
-    <message>
-        <source>Display</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Grid</source>
         <translation type="unfinished"></translation>
@@ -1300,10 +958,6 @@ Create it?</source>
 <context>
     <name>OptGeneralDlg</name>
     <message>
-        <source>General</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Language:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1314,10 +968,6 @@ Create it?</source>
 </context>
 <context>
     <name>OptPrintingDlg</name>
-    <message>
-        <source>Printing</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Print header</source>
         <translation type="unfinished"></translation>
@@ -1339,9 +989,16 @@ Create it?</source>
     </message>
 </context>
 <context>
+    <name>OptionsDlg</name>
+    <message>
+        <source>Qfsm Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PrintManager</name>
     <message>
-        <source>The printer could not be initialised.</source>
+        <source>Print Document</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1365,6 +1022,30 @@ Create it?</source>
     </message>
     <message>
         <source>Check reachable states</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qfsm - A graphical tool for designing and simulating finite state machines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Development version </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copyright 2000-2020 by </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>email: qfsm@duffner-net.de</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About Qfsm</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1564,10 +1245,6 @@ Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Entry Actions:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1743,6 +1420,232 @@ Do you want to increase the number of mealy inputs of the machine?</source>
     <message>
         <source>The number of mealy outputs exceeds the limit of this machine.
 Do you want to increase the number of mealy outputs of the machine?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>qfsm::MainControl</name>
+    <message>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>qfsm::gui::ActionsManager</name>
+    <message>
+        <source>&amp;New...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a new file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opens a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saves this file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Print...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prints this file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New &amp;Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;ndo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo last action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C&amp;ut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cuts Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copies Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pastes the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>De&amp;lete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select &amp;All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Clear selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>State &amp;Codes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moo&amp;re Outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mealy I&amp;nputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mea&amp;ly Outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Shadows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;IO View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Pan view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom &amp;In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zooms into the view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom &amp;Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom out of the view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom &amp;100%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Simulate...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Simulates this machine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Integrity Check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Auto correct State Codes...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new states</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set &amp;Initial State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Toggle Final State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new transitions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Straighten</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Straightens selected transitions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qfsm &amp;Manual...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;About...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About &amp;Qt...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

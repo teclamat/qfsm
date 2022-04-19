@@ -18,6 +18,7 @@ namespace option {
 
 enum class Group { General, Print, View };
 
+constexpr auto recentFiles = "recentFiles";
 constexpr auto stateEncoding = "showStateEncoding";
 constexpr auto mooreOutputs = "showMooreOutputs";
 constexpr auto mealyInputs = "showMealyInputs";
@@ -67,6 +68,10 @@ class OptionsManager : public QObject {
   void setValue(Group a_group, const QString& a_name, const QVariant& a_value);
   void setValues(const OptionList& a_options);
 
+  const QStringList& recentsList() const;
+  void addRecentsEntry(const QString& a_entry);
+  void clearRecentsList();
+
  private:
   void applyFlags(AffectsFlags a_flags) const;
   void readOption(Group a_group, const QString& a_name, const QVariant a_default, AffectsFlags a_flags = {});
@@ -79,6 +84,7 @@ class OptionsManager : public QObject {
   QSettings* m_settings;
 
   OptionsMap m_optionsMap{};
+  QStringList m_recentsList{};
 };
 
 } // namespace qfsm

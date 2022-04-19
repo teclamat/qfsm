@@ -7,8 +7,11 @@
 #include <QColor>
 #include <QMainWindow>
 #include <QSettings>
+#include <QStringList>
 
 namespace qfsm {
+
+constexpr int MAX_RECENTS_ENTRIES = 10;
 
 QHash<OptionsManager::Group, QString> GROUP_NAME{ { option::Group::General, QStringLiteral("general") },
                                                   { option::Group::View, QStringLiteral("view") },
@@ -29,6 +32,8 @@ OptionsManager::OptionsManager(QMainWindow* a_window)
   readOption(Group::View, option::shadows, true, { Affects::View, Affects::Action });
   readOption(Group::View, option::shadowColor, QColor{ Qt::darkGray }.rgb(), Affects::View);
   readOption(Group::View, option::ioView, false, Affects::Nothing);
+
+  m_recentsList = m_settings->value(settingKey(Group::General, option::recentFiles), QStringList{}).toStringList();
 }
 
 const QVariant OptionsManager::variant(Group a_group, const QString& a_name) const
@@ -79,6 +84,28 @@ void OptionsManager::setValues(const OptionList& a_options)
     flags |= writeOption(option.group, option.name, option.value);
   }
   applyFlags(flags);
+}
+
+const QStringList& OptionsManager::recentsList() const
+{
+  return m_recentsList;
+}
+
+void OptionsManager::addRecentsEntry(const QString& a_entry) {
+  m_recentsList.removeOne(a_entry);
+  m_recentsList.prepend(a_entry);
+
+  while (m_recentsList.count() > MAX_RECENTS_ENTRIES) {
+    m_recentsList.removeLast();
+  }
+
+  m_settings->setValue(settingKey(Group::General, option::recentFiles), m_recentsList);
+}
+
+void OptionsManager::clearRecentsList()
+{
+  m_recentsList.clear();
+  m_settings->setValue(settingKey(Group::General, option::recentFiles), m_recentsList);
 }
 
 void OptionsManager::applyFlags(AffectsFlags a_flags) const

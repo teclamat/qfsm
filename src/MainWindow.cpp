@@ -150,13 +150,6 @@ MainWindow::MainWindow(QObject* a_parent)
 
   createToolBar();
 
-  menu_import = new QMenu(this);
-#ifdef GRAPHVIZ_FOUND
-  id_import_graphviz = menu_import->insertItem(tr("&Graphviz..."), this, SLOT(fileImportGraphviz()));
-#else
-  menu_import->setEnabled(false);
-#endif
-
   /*
   qDebug("%d", IOInfo::isBinaryType("ANY 01101|0|101"));
   qDebug("%d", IOInfo::isBinaryType("DEF"));
@@ -174,9 +167,17 @@ MainWindow::MainWindow(QObject* a_parent)
   qDebug("%d", IOInfo::isASCIIType("abcde"));
   qDebug("%d", IOInfo::isASCIIType("abce\\n"));
   */
+  using Group = qfsm::gui::ActionsManager::Group;
+
+  QMenu* menu_import = m_actionsManager->menu(Group::Import);
+#ifdef GRAPHVIZ_FOUND
+  id_import_graphviz = menu_import->insertItem(tr("&Graphviz..."), this, SLOT(fileImportGraphviz()));
+#else
+  menu_import->setEnabled(false);
+#endif
 
   // File -> Export
-  menu_export = new QMenu(this);
+  QMenu* menu_export = m_actionsManager->menu(Group::Export);
   // menu_export->setMouseTracking(true);
   menu_export->addAction(tr("E&PS..."), this, &MainWindow::fileExportEPS);
   menu_export->addAction(tr("&SVG..."), this, &MainWindow::fileExportSVG);
@@ -200,102 +201,14 @@ MainWindow::MainWindow(QObject* a_parent)
   id_export_ragel = menu_export->addAction(tr("&Ragel..."), this, &MainWindow::fileExportRagel);
   id_export_smc = menu_export->addAction(tr("SM&C..."), this, &MainWindow::fileExportSMC);
 
-  using Group = qfsm::gui::ActionsManager::Group;
-  using Action = qfsm::gui::ActionsManager::Action;
-
-  // File
-  menu_file = new QMenu{ this };
-  menu_file->addAction(tr("&New..."), this, &MainWindow::fileNew, Qt::CTRL | Qt::Key_N);
-  id_open = menu_file->addAction(tr("&Open..."), this, &MainWindow::fileOpen, Qt::CTRL | Qt::Key_O);
-  menu_mru = menu_file->addMenu(tr("Open &Recent"));
-  menu_file->addSeparator();
-  id_save = menu_file->addAction(tr("&Save"), this, &MainWindow::fileSave, Qt::CTRL | Qt::Key_S);
-  id_saveas = menu_file->addAction(tr("Save &As..."), this, &MainWindow::fileSaveAs);
-  menu_file->addSeparator();
-  id_import = menu_file->addMenu(menu_import);
-  id_import->setText(tr("&Import"));
-  id_export = menu_file->addMenu(menu_export);
-  id_export->setText(tr("&Export"));
-  menu_file->addSeparator();
-  id_print = menu_file->addAction(tr("&Print..."), this, &MainWindow::filePrint, Qt::CTRL | Qt::Key_P);
-  menu_file->addSeparator();
-  menu_file->addAction(tr("New &Window"), m_control, qOverload<>(&qfsm::MainControl::newWindow));
-  menu_file->addSeparator();
-  id_close = menu_file->addAction(tr("&Close"), this, &MainWindow::fileClose, Qt::CTRL | Qt::Key_W);
-  menu_file->addAction(tr("&Quit"), this, &MainWindow::fileQuit, Qt::CTRL | Qt::Key_Q);
-
-  // Edit
-  menu_edit = new QMenu{ this };
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Undo));
-  menu_edit->addSeparator();
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Cut));
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Copy));
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Paste));
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Delete));
-  menu_edit->addSeparator();
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::SelectAll));
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::ClearSelect));
-  menu_edit->addSeparator();
-  menu_edit->addAction(m_actionsManager->action(Group::Edit, Action::Options));
-
-  // View
-  menu_view = new QMenu{ this };
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::Codes));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::MooreOut));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::MealyIn));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::MealyOut));
-  menu_view->addSeparator();
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::Shadows));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::Grid));
-  menu_view->addSeparator();
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::IoView));
-  menu_view->addSeparator();
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::Select));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::Pan));
-  menu_view->addSeparator();
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::ZoomIn));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::ZoomOut));
-  menu_view->addAction(m_actionsManager->action(Group::View, Action::Zoom100));
-
-  // Machine
-  menu_machine = new QMenu{ this };
-  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Simulate));
-  menu_machine->addSeparator();
-  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Check));
-  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Correct));
-  menu_machine->addSeparator();
-  menu_machine->addAction(m_actionsManager->action(Group::Machine, Action::Edit));
-
-  // State
-  menu_state = new QMenu{ this };
-  menu_state->addAction(m_actionsManager->action(Group::State, Action::Add));
-  menu_state->addAction(m_actionsManager->action(Group::State, Action::Initial));
-  menu_state->addAction(m_actionsManager->action(Group::State, Action::Final));
-  menu_state->addSeparator();
-  menu_state->addAction(m_actionsManager->action(Group::State, Action::Edit));
-
-  // Transition
-  menu_trans = new QMenu{ this };
-  menu_trans->addAction(m_actionsManager->action(Group::Transition, Action::Add));
-  menu_trans->addAction(m_actionsManager->action(Group::Transition, Action::Straight));
-  menu_trans->addSeparator();
-  menu_trans->addAction(m_actionsManager->action(Group::Transition, Action::Edit));
-
-  // Help
-  menu_help = new QMenu{ this };
-  menu_help->addAction(m_actionsManager->action(Group::Help, Action::Manual));
-  menu_help->addSeparator();
-  menu_help->addAction(m_actionsManager->action(Group::Help, Action::About));
-  menu_help->addAction(m_actionsManager->action(Group::Help, Action::AboutQt));
-
   QMenuBar* mainMenuBar = menuBar();
-  mainMenuBar->addMenu(menu_file)->setText(tr("&File"));
-  mainMenuBar->addMenu(menu_edit)->setText(tr("&Edit"));
-  mainMenuBar->addMenu(menu_view)->setText(tr("&View"));
-  mainMenuBar->addMenu(menu_machine)->setText(tr("&Machine"));
-  mainMenuBar->addMenu(menu_state)->setText(tr("&State"));
-  mainMenuBar->addMenu(menu_trans)->setText(tr("&Transition"));
-  mainMenuBar->addMenu(menu_help)->setText(tr("&Help"));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::File));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::Edit));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::View));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::Machine));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::State));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::Transition));
+  mainMenuBar->addMenu(m_actionsManager->menu(Group::Help));
 
   // Context Menu: State
   // cmenu_state = new QMenu(this);
@@ -395,7 +308,6 @@ MainWindow::MainWindow(QObject* a_parent)
   setMode(DocumentMode::Select);
   updateAll(); // MenuBar();
 
-  connect(menu_mru, SIGNAL(aboutToShow()), this, SLOT(refreshMRU()));
   //  connect(cmenu_state, SIGNAL(aboutToHide()), m_mainView,
   //  SLOT(contextMenuHiding())); connect(cmenu_trans, SIGNAL(aboutToHide()),
   //  m_mainView, SLOT(contextMenuHiding())); connect(cmenu_sview,
@@ -408,7 +320,7 @@ MainWindow::MainWindow(QObject* a_parent)
   connect(this, SIGNAL(updateStatusZoom(int)), m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)));
   connect(fileio, SIGNAL(sbMessage(QString)), this, SLOT(sbMessage(QString)));
   // connect(m_menuBar, SIGNAL(triggered(QAction*)), this, SLOT(menuItemActivated(QAction*)));
-  connect(menu_edit, SIGNAL(aboutToShow()), this, SLOT(editMenuAboutToShow()));
+  // connect(menu_edit, SIGNAL(aboutToShow()), this, SLOT(editMenuAboutToShow()));
   connect(fileio, SIGNAL(setWaitCursor()), this, SLOT(setWaitCursor()));
   connect(fileio, SIGNAL(setPreviousCursor()), this, SLOT(setPreviousCursor()));
   connect(view_io, SIGNAL(closing()), this, SLOT(viewIOView()));
@@ -422,14 +334,6 @@ MainWindow::~MainWindow()
 
   destroyToolBar();
   delete m_mainView;
-  delete menu_file;
-  delete menu_import;
-  delete menu_export;
-  delete menu_edit;
-  delete menu_view;
-  delete menu_machine;
-  delete menu_state;
-  delete menu_trans;
   if (m_project)
     delete m_project;
 
@@ -452,6 +356,11 @@ MainWindow::~MainWindow()
   delete ragel_export;
   delete testbench_export;
   delete vvvv_export;
+}
+
+QMenu* MainWindow::contextCommon()
+{
+  return m_actionsManager->menu(qfsm::gui::ActionsManager::Group::Edit);
 }
 
 /// Creates the toolbar with its buttons
@@ -485,9 +394,7 @@ void MainWindow::createToolBar()
 }
 
 /// Destroys the toolbar
-void MainWindow::destroyToolBar()
-{
-}
+void MainWindow::destroyToolBar() {}
 
 /// Called when a key is pressed
 void MainWindow::keyPressEvent(QKeyEvent* k)
@@ -678,15 +585,15 @@ void MainWindow::updateMenuBar()
 
   int numstates, numtrans;
 
-  id_import->setEnabled(true);
+  // id_import->setEnabled(true);
   // id_import_graphviz->setEnabled(true);
 
   if (m_project) {
-    id_save->setEnabled(true);
-    id_saveas->setEnabled(true);
-    id_print->setEnabled(true);
-    id_export->setEnabled(true);
-    id_close->setEnabled(true);
+    // id_save->setEnabled(true);
+    // id_saveas->setEnabled(true);
+    // id_print->setEnabled(true);
+    // id_export->setEnabled(true);
+    // id_close->setEnabled(true);
     // id_selectall->setEnabled(true);
     // id_deselectall->setEnabled(true);
     // id_newstate->setEnabled(true);
@@ -744,11 +651,11 @@ void MainWindow::updateMenuBar()
     // tbstatenew->setEnabled(true);
     // tbtransnew->setEnabled(true);
   } else {
-    id_save->setEnabled(false);
-    id_saveas->setEnabled(false);
-    id_print->setEnabled(false);
-    id_export->setEnabled(false);
-    id_close->setEnabled(false);
+    // id_save->setEnabled(false);
+    // id_saveas->setEnabled(false);
+    // id_print->setEnabled(false);
+    // id_export->setEnabled(false);
+    // id_close->setEnabled(false);
     // id_selectall->setEnabled(false);
     // id_deselectall->setEnabled(false);
     // id_newstate->setEnabled(false);
@@ -1012,48 +919,50 @@ void MainWindow::updateAll()
 /// Refreshes the MRU file list
 void MainWindow::refreshMRU()
 {
+  QMenu* menu_mru = m_actionsManager->menu(qfsm::gui::ActionsManager::Group::Recent);
   int id, index = 0;
   menu_mru->clear();
-  QStringList list = m_control->getMRUList();
+  // QStringList list = m_control->getMRUList();
 
-  fileio->loadMRU(list);
-  QStringList::Iterator it;
+  // fileio->loadMRU(list);
+  const QStringList list = m_optionsManager->recentsList();
 
-  for (it = list.begin(); it != list.end(); ++it) {
+  for (auto it = list.cbegin(); it != list.cend(); ++it) {
     // id = menu_mru->insertItem(*it);
-    switch (index) {
-      case 0:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent0()));
-        break;
-      case 1:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent1()));
-        break;
-      case 2:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent2()));
-        break;
-      case 3:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent3()));
-        break;
-      case 4:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent4()));
-        break;
-      case 5:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent5()));
-        break;
-      case 6:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent6()));
-        break;
-      case 7:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent7()));
-        break;
-      case 8:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent8()));
-        break;
-      case 9:
-        menu_mru->addAction(*it, this, SLOT(fileOpenRecent9()));
-        break;
-    }
-    index++;
+    menu_mru->addAction(*it, [=]() { fileOpenRecent(index); });
+    // switch (index) {
+    //   case 0:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent0()));
+    //     break;
+    //   case 1:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent1()));
+    //     break;
+    //   case 2:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent2()));
+    //     break;
+    //   case 3:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent3()));
+    //     break;
+    //   case 4:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent4()));
+    //     break;
+    //   case 5:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent5()));
+    //     break;
+    //   case 6:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent6()));
+    //     break;
+    //   case 7:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent7()));
+    //     break;
+    //   case 8:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent8()));
+    //     break;
+    //   case 9:
+    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent9()));
+    //     break;
+    // }
+    ++index;
   }
 }
 
@@ -1192,8 +1101,9 @@ void MainWindow::fileOpen()
       m_mainView->widget()->repaint();
 
     //    menu_mru->insertItem(fileio->getActFile(), -1, 0);
-    m_control->addMRUEntry(fileio->getActFilePath());
-    fileio->saveMRU(m_control->getMRUList());
+    // m_control->addMRUEntry(fileio->getActFilePath());
+    // fileio->saveMRU(m_control->getMRUList());
+    m_optionsManager->addRecentsEntry(fileio->getActFilePath());
 
     //      m_statusBar->showMessage(tr("File %1 opened").arg(fileio->getActFile()),
     //      3000);
@@ -1249,8 +1159,9 @@ void MainWindow::fileOpenRecent(QString fileName)
       m_mainView->widget()->repaint();
 
     //    menu_mru->insertItem(fileio->getActFile(), -1, 0);
-    m_control->addMRUEntry(fileio->getActFilePath());
-    fileio->saveMRU(m_control->getMRUList());
+    // m_control->addMRUEntry(fileio->getActFilePath());
+    // fileio->saveMRU(m_control->getMRUList());
+    m_optionsManager->addRecentsEntry(fileio->getActFilePath());
   } else {
     Error::info(tr("File %1 could not be opened").arg(fileName));
     m_statusBar->clearMessage();
@@ -1261,6 +1172,12 @@ void MainWindow::fileOpenRecent(QString fileName)
   setCursor(oldcursor1);
   m_mainView->viewport()->setCursor(oldcursor2);
   */
+}
+
+void MainWindow::fileOpenRecent(int a_index) {
+  QStringList list = m_optionsManager->recentsList();
+  if (list.count() > a_index)
+    fileOpenRecent(list[a_index]);
 }
 
 /// Opens the file in the MRU list entry 0
@@ -1360,8 +1277,9 @@ bool MainWindow::fileSave()
       m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
       m_project->undoBuffer()->clear();
       if (saveas) {
-        m_control->addMRUEntry(fileio->getActFilePath());
-        fileio->saveMRU(m_control->getMRUList());
+        // m_control->addMRUEntry(fileio->getActFilePath());
+        // fileio->saveMRU(m_control->getMRUList());
+        m_optionsManager->addRecentsEntry(fileio->getActFilePath());
       }
     }
 
@@ -1391,8 +1309,9 @@ bool MainWindow::fileSaveAs()
     if (result) {
       m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
       m_project->undoBuffer()->clear();
-      m_control->addMRUEntry(fileio->getActFilePath());
-      fileio->saveMRU(m_control->getMRUList());
+      // m_control->addMRUEntry(fileio->getActFilePath());
+      // fileio->saveMRU(m_control->getMRUList());
+      m_optionsManager->addRecentsEntry(fileio->getActFilePath());
     }
 
     updateAll();

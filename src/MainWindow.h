@@ -142,7 +142,7 @@ class MainWindow : public QMainWindow {
   qfsm::gui::Scene* scene() { return m_view->scene(); }
   qfsm::gui::ActionsManager* actionsManager() { return m_actionsManager; }
   DocumentMode mode() const { return m_mode; }
-  QMenu* contextCommon() { return menu_edit; }
+  QMenu* contextCommon();
   /// Returns the tab dialog for the general options
   OptGeneralDlgImpl* getOptGeneral() { return opt_general; }
   /// Returns the tab dialog for the display options
@@ -220,41 +220,33 @@ class MainWindow : public QMainWindow {
   qfsm::Project* m_project{ nullptr };
 
  private:
-  /// File menu
-  QMenu* menu_file;
-  /// File->Import menu
-  QMenu* menu_import;
-  /// File->Export menu
-  QMenu* menu_export;
-  /// Edit menu
-  QMenu* menu_edit;
-  /// View menu
-  QMenu* menu_view;
-  /// Machine menu
-  QMenu* menu_machine;
-  /// State menu
-  QMenu* menu_state;
-  /// Transition menu
-  QMenu* menu_trans;
-  /// Help menu
-  QMenu* menu_help;
-  /// 'File->Most recently used' menu
-  QMenu* menu_mru;
+  // /// File menu
+  // QMenu* menu_file;
+  // /// File->Import menu
+  // QMenu* menu_import;
+  // /// File->Export menu
+  // QMenu* menu_export;
+  // /// Edit menu
+  // QMenu* menu_edit;
+  // /// View menu
+  // QMenu* menu_view;
+  // /// Machine menu
+  // QMenu* menu_machine;
+  // /// State menu
+  // QMenu* menu_state;
+  // /// Transition menu
+  // QMenu* menu_trans;
+  // /// Help menu
+  // QMenu* menu_help;
+  // /// 'File->Most recently used' menu
+  // QMenu* menu_mru;
   /// Toolbar
   QToolBar* toolbar;
-  /// Application icon
-  QPixmap* pappicon;
 
   // menu item IDs
-  // file
-  QAction* id_open;            ///< Menu id 'File->Open'
-  QAction* id_save;            ///< Menu id 'File->Save'
-  QAction* id_saveas;          ///< Menu id 'File->Save as'
-  QAction* id_print;           ///< Menu id 'File->Print'
-  QAction* id_close;           ///< Menu id 'File->Close'
-  QAction* id_import;          ///< Menu id 'File->Import'
+  // QAction* id_import;          ///< Menu id 'File->Import'
   QAction* id_import_graphviz; ///< Menu id 'File->Import->Graphviz'
-  QAction* id_export;          ///< Menu id 'File->Export'
+  // QAction* id_export;          ///< Menu id 'File->Export'
   QAction* id_export_ahdl;     ///< Menu id 'File->Export->AHDL'
   QAction* id_export_vhdl;     ///< Menu id 'File->Export->VDHL'
   QAction* id_export_verilog;  ///< Menu id 'File->Export->Verilog HDL'
@@ -381,6 +373,7 @@ class MainWindow : public QMainWindow {
   void fileQuit();
 
   void fileOpenRecent(QString fileName);
+  void fileOpenRecent(int a_index);
   void fileOpenRecent0();
   void fileOpenRecent1();
   void fileOpenRecent2();

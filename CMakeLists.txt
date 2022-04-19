@@ -15,10 +15,10 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Core QUIET)
 if(Qt6_FOUND)
-  find_package(Qt6 COMPONENTS Core Widgets OpenGLWidgets Svg PrintSupport)
+  find_package(Qt6 COMPONENTS Core Widgets OpenGLWidgets Svg PrintSupport LinguistTools)
   set(QFSM_QT_LIBS Qt6::Core Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg Qt6::PrintSupport)
 else()
-  find_package(Qt5 COMPONENTS Core Widgets Svg PrintSupport)
+  find_package(Qt5 COMPONENTS Core Widgets Svg PrintSupport LinguistTools)
   set(QFSM_QT_LIBS Qt5::Core Qt5::Widgets Qt5::Svg Qt5::PrintSupport)
 endif()
 
@@ -220,9 +220,21 @@ set(QFSM_SOURCES
   src/main.cpp
 )
 
+
 add_executable(qfsm ${QFSM_HEADERS} ${QFSM_SOURCES} res/resources.qrc)
 
 target_link_libraries(qfsm PRIVATE ${QFSM_QT_LIBS})
+
+set(TS_FILES
+  i18n/qfsm_en_US.ts
+  i18n/qfsm_pl_PL.ts
+)
+
+if(Qt6_FOUND)
+  qt6_add_translations(qfsm TS_FILES ${TS_FILES})
+else()
+  qt5_add_translation(QFSM_TRANSLATIONS ${TS_FILES})
+endif()
 
 string(TIMESTAMP QFSM_BUILD_DATE "%Y-%m-%d" UTC)
 

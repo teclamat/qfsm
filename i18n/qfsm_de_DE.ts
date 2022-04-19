@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE">
+<TS version="2.1" language="de_DE">
 <context>
     <name>AppInfo</name>
     <message>
@@ -17,11 +17,11 @@
     </message>
     <message>
         <source>Version %1.%2</source>
-        <translation>Version %1.%2</translation>
+        <translation type="vanished">Version %1.%2</translation>
     </message>
     <message>
         <source>Qfsm - A graphical tool for designing and simulating finite state machines</source>
-        <translation>Qfsm - Ein grafisches Tool zum erstellen und simulieren endlicher Zustandsautomaten</translation>
+        <translation type="vanished">Qfsm - Ein grafisches Tool zum erstellen und simulieren endlicher Zustandsautomaten</translation>
     </message>
     <message>
         <source>Copyright 2000-2002 by Stefan Duffner</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>About Qfsm</source>
-        <translation>Über Qfsm</translation>
+        <translation type="vanished">Über Qfsm</translation>
     </message>
     <message>
         <source>Copyright 2000-2003 by </source>
@@ -65,11 +65,7 @@
     </message>
     <message>
         <source>Development version %1</source>
-        <translation>Entwicklungsversion %1</translation>
-    </message>
-    <message>
-        <source>email: qfsm@duffner-net.de</source>
-        <translation></translation>
+        <translation type="vanished">Entwicklungsversion %1</translation>
     </message>
     <message>
         <source>Copyright 2000-2011 by </source>
@@ -81,7 +77,7 @@
     </message>
     <message>
         <source>Copyright 2000-2015 by </source>
-        <translation>Copyright 2000-2015 by </translation>
+        <translation type="vanished">Copyright 2000-2015 by </translation>
     </message>
 </context>
 <context>
@@ -194,7 +190,7 @@ Diese Datei ist notwendig, um Code zu generieren, der kompiliert werden kann.</t
     </message>
     <message>
         <source>Orientation</source>
-        <translation>Ausrichtung</translation>
+        <translation type="vanished">Ausrichtung</translation>
     </message>
     <message>
         <source>Rows: States / Columns: Events</source>
@@ -436,16 +432,16 @@ Diese Datei ist notwendig, um Code zu generieren, der kompiliert werden kann.</t
         <translation>Reset-Aktion:</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>DoReset</source>
         <translation></translation>
     </message>
     <message>
-        <source>DoReset</source>
-        <translation></translation>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Segoe UI&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Sans Serif&apos;; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -557,11 +553,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Start state</source>
-        <translation>Anfangszustand</translation>
+        <translation type="vanished">Anfangszustand</translation>
     </message>
     <message>
         <source>End state</source>
-        <translation>Endzustand</translation>
+        <translation type="vanished">Endzustand</translation>
     </message>
     <message>
         <source>Unambiguous Conditions</source>
@@ -573,7 +569,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>End states reachable</source>
-        <translation>Endzustände erreichbar</translation>
+        <translation type="vanished">Endzustände erreichbar</translation>
     </message>
     <message>
         <source>Transitions connected</source>
@@ -612,13 +608,13 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Segoe UI&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Inputs:&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Moore Outputs:&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Mealy Outputs:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -666,11 +662,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Mealy</source>
-        <translation>Mealy</translation>
+        <translation type="vanished">Mealy</translation>
     </message>
     <message>
         <source>Moore</source>
-        <translation>Moore</translation>
+        <translation type="vanished">Moore</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -706,7 +702,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Outputs:</source>
-        <translation>Ausgänge:</translation>
+        <translation type="vanished">Ausgänge:</translation>
     </message>
     <message>
         <source>Transition Font</source>
@@ -753,7 +749,7 @@ Wollen Sie fortfahren?</translation>
     <name>MainControl</name>
     <message>
         <source>English</source>
-        <translation>English</translation>
+        <translation type="vanished">English</translation>
     </message>
 </context>
 <context>
@@ -764,11 +760,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>on</source>
-        <translation>an</translation>
+        <translation type="vanished">an</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Ausschneiden</translation>
+        <translation type="vanished">Ausschneiden</translation>
     </message>
     <message>
         <source>New</source>
@@ -780,19 +776,19 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>off</source>
-        <translation>aus</translation>
+        <translation type="vanished">aus</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation>&amp;Neu</translation>
+        <translation type="vanished">&amp;Neu</translation>
     </message>
     <message>
         <source>C&amp;ut</source>
-        <translation>Aus&amp;schneiden</translation>
+        <translation type="vanished">Aus&amp;schneiden</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopieren</translation>
+        <translation type="vanished">Kopieren</translation>
     </message>
     <message>
         <source>File</source>
@@ -800,11 +796,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation>Undo</translation>
+        <translation type="vanished">Undo</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation>Größe ändern</translation>
+        <translation type="vanished">Größe ändern</translation>
     </message>
     <message>
         <source>File %1 could not be opened</source>
@@ -812,7 +808,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopieren</translation>
+        <translation type="vanished">&amp;Kopieren</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -824,7 +820,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Grid</source>
-        <translation>Gi&amp;tter</translation>
+        <translation type="vanished">Gi&amp;tter</translation>
     </message>
     <message>
         <source>&amp;Help</source>
@@ -848,19 +844,19 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Simulate...</source>
-        <translation>&amp;Simulieren...</translation>
+        <translation type="vanished">&amp;Simulieren...</translation>
     </message>
     <message>
         <source>Simulate</source>
-        <translation>Simulieren</translation>
+        <translation type="vanished">Simulieren</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Einfügen</translation>
+        <translation type="vanished">Einfügen</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation>Drucken</translation>
+        <translation type="vanished">Drucken</translation>
     </message>
     <message>
         <source>Und&amp;o</source>
@@ -872,15 +868,15 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Deselect All</source>
-        <translation>Auswahl &amp;verwerfen</translation>
+        <translation type="vanished">Auswahl &amp;verwerfen</translation>
     </message>
     <message>
         <source>Zooms into the view</source>
-        <translation>Die Ansicht vergrößern</translation>
+        <translation type="vanished">Die Ansicht vergrößern</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation>Vergrößern</translation>
+        <translation type="vanished">Vergrößern</translation>
     </message>
     <message>
         <source>object copied.</source>
@@ -896,11 +892,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Integrity Check</source>
-        <translation>&amp;Integritäts-Prüfung</translation>
+        <translation type="vanished">&amp;Integritäts-Prüfung</translation>
     </message>
     <message>
         <source>Pastes the clipboard</source>
-        <translation>Fügt die Zwischenablage ein</translation>
+        <translation type="vanished">Fügt die Zwischenablage ein</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -912,7 +908,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>&amp;Einfügen</translation>
+        <translation type="vanished">&amp;Einfügen</translation>
     </message>
     <message>
         <source>&amp;Print</source>
@@ -924,7 +920,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Switches to zoom mode</source>
-        <translation>Wechselt zum Zoom-Modus</translation>
+        <translation type="vanished">Wechselt zum Zoom-Modus</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
@@ -932,11 +928,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Qfsm Options</source>
-        <translation>Qfsm Optionen</translation>
+        <translation type="vanished">Qfsm Optionen</translation>
     </message>
     <message>
         <source>Opens a file</source>
-        <translation>Öffnet eine Datei</translation>
+        <translation type="vanished">Öffnet eine Datei</translation>
     </message>
     <message>
         <source>loaded.</source>
@@ -952,7 +948,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Creates a new file</source>
-        <translation>Erzeugt eine neue Datei</translation>
+        <translation type="vanished">Erzeugt eine neue Datei</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -964,7 +960,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Straightens selected transitions</source>
-        <translation>Begradigt ausgewählte Übergange</translation>
+        <translation type="vanished">Begradigt ausgewählte Übergange</translation>
     </message>
     <message>
         <source>Mealy Outputs</source>
@@ -972,7 +968,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation>Auswählen</translation>
+        <translation type="vanished">Auswählen</translation>
     </message>
     <message>
         <source>&amp;Transition</source>
@@ -980,11 +976,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Prints this file</source>
-        <translation>Druckt diese Datei</translation>
+        <translation type="vanished">Druckt diese Datei</translation>
     </message>
     <message>
         <source>Zoom &amp;Out</source>
-        <translation>Ver&amp;kleinern</translation>
+        <translation type="vanished">Ver&amp;kleinern</translation>
     </message>
     <message>
         <source>Zoom 100%</source>
@@ -1000,23 +996,23 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Zoom &amp;In</source>
-        <translation>Ver&amp;größern</translation>
+        <translation type="vanished">Ver&amp;größern</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
+        <translation type="vanished">Verkleinern</translation>
     </message>
     <message>
         <source>&amp;Options</source>
-        <translation>&amp;Optionen</translation>
+        <translation type="vanished">&amp;Optionen</translation>
     </message>
     <message>
         <source>Undo last action</source>
-        <translation>Letzte Aktion rückgängig machen</translation>
+        <translation type="vanished">Letzte Aktion rückgängig machen</translation>
     </message>
     <message>
         <source>Grid is %1.</source>
-        <translation>Gitter ist %1.</translation>
+        <translation type="vanished">Gitter ist %1.</translation>
     </message>
     <message>
         <source>The file has been changed. Do you want to save it?</source>
@@ -1048,11 +1044,11 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Add new transitions</source>
-        <translation>Neue Übergange hinzufügen</translation>
+        <translation type="vanished">Neue Übergange hinzufügen</translation>
     </message>
     <message>
         <source>Simulates this machine</source>
-        <translation>Simuliert diesen Automaten</translation>
+        <translation type="vanished">Simuliert diesen Automaten</translation>
     </message>
     <message>
         <source>New Transition</source>
@@ -1068,7 +1064,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Select objects</source>
-        <translation>Objekte auswählen</translation>
+        <translation type="vanished">Objekte auswählen</translation>
     </message>
     <message>
         <source>object cut.</source>
@@ -1080,7 +1076,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation>&amp;Alles auswählen</translation>
+        <translation type="vanished">&amp;Alles auswählen</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -1104,15 +1100,15 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Select</source>
-        <translation>Aus&amp;wählen</translation>
+        <translation type="vanished">Aus&amp;wählen</translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
-        <translation>&amp;Editieren...</translation>
+        <translation type="vanished">&amp;Editieren...</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation>Datei öffnen</translation>
+        <translation type="vanished">Datei öffnen</translation>
     </message>
     <message>
         <source>objects cut.</source>
@@ -1120,15 +1116,15 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Save File</source>
-        <translation>Datei speichern</translation>
+        <translation type="vanished">Datei speichern</translation>
     </message>
     <message>
         <source>Saves this file</source>
-        <translation>Speichert diese Datei</translation>
+        <translation type="vanished">Speichert diese Datei</translation>
     </message>
     <message>
         <source>New File</source>
-        <translation>Neue Datei</translation>
+        <translation type="vanished">Neue Datei</translation>
     </message>
     <message>
         <source>object deleted.</source>
@@ -1136,7 +1132,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Copies Selection</source>
-        <translation>Kopiert die Auswahl</translation>
+        <translation type="vanished">Kopiert die Auswahl</translation>
     </message>
     <message>
         <source>&amp;General</source>
@@ -1144,15 +1140,15 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Add new states</source>
-        <translation>Neue Zustände hinzufügen</translation>
+        <translation type="vanished">Neue Zustände hinzufügen</translation>
     </message>
     <message>
         <source>Cuts Selection</source>
-        <translation>Schneidet die Auswahl aus</translation>
+        <translation type="vanished">Schneidet die Auswahl aus</translation>
     </message>
     <message>
         <source>Zoom out of the view</source>
-        <translation>Die Ansicht verkleinern</translation>
+        <translation type="vanished">Die Ansicht verkleinern</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
@@ -1164,7 +1160,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Straighten Transitions</source>
-        <translation>Übergänge begradigen</translation>
+        <translation type="vanished">Übergänge begradigen</translation>
     </message>
     <message>
         <source>&amp;AHDL</source>
@@ -1196,63 +1192,63 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Shadows</source>
-        <translation>&amp;Schatten</translation>
+        <translation type="vanished">&amp;Schatten</translation>
     </message>
     <message>
         <source>&amp;Pan view</source>
-        <translation>&amp;Ansicht verschieben</translation>
+        <translation type="vanished">&amp;Ansicht verschieben</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation>Ansicht Verschieben</translation>
+        <translation type="vanished">Ansicht Verschieben</translation>
     </message>
     <message>
         <source>Pan view</source>
-        <translation>Ansicht Verschieben</translation>
+        <translation type="vanished">Ansicht Verschieben</translation>
     </message>
     <message>
         <source>U&amp;ndo</source>
-        <translation>&amp;Rückgängig</translation>
+        <translation type="vanished">&amp;Rückgängig</translation>
     </message>
     <message>
         <source>De&amp;lete</source>
-        <translation>&amp;Löschen</translation>
+        <translation type="vanished">&amp;Löschen</translation>
     </message>
     <message>
         <source>State &amp;Codes</source>
-        <translation>Zustands-K&amp;odierung</translation>
+        <translation type="vanished">Zustands-K&amp;odierung</translation>
     </message>
     <message>
         <source>Moo&amp;re Outputs</source>
-        <translation>Moo&amp;re Ausgänge</translation>
+        <translation type="vanished">Moo&amp;re Ausgänge</translation>
     </message>
     <message>
         <source>Mealy I&amp;nputs</source>
-        <translation>Mealy Ei&amp;ngänge</translation>
+        <translation type="vanished">Mealy Ei&amp;ngänge</translation>
     </message>
     <message>
         <source>Mea&amp;ly Outputs</source>
-        <translation>Mea&amp;ly Ausgänge</translation>
+        <translation type="vanished">Mea&amp;ly Ausgänge</translation>
     </message>
     <message>
         <source>&amp;Zoom</source>
-        <translation>Größe ä&amp;ndern</translation>
+        <translation type="vanished">Größe ä&amp;ndern</translation>
     </message>
     <message>
         <source>Zoom &amp;100%</source>
-        <translation>Größe &amp;100%</translation>
+        <translation type="vanished">Größe &amp;100%</translation>
     </message>
     <message>
         <source>&amp;Straighten</source>
-        <translation>Be&amp;gradigen</translation>
+        <translation type="vanished">Be&amp;gradigen</translation>
     </message>
     <message>
         <source>&amp;About...</source>
-        <translation>&amp;Über...</translation>
+        <translation type="vanished">&amp;Über...</translation>
     </message>
     <message>
         <source>About &amp;Qt...</source>
-        <translation>Über &amp;Qt...</translation>
+        <translation type="vanished">Über &amp;Qt...</translation>
     </message>
     <message>
         <source>&amp;AHDL...</source>
@@ -1288,7 +1284,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Toggle Final State</source>
-        <translation>&amp;Endzustand aus/ein</translation>
+        <translation type="vanished">&amp;Endzustand aus/ein</translation>
     </message>
     <message>
         <source>&amp;Printing</source>
@@ -1328,19 +1324,19 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Add State</source>
-        <translation>Zustand hinzufügen</translation>
+        <translation type="vanished">Zustand hinzufügen</translation>
     </message>
     <message>
         <source>Add Transition</source>
-        <translation>Übergang hinzufügen</translation>
+        <translation type="vanished">Übergang hinzufügen</translation>
     </message>
     <message>
         <source>&amp;IO View</source>
-        <translation>Ansicht der &amp;Ein-/Ausgänge</translation>
+        <translation type="vanished">Ansicht der &amp;Ein-/Ausgänge</translation>
     </message>
     <message>
         <source>Qfsm &amp;Manual...</source>
-        <translation>Qfsm-&amp;Handbuch...</translation>
+        <translation type="vanished">Qfsm-&amp;Handbuch...</translation>
     </message>
     <message>
         <source>Export of file %1 failed!</source>
@@ -1372,7 +1368,7 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Auto correct State Codes...</source>
-        <translation>Zustands-Kodierungen &amp;automatisch korrigieren...</translation>
+        <translation type="vanished">Zustands-Kodierungen &amp;automatisch korrigieren...</translation>
     </message>
     <message>
         <source>%1 does not exist
@@ -1400,7 +1396,7 @@ Erstellen?</translation>
     </message>
     <message>
         <source>Set &amp;Initial State</source>
-        <translation>Setze &amp;Anfangszustand</translation>
+        <translation type="vanished">Setze &amp;Anfangszustand</translation>
     </message>
     <message>
         <source>&amp;Graphviz...</source>
@@ -1430,6 +1426,10 @@ Erstellen?</translation>
         <source>SM&amp;C...</source>
         <translation>SM&amp;C...</translation>
     </message>
+    <message>
+        <source>Grid is %1</source>
+        <translation type="unfinished">Gitter ist %1. {1?}</translation>
+    </message>
 </context>
 <context>
     <name>OptDisplayDlg</name>
@@ -1451,7 +1451,7 @@ Erstellen?</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation>Anzeige</translation>
+        <translation type="vanished">Anzeige</translation>
     </message>
     <message>
         <source>Start transition descriptor:</source>
@@ -1506,7 +1506,7 @@ Erstellen?</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Allgemein</translation>
+        <translation type="vanished">Allgemein</translation>
     </message>
     <message>
         <source>Language settings go into effect the next time you start Qfsm.</source>
@@ -1517,7 +1517,7 @@ Erstellen?</translation>
     <name>OptPrintingDlg</name>
     <message>
         <source>Printing</source>
-        <translation>Drucken</translation>
+        <translation type="vanished">Drucken</translation>
     </message>
     <message>
         <source>Print header</source>
@@ -1544,10 +1544,21 @@ Erstellen?</translation>
     </message>
 </context>
 <context>
+    <name>OptionsDlg</name>
+    <message>
+        <source>Qfsm Options</source>
+        <translation type="unfinished">Qfsm Optionen</translation>
+    </message>
+</context>
+<context>
     <name>PrintManager</name>
     <message>
         <source>The printer could not be initialised.</source>
-        <translation>Der Drucker konnte nicht initialisiert werden.</translation>
+        <translation type="vanished">Der Drucker konnte nicht initialisiert werden.</translation>
+    </message>
+    <message>
+        <source>Print Document</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1571,6 +1582,30 @@ Erstellen?</translation>
     <message>
         <source>Check reachable states</source>
         <translation>Überprüfe erreichbare Zustände</translation>
+    </message>
+    <message>
+        <source>Qfsm - A graphical tool for designing and simulating finite state machines</source>
+        <translation type="unfinished">Qfsm - Ein grafisches Tool zum erstellen und simulieren endlicher Zustandsautomaten</translation>
+    </message>
+    <message>
+        <source>Version </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Development version </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copyright 2000-2020 by </source>
+        <translation type="unfinished">Copyright 2000-2015 by  {2000-2020 ?}</translation>
+    </message>
+    <message>
+        <source>email: qfsm@duffner-net.de</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About Qfsm</source>
+        <translation type="unfinished">Über Qfsm</translation>
     </message>
 </context>
 <context>
@@ -1777,7 +1812,7 @@ Erstellen?</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Farbe</translation>
+        <translation type="vanished">Farbe</translation>
     </message>
     <message>
         <source>Radius:</source>
@@ -2013,6 +2048,232 @@ Wollen Sie die Anzahl der Mealy-Eingänge des Automaten erhöhen?</translation>
     <message>
         <source>The types of the two machines are not compatible.</source>
         <translation>Die Typen der beiden Automaten sind nicht kompatibel.</translation>
+    </message>
+</context>
+<context>
+    <name>qfsm::MainControl</name>
+    <message>
+        <source>English</source>
+        <translation type="unfinished">English</translation>
+    </message>
+</context>
+<context>
+    <name>qfsm::gui::ActionsManager</name>
+    <message>
+        <source>&amp;New...</source>
+        <translation type="unfinished">&amp;Neu...</translation>
+    </message>
+    <message>
+        <source>Creates a new file</source>
+        <translation type="unfinished">Erzeugt eine neue Datei</translation>
+    </message>
+    <message>
+        <source>&amp;Open...</source>
+        <translation type="unfinished">&amp;Öffnen...</translation>
+    </message>
+    <message>
+        <source>Opens a file</source>
+        <translation type="unfinished">Öffnet eine Datei</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation type="unfinished">&amp;Speichern</translation>
+    </message>
+    <message>
+        <source>Saves this file</source>
+        <translation type="unfinished">Speichert diese Datei</translation>
+    </message>
+    <message>
+        <source>Save &amp;As...</source>
+        <translation type="unfinished">Speichern &amp;unter...</translation>
+    </message>
+    <message>
+        <source>&amp;Print...</source>
+        <translation type="unfinished">&amp;Drucken...</translation>
+    </message>
+    <message>
+        <source>Prints this file</source>
+        <translation type="unfinished">Druckt diese Datei</translation>
+    </message>
+    <message>
+        <source>New &amp;Window</source>
+        <translation type="unfinished">Neues &amp;Fenster</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">Sch&amp;ließen</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished">&amp;Beenden</translation>
+    </message>
+    <message>
+        <source>U&amp;ndo</source>
+        <translation type="unfinished">&amp;Rückgängig</translation>
+    </message>
+    <message>
+        <source>Undo last action</source>
+        <translation type="unfinished">Letzte Aktion rückgängig machen</translation>
+    </message>
+    <message>
+        <source>C&amp;ut</source>
+        <translation type="unfinished">Aus&amp;schneiden</translation>
+    </message>
+    <message>
+        <source>Cuts Selection</source>
+        <translation type="unfinished">Schneidet die Auswahl aus</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">&amp;Kopieren</translation>
+    </message>
+    <message>
+        <source>Copies Selection</source>
+        <translation type="unfinished">Kopiert die Auswahl</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type="unfinished">&amp;Einfügen</translation>
+    </message>
+    <message>
+        <source>Pastes the clipboard</source>
+        <translation type="unfinished">Fügt die Zwischenablage ein</translation>
+    </message>
+    <message>
+        <source>De&amp;lete</source>
+        <translation type="unfinished">&amp;Löschen</translation>
+    </message>
+    <message>
+        <source>Select &amp;All</source>
+        <translation type="unfinished">&amp;Alles auswählen</translation>
+    </message>
+    <message>
+        <source>&amp;Clear selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation type="unfinished">&amp;Optionen</translation>
+    </message>
+    <message>
+        <source>State &amp;Codes</source>
+        <translation type="unfinished">Zustands-K&amp;odierung</translation>
+    </message>
+    <message>
+        <source>Moo&amp;re Outputs</source>
+        <translation type="unfinished">Moo&amp;re Ausgänge</translation>
+    </message>
+    <message>
+        <source>Mealy I&amp;nputs</source>
+        <translation type="unfinished">Mealy Ei&amp;ngänge</translation>
+    </message>
+    <message>
+        <source>Mea&amp;ly Outputs</source>
+        <translation type="unfinished">Mea&amp;ly Ausgänge</translation>
+    </message>
+    <message>
+        <source>&amp;Shadows</source>
+        <translation type="unfinished">&amp;Schatten</translation>
+    </message>
+    <message>
+        <source>&amp;Grid</source>
+        <translation type="unfinished">Gi&amp;tter</translation>
+    </message>
+    <message>
+        <source>&amp;IO View</source>
+        <translation type="unfinished">Ansicht der &amp;Ein-/Ausgänge</translation>
+    </message>
+    <message>
+        <source>&amp;Select</source>
+        <translation type="unfinished">Aus&amp;wählen</translation>
+    </message>
+    <message>
+        <source>Select objects</source>
+        <translation type="unfinished">Objekte auswählen</translation>
+    </message>
+    <message>
+        <source>&amp;Pan view</source>
+        <translation type="unfinished">&amp;Ansicht verschieben</translation>
+    </message>
+    <message>
+        <source>Zoom &amp;In</source>
+        <translation type="unfinished">Ver&amp;größern</translation>
+    </message>
+    <message>
+        <source>Zooms into the view</source>
+        <translation type="unfinished">Die Ansicht vergrößern</translation>
+    </message>
+    <message>
+        <source>Zoom &amp;Out</source>
+        <translation type="unfinished">Ver&amp;kleinern</translation>
+    </message>
+    <message>
+        <source>Zoom out of the view</source>
+        <translation type="unfinished">Die Ansicht verkleinern</translation>
+    </message>
+    <message>
+        <source>Zoom &amp;100%</source>
+        <translation type="unfinished">Größe &amp;100%</translation>
+    </message>
+    <message>
+        <source>&amp;Simulate...</source>
+        <translation type="unfinished">&amp;Simulieren...</translation>
+    </message>
+    <message>
+        <source>Simulates this machine</source>
+        <translation type="unfinished">Simuliert diesen Automaten</translation>
+    </message>
+    <message>
+        <source>&amp;Integrity Check</source>
+        <translation type="unfinished">&amp;Integritäts-Prüfung</translation>
+    </message>
+    <message>
+        <source>&amp;Auto correct State Codes...</source>
+        <translation type="unfinished">Zustands-Kodierungen &amp;automatisch korrigieren...</translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished">&amp;Editieren...</translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished">&amp;Neu</translation>
+    </message>
+    <message>
+        <source>Add new states</source>
+        <translation type="unfinished">Neue Zustände hinzufügen</translation>
+    </message>
+    <message>
+        <source>Set &amp;Initial State</source>
+        <translation type="unfinished">Setze &amp;Anfangszustand</translation>
+    </message>
+    <message>
+        <source>&amp;Toggle Final State</source>
+        <translation type="unfinished">&amp;Endzustand aus/ein</translation>
+    </message>
+    <message>
+        <source>Add new transitions</source>
+        <translation type="unfinished">Neue Übergange hinzufügen</translation>
+    </message>
+    <message>
+        <source>Straighten</source>
+        <translation type="unfinished">Begradigen</translation>
+    </message>
+    <message>
+        <source>Straightens selected transitions</source>
+        <translation type="unfinished">Begradigt ausgewählte Übergange</translation>
+    </message>
+    <message>
+        <source>Qfsm &amp;Manual...</source>
+        <translation type="unfinished">Qfsm-&amp;Handbuch...</translation>
+    </message>
+    <message>
+        <source>&amp;About...</source>
+        <translation type="unfinished">&amp;Über...</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt...</source>
+        <translation type="unfinished">Über &amp;Qt...</translation>
     </message>
 </context>
 </TS>

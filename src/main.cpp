@@ -48,6 +48,10 @@ int main(int argc, char** argv)
   // QTranslator trans(0);
   // QString lang = loadLanguage(&trans);
   // qfsm.installTranslator(&trans);
+  QTranslator qfsmAppTranslator{};
+  if (qfsmAppTranslator.load(QLocale::system(), u"qfsm"_qs, u"_"_qs, u":/i18n"_qs)) {
+    qfsmApp.installTranslator(&qfsmAppTranslator);
+  }
 
   qfsm::MainControl control{};
 
