@@ -38,6 +38,7 @@ class Transition {
     QPointF cp1{};
     QPointF cp2{};
     QPointF end{};
+    bool straight{};
   };
 
   Transition(State*, State*, TransitionInfo*);

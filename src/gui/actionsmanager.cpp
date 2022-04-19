@@ -1,5 +1,6 @@
 #include "actionsmanager.hpp"
 
+#include "MainControl.h"
 #include "MainWindow.h"
 #include "UndoBuffer.h"
 #include "optionsmanager.hpp"
@@ -23,6 +24,45 @@ ActionsManager::ActionsManager(QMainWindow* a_window)
   OptionsManager* options = m_window->options();
 
   QAction* action{};
+
+  // File
+
+  action = m_actions[Group::File][Action::New] = new QAction{ this };
+  action->setIcon(m_icons[QStringLiteral("newdoc")]);
+  action->setShortcut(QKeySequence::New);
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileNew);
+
+  action = m_actions[Group::File][Action::Open] = new QAction{ this };
+  action->setIcon(m_icons[QStringLiteral("open")]);
+  action->setShortcut(QKeySequence::Open);
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileOpen);
+
+  action = m_actions[Group::File][Action::Save] = new QAction{ this };
+  action->setIcon(m_icons[QStringLiteral("save")]);
+  action->setShortcut(QKeySequence::Save);
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileSave);
+
+  action = m_actions[Group::File][Action::SaveAs] = new QAction{ this };
+  action->setIcon(m_icons[QStringLiteral("saveas")]);
+  action->setShortcut(QKeySequence::SaveAs);
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileSaveAs);
+
+  action = m_actions[Group::File][Action::Print] = new QAction{ this };
+  action->setIcon(m_icons[QStringLiteral("print")]);
+  action->setShortcut(QKeySequence::Print);
+  connect(action, &QAction::triggered, m_window, &MainWindow::filePrint);
+
+  action = m_actions[Group::File][Action::NewWindow] = new QAction{ this };
+  action->setIcon(m_icons[QStringLiteral("newwindow")]);
+  connect(action, &QAction::triggered, m_window->control(), qOverload<>(&MainControl::newWindow));
+
+  action = m_actions[Group::File][Action::Close] = new QAction{ this };
+  action->setShortcut(QKeySequence::Close);
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileClose);
+
+  action = m_actions[Group::File][Action::Quit] = new QAction{ this };
+  action->setShortcut(QKeySequence::Quit);
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileQuit);
 
   // Edit
 
@@ -253,6 +293,19 @@ void ActionsManager::update()
 
 void ActionsManager::setupNames()
 {
+  m_actions[Group::File][Action::New]->setText(tr("&New..."));
+  m_actions[Group::File][Action::New]->setToolTip(tr("Creates a new file"));
+  m_actions[Group::File][Action::Open]->setText(tr("&Open..."));
+  m_actions[Group::File][Action::Open]->setToolTip(tr("Opens a file"));
+  m_actions[Group::File][Action::Save]->setText(tr("&Save"));
+  m_actions[Group::File][Action::Save]->setToolTip(tr("Saves this file"));
+  m_actions[Group::File][Action::SaveAs]->setText(tr("Save &As..."));
+  m_actions[Group::File][Action::Print]->setText(tr("&Print..."));
+  m_actions[Group::File][Action::Print]->setToolTip(tr("Prints this file"));
+  m_actions[Group::File][Action::NewWindow]->setText(tr("New &Window"));
+  m_actions[Group::File][Action::Close]->setText(tr("&Close"));
+  m_actions[Group::File][Action::Quit]->setText(tr("&Quit"));
+
   m_actions[Group::Edit][Action::Undo]->setText(tr("U&ndo"));
   m_actions[Group::Edit][Action::Undo]->setToolTip(tr("Undo last action"));
   m_actions[Group::Edit][Action::Cut]->setText(tr("C&ut"));
@@ -307,29 +360,35 @@ void ActionsManager::setupNames()
 
 void ActionsManager::setupIcons()
 {
+  addIcon(QStringLiteral("addstate"));
+  addIcon(QStringLiteral("addtransition"));
   addIcon(QStringLiteral("copy"));
   addIcon(QStringLiteral("cut"));
   addIcon(QStringLiteral("delete"));
+  addIcon(QStringLiteral("newdoc"));
+  addIcon(QStringLiteral("newwindow"));
+  addIcon(QStringLiteral("open"));
   addIcon(QStringLiteral("options"));
   addIcon(QStringLiteral("panning"));
   addIcon(QStringLiteral("paste"));
+  addIcon(QStringLiteral("print"));
+  addIcon(QStringLiteral("run"));
+  addIcon(QStringLiteral("save"));
+  addIcon(QStringLiteral("saveas"));
   addIcon(QStringLiteral("select"));
+  addIcon(QStringLiteral("straighten"));
   addIcon(QStringLiteral("undo"));
   addIcon(QStringLiteral("zoom100"));
   addIcon(QStringLiteral("zoomin"));
   addIcon(QStringLiteral("zoomout"));
-  addIcon(QStringLiteral("run"));
-  addIcon(QStringLiteral("addstate"));
-  addIcon(QStringLiteral("addtransition"));
-  addIcon(QStringLiteral("straighten"));
 }
 
 void ActionsManager::addIcon(const QString& a_iconName)
 {
   QIcon& icon = m_icons[a_iconName];
-  icon.addFile(QStringLiteral(":/icons/%1.png").arg(a_iconName));
+  // icon.addFile(QStringLiteral(":/icons/%1.png").arg(a_iconName));
   icon.addFile(QStringLiteral(":/icons/sc_%1.png").arg(a_iconName), { 16, 16 });
-  icon.addFile(QStringLiteral(":/icons/lc_%1.png").arg(a_iconName), { 24, 24 });
+  // icon.addFile(QStringLiteral(":/icons/lc_%1.png").arg(a_iconName), { 24, 24 });
 }
 
 } // namespace qfsm::gui

@@ -18,9 +18,11 @@ class StateItem : public QGraphicsItem {
   ~StateItem() = default;
 
   const State* state() const { return m_state; }
+  int radius() const { return m_radius; }
 
  public:
   int type() const override { return STATE_TYPE; }
+  QPainterPath shape() const override;
   QRectF boundingRect() const override;
   void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
 

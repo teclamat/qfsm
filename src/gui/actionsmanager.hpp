@@ -18,6 +18,14 @@ class ActionsManager : public QObject {
  public:
   enum class Group { File, Edit, View, Machine, State, Transition, Help };
   enum class Action {
+    New,
+    Open,
+    Save,
+    SaveAs,
+    Print,
+    NewWindow,
+    Close,
+    Quit,
     Undo,
     Cut,
     Copy,

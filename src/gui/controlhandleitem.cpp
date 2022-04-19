@@ -1,7 +1,7 @@
 #include "controlhandleitem.hpp"
 
 #include "GState.h"
-#include "State.h"
+// #include "State.h"
 #include "common.hpp"
 #include "stateitem.hpp"
 #include "transitionitem.hpp"
@@ -42,26 +42,25 @@ QVariant ControlHandleItem::itemChange(GraphicsItemChange a_change, const QVaria
 
 void ControlHandleItem::mouseMoveEvent(QGraphicsSceneMouseEvent* a_event)
 {
-  // qDebug() << "CP moved, pos" << pos() << "ep" << a_event->pos() << "eip" << a_event->buttonDownPos(Qt::LeftButton)
-  //          << "diff" << (a_event->pos() - a_event->buttonDownPos(Qt::LeftButton));
-  const QPointF offset = a_event->pos() - a_event->buttonDownPos(Qt::LeftButton);
+  QPointF offset = a_event->pos() - a_event->buttonDownPos(Qt::LeftButton);
+
+  const bool isStartOrEndHandle = (m_type == handle::start) || (m_type == handle::end);
+  if (isStartOrEndHandle) {
+    for (const QGraphicsItem* item : scene()->items(a_event->scenePos())) {
+      if (item->type() != STATE_TYPE) {
+        continue;
+      }
+      const StateItem* state = qgraphicsitem_cast<const StateItem*>(item);
+      const QPointF statePos = state->pos();
+      QPointF edgePosition{};
+      GState::circleEdge(statePos.x(), statePos.y(), state->radius(), a_event->scenePos().x(), a_event->scenePos().y(),
+                         edgePosition.rx(), edgePosition.ry());
+      offset = mapFromScene(edgePosition) - m_center;
+      break;
+    }
+  }
 
   setPos(pos() + offset);
-
-  for (QGraphicsItem* item : scene()->items(a_event->scenePos())) {
-    if (item->type() != STATE_TYPE)
-      continue;
-    const State* state = qgraphicsitem_cast<StateItem*>(item)->state();
-    const State::VisualData& data = state->visualData();
-    qDebug() << "Is over state with name" << state->getStateName();
-    QPointF edgePosition{};
-    GState::circleEdge(data.x, data.y, data.radius, a_event->scenePos().x(), a_event->scenePos().y(), edgePosition.rx(),
-                       edgePosition.ry());
-    qDebug() << "Mouse pos" << a_event->scenePos() << "state pos" << QPointF{ data.x, data.y } << "edgePos"
-             << edgePosition;
-    qDebug() << "Rect pos" << pos() << "center" << m_center << "mapped edge" << mapFromScene(edgePosition);
-    break;
-  }
 
   TransitionItem* transitionItem = qgraphicsitem_cast<TransitionItem*>(parentItem());
   if (transitionItem) {

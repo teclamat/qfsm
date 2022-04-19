@@ -200,14 +200,16 @@ MainWindow::MainWindow(QObject* a_parent)
   id_export_ragel = menu_export->addAction(tr("&Ragel..."), this, &MainWindow::fileExportRagel);
   id_export_smc = menu_export->addAction(tr("SM&C..."), this, &MainWindow::fileExportSMC);
 
+  using Group = qfsm::gui::ActionsManager::Group;
+  using Action = qfsm::gui::ActionsManager::Action;
+
   // File
-  menu_file = new QMenu(this);
-  // menu_file->setMouseTracking(true);
-  menu_file->addAction(*pnew, tr("&New..."), this, &MainWindow::fileNew, Qt::CTRL | Qt::Key_N);
-  id_open = menu_file->addAction(*popen, tr("&Open..."), this, &MainWindow::fileOpen, Qt::CTRL | Qt::Key_O);
+  menu_file = new QMenu{ this };
+  menu_file->addAction(tr("&New..."), this, &MainWindow::fileNew, Qt::CTRL | Qt::Key_N);
+  id_open = menu_file->addAction(tr("&Open..."), this, &MainWindow::fileOpen, Qt::CTRL | Qt::Key_O);
   menu_mru = menu_file->addMenu(tr("Open &Recent"));
   menu_file->addSeparator();
-  id_save = menu_file->addAction(*saveset, tr("&Save"), this, &MainWindow::fileSave, Qt::CTRL | Qt::Key_S);
+  id_save = menu_file->addAction(tr("&Save"), this, &MainWindow::fileSave, Qt::CTRL | Qt::Key_S);
   id_saveas = menu_file->addAction(tr("Save &As..."), this, &MainWindow::fileSaveAs);
   menu_file->addSeparator();
   id_import = menu_file->addMenu(menu_import);
@@ -215,15 +217,12 @@ MainWindow::MainWindow(QObject* a_parent)
   id_export = menu_file->addMenu(menu_export);
   id_export->setText(tr("&Export"));
   menu_file->addSeparator();
-  id_print = menu_file->addAction(*printset, tr("&Print..."), this, &MainWindow::filePrint, Qt::CTRL | Qt::Key_P);
+  id_print = menu_file->addAction(tr("&Print..."), this, &MainWindow::filePrint, Qt::CTRL | Qt::Key_P);
   menu_file->addSeparator();
   menu_file->addAction(tr("New &Window"), m_control, qOverload<>(&qfsm::MainControl::newWindow));
   menu_file->addSeparator();
   id_close = menu_file->addAction(tr("&Close"), this, &MainWindow::fileClose, Qt::CTRL | Qt::Key_W);
   menu_file->addAction(tr("&Quit"), this, &MainWindow::fileQuit, Qt::CTRL | Qt::Key_Q);
-
-  using Group = qfsm::gui::ActionsManager::Group;
-  using Action = qfsm::gui::ActionsManager::Action;
 
   // Edit
   menu_edit = new QMenu{ this };
@@ -458,49 +457,16 @@ MainWindow::~MainWindow()
 /// Creates the toolbar with its buttons
 void MainWindow::createToolBar()
 {
-  //  toolbar = new QToolBar("Main Toolbar", this);
-  toolbar = addToolBar("Main Toolbar");
-  toolbar->setMovable(true);
-
-  pnew = new QPixmap((const char**)filenew);
-  tbnew = toolbar->addAction(*pnew, tr("New File"), this, SLOT(fileNew()));
-  tbnew->setToolTip(tr("Creates a new file"));
-
-  popen = new QPixmap((const char**)fileopen);
-  tbopen = toolbar->addAction(*popen, tr("Open File"), this, SLOT(fileOpen()));
-  tbopen->setToolTip(tr("Opens a file"));
-
-  QPixmap psave((const char**)filesave);
-  QPixmap psaveoff((const char**)filesaveoff);
-  saveset = new QIcon(psave);
-  saveset->addPixmap(psaveoff, QIcon::Disabled);
-  tbsave = toolbar->addAction(*saveset, tr("Save File"), this, SLOT(fileSave()));
-  tbsave->setToolTip(tr("Saves this file"));
-
-  QPixmap pprint((const char**)fileprint);
-  QPixmap pprintoff((const char**)fileprintoff);
-  printset = new QIcon(pprint);
-  printset->addPixmap(pprintoff, QIcon::Disabled);
-  tbprint = toolbar->addAction(*printset, tr("Print"), this, SLOT(filePrint()));
-  tbprint->setToolTip(tr("Prints this file"));
-
   using Group = qfsm::gui::ActionsManager::Group;
   using Action = qfsm::gui::ActionsManager::Action;
 
-  // tbundo = toolbar->addAction(*undoset, tr("Undo"), this, SLOT(editUndo()));
-  // tbcut = toolbar->addAction(*cutset, tr("Cut"), this, SLOT(editCut()));
-  // tbcopy = toolbar->addAction(*copyset, tr("Copy"), this, SLOT(editCopy()));
-  // tbpaste = toolbar->addAction(*pasteset, tr("Paste"), this, SLOT(editPaste()));
-  // tbselect = toolbar->addAction(*selset, tr("Select"), this, SLOT(editSelect()));
-  // tbpan = toolbar->addAction(*panset, tr("Pan"), this, SLOT(viewPan()));
-  // tbstatenew = toolbar->addAction(*statenewset, tr("Add State"), this, SLOT(stateNew()));
-  // tbtransnew = toolbar->addAction(*transnewset, tr("Add Transition"), this, SLOT(transNew()));
-  // tbmachinesim = toolbar->addAction(*machinesimset, tr("Simulate"), this, SLOT(machineSimulate()));
-  // tbzoomin = toolbar->addAction(*pzoomin, tr("Zoom In"), this, SLOT(viewZoomIn()));
-  // tbzoomout = toolbar->addAction(*pzoomout, tr("Zoom Out"), this, SLOT(viewZoomOut()));
-  // tbtransstraighten = toolbar->addAction(*transstraightenset, tr("Straighten Transitions"), this,
-  // SLOT(transStraighten()));
+  toolbar = addToolBar("Main Toolbar");
+  toolbar->setMovable(true);
 
+  toolbar->addAction(m_actionsManager->action(Group::File, Action::New));
+  toolbar->addAction(m_actionsManager->action(Group::File, Action::Open));
+  toolbar->addAction(m_actionsManager->action(Group::File, Action::Save));
+  toolbar->addAction(m_actionsManager->action(Group::File, Action::Print));
   toolbar->addSeparator();
   toolbar->addAction(m_actionsManager->action(Group::Edit, Action::Undo));
   toolbar->addAction(m_actionsManager->action(Group::Edit, Action::Cut));
@@ -521,15 +487,6 @@ void MainWindow::createToolBar()
 /// Destroys the toolbar
 void MainWindow::destroyToolBar()
 {
-  delete popen;
-  delete pnew;
-  delete saveset;
-  delete printset;
-  delete tbnew;
-  delete tbopen;
-  delete tbsave;
-  delete tbprint;
-  delete toolbar;
 }
 
 /// Called when a key is pressed
@@ -585,7 +542,6 @@ void MainWindow::closeEvent(QCloseEvent* e)
 /// Called when this window receives the focus
 void MainWindow::focusInEvent(QFocusEvent* e)
 {
-  qDebug("test");
   if (e->gotFocus()) {
     if (e->reason() != Qt::PopupFocusReason)
       updatePaste();
@@ -783,8 +739,8 @@ void MainWindow::updateMenuBar()
     // id_machineedit->setEnabled(true);
     // id_correctcodes->setEnabled(true);
     // id_machineicheck->setEnabled(true);
-    tbsave->setEnabled(true);
-    tbprint->setEnabled(true);
+    // tbsave->setEnabled(true);
+    // tbprint->setEnabled(true);
     // tbstatenew->setEnabled(true);
     // tbtransnew->setEnabled(true);
   } else {
@@ -820,8 +776,8 @@ void MainWindow::updateMenuBar()
     // id_machineedit->setEnabled(false);
     // id_correctcodes->setEnabled(false);
     // id_machineicheck->setEnabled(false);
-    tbsave->setEnabled(false);
-    tbprint->setEnabled(false);
+    // tbsave->setEnabled(false);
+    // tbprint->setEnabled(false);
     // tbstatenew->setEnabled(false);
     // tbtransnew->setEnabled(false);
     // tbmachinesim->setEnabled(false);
@@ -1048,7 +1004,7 @@ void MainWindow::updateAll()
   //  updatePaste();
   updateMenuBar();
   updateTitleBar();
-  updateStatusBar();
+  // updateStatusBar();
   if (vvvv_export->isVisible())
     updateVVVV();
 }
@@ -1270,13 +1226,6 @@ void MainWindow::fileOpenRecent(QString fileName)
         break;
     }
   }
-
-  /*
-  QCursor oldcursor1 = cursor();
-  QCursor oldcursor2 = m_mainView->viewport()->cursor();
-  setCursor(waitCursor);
-  m_mainView->viewport()->setCursor(waitCursor);
-  */
 
   p = fileio->openFileXML(fileName);
   if (p) {
@@ -1528,7 +1477,6 @@ bool MainWindow::fileExportEPS()
   return false;
 }
 
-//
 /// Exports the current diagram to a SVG file
 bool MainWindow::fileExportSVG()
 {

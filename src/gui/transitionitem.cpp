@@ -50,6 +50,8 @@ TransitionItem::TransitionItem(Transition* a_transition)
 
   const Transition::VisualData& data = m_transition->visualData();
   m_line << data.begin << data.cp1 << data.cp2 << data.end;
+  m_straight = data.straight;
+
   const QPointF position = m_line.boundingRect().topLeft();
   m_line.translate(-position);
   setPos(position);

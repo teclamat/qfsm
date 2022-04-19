@@ -135,6 +135,7 @@ class MainWindow : public QMainWindow {
   ScrollView* getScrollView() { return m_mainView; }
   /// Returns the status bar.
   StatusBar* getStatusBar() { return m_statusBar; }
+  qfsm::MainControl* control() { return m_control; }
   qfsm::Project* project() { return m_project; }
   qfsm::OptionsManager* options() { return m_optionsManager; }
   qfsm::gui::View* view() { return m_view; }
@@ -243,22 +244,6 @@ class MainWindow : public QMainWindow {
   QToolBar* toolbar;
   /// Application icon
   QPixmap* pappicon;
-  /// New file icon
-  QPixmap* pnew;
-  /// Open file icon
-  QPixmap* popen;
-  /// New file tool button
-  QAction* tbnew;
-  /// Open file tool button
-  QAction* tbopen;
-  /// Save file tool button
-  QAction* tbsave;
-  /// Print file tool button
-  QAction* tbprint;
-  /// Save file icon set
-  QIcon* saveset;
-  /// Print file icon set
-  QIcon* printset;
 
   // menu item IDs
   // file

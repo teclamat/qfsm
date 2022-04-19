@@ -364,7 +364,6 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     hasto = false;
     if (machine) {
       transition = new GTransition{};
-      Transition::VisualData& visualData = transition->visualData();
       ttype = atts.hasAttribute("type") ? atts.value("type").toInt() : 1;
 
       transition->setDescription(atts.value("description").toString());
@@ -376,11 +375,14 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
       transition->setCPoint1Y(atts.value("c1y").toDouble());
       transition->setCPoint2X(atts.value("c2x").toDouble());
       transition->setCPoint2Y(atts.value("c2y").toDouble());
-      transition->setStraight(atts.value("straight").toDouble());
+      transition->setStraight(atts.value("straight").toInt());
+
+      Transition::VisualData& visualData = transition->visualData();
       visualData.begin = transition->position();
       visualData.cp1 = transition->controlPoint1();
       visualData.cp2 = transition->controlPoint2();
       visualData.end = transition->endPosition();
+      visualData.straight = transition->isStraight();
     }
   } else if (qName == "from") {
     hasfrom = true;

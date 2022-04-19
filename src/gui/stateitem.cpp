@@ -23,7 +23,7 @@ static const QPen SELECTION_PEN{ QColor{ Qt::red }, 1 };
 static const QPen NORMAL_PEN{ QColor{ Qt::black }, 1 };
 static const QBrush BACKGROUND_BRUSH{ Qt::white };
 static const QMarginsF FINAL_STATE_MARGIN{ 4.0, 4.0, 4.0, 4.0 };
-static const QMarginsF SELECTION_MARGIN{ 2.0, 2.0, 2.5, 2.5 };
+static const QMarginsF SELECTION_MARGIN{ 2.5, 2.5, 2.5, 2.5 };
 
 StateItem::StateItem(State* a_state)
   : QGraphicsItem{}
@@ -36,13 +36,22 @@ StateItem::StateItem(State* a_state)
   m_outlinePen.setColor(data.outlineColor);
   m_outlinePen.setWidth(data.outlineWidth);
   m_radius = data.radius;
-  setPos(data.x - m_radius, data.y - m_radius);
+  // setPos(data.x - m_radius, data.y - m_radius);
+  setPos(data.x, data.y);
+}
+
+QPainterPath StateItem::shape() const
+{
+  QPainterPath path{};
+  const double radius = static_cast<double>(m_radius);
+  path.addEllipse({}, radius, radius);
+  return path;
 }
 
 QRectF StateItem::boundingRect() const
 {
-  const double boundsSize = static_cast<double>(2 * m_radius + SHADOW_SIZE + 0.5);
-  return QRectF{ -2.0, -2.0, boundsSize, boundsSize };
+  const double boundsSize = static_cast<double>(m_radius + SHADOW_SIZE);
+  return QRectF{ QPointF{ -boundsSize, -boundsSize }, QPointF{ boundsSize, boundsSize } };
 }
 
 void StateItem::paint(QPainter* a_painter, const QStyleOptionGraphicsItem*, QWidget*)
@@ -58,8 +67,9 @@ void StateItem::paint(QPainter* a_painter, const QStyleOptionGraphicsItem*, QWid
     return;
   }
 
-  const double size = static_cast<double>(2 * m_radius) + 0.5;
-  const QRectF shapeRect{ 0.5, 0.5, size, size };
+  // const double size = static_cast<double>(2 * m_radius) + 0.5;
+  const double radius = static_cast<double>(m_radius);
+  const QRectF shapeRect{ QPointF{ -radius, -radius }, QPointF{ radius, radius } };
   const bool isMachineTextType = machine->getType() == TransitionType::Text;
   const bool splitStateArea =
       !isMachineTextType && (graphicsScene->options().showMooreOutputs || graphicsScene->options().showStateEncoding);
@@ -86,10 +96,9 @@ void StateItem::paint(QPainter* a_painter, const QStyleOptionGraphicsItem*, QWid
 
   QRectF topArea{ shapeRect };
   QRectF bottomArea{};
-  const double splitHeight = std::floor(shapeRect.y() + shapeRect.height() * 0.5) + 0.5;
   if (splitStateArea) {
-    topArea.setCoords(shapeRect.x(), shapeRect.y() + 8, shapeRect.right(), splitHeight - 2);
-    bottomArea.setCoords(shapeRect.x(), splitHeight + 2, shapeRect.right(), shapeRect.bottom() - 8);
+    topArea.setCoords(shapeRect.x(), shapeRect.y() + 8.0, shapeRect.right(), -2.0);
+    bottomArea.setCoords(shapeRect.x(), 2.0, shapeRect.right(), shapeRect.bottom() - 8.0);
   }
 
   QStringList name{ m_state->getStateName() };
@@ -107,7 +116,7 @@ void StateItem::paint(QPainter* a_painter, const QStyleOptionGraphicsItem*, QWid
 
   if (splitStateArea) {
     const double padding = m_state->isFinalState() ? 9.0 : 5.0;
-    a_painter->drawLine(QPointF{ padding, splitHeight }, QPointF{ shapeRect.width() - padding, splitHeight });
+    a_painter->drawLine(QPointF{ shapeRect.left() + padding, 0.0 }, QPointF{ shapeRect.right() - padding, 0.0 });
 
     QStringList stateTextList{};
     if (graphicsScene->options().showMooreOutputs) {
