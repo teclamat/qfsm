@@ -16,17 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <qcolor.h>
-#include <qmap.h>
-#include <qwidget.h>
-#include <QDebug>
-#include <QFileDialog>
-#include <QTextStream>
+#include "FileIO.h"
+
+#include "gui/error.hpp"
 
 #include "Convert.h"
-#include "Error.h"
 #include "Export.h"
-#include "FileIO.h"
 #include "GState.h"
 #include "IOInfoASCII.h"
 #include "IOInfoText.h"
@@ -38,6 +33,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfoBin.h"
 #include "TransitionInfoText.h"
 #include "XMLHandler.h"
+
+#include <QColor>
+#include <QDebug>
+#include <QFileDialog>
+#include <QMap>
+#include <QTextStream>
+#include <QWidget>
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #include <QtGlobal>
@@ -88,9 +90,7 @@ FileIO::FileIO(QWidget* parent)
 }
 
 /// Destructor
-FileIO::~FileIO()
-{
-}
+FileIO::~FileIO() {}
 
 /**
  * Opens a 'fsm'-file.
@@ -176,7 +176,8 @@ bool FileIO::saveFileAs(qfsm::Project* p)
       act_file.append(".fsm");
 
     if (QFile::exists(act_file)) {
-      if (Error::warningOkCancel(tr("File exists. Do you want to overwrite it?")) != QMessageBox::Ok)
+      if (qfsm::gui::error::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::error::Button::Cancel) !=
+          QMessageBox::Ok)
         return false;
     }
 
@@ -218,7 +219,7 @@ bool FileIO::doSaveXML(qfsm::Project* p)
 
   QFile file(act_file);
   if (!file.open(QIODevice::WriteOnly)) {
-    Error::info(tr("File cannot be written."));
+    qfsm::gui::error::info(tr("File cannot be written."));
     qDebug("file cannot be opened for writing");
     return false;
   }
@@ -634,7 +635,8 @@ bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
 
     QFile ftmp(act_exportfile);
     if (ftmp.exists()) {
-      if (Error::warningOkCancel(tr("File exists. Do you want to overwrite it?")) != QMessageBox::Ok)
+      if (qfsm::gui::error::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::error::Button::Cancel) !=
+          QMessageBox::Ok)
         return false;
     }
 

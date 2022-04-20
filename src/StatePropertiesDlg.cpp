@@ -17,11 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "StatePropertiesDlg.h"
 
+#include "gui/error.hpp"
+
 #include <qcolor.h>
 #include <qcolordialog.h>
 
 #include "Convert.h"
-#include "Error.h"
 #include "Machine.h"
 #include "MainWindow.h"
 #include "Project.h"
@@ -69,7 +70,6 @@ StatePropertiesDlgImpl::~StatePropertiesDlgImpl()
  */
 void StatePropertiesDlgImpl::validate()
 {
-  Error err;
   QString r, l, c;
   int icode;
   Machine* m = main->project()->machine();
@@ -89,17 +89,17 @@ void StatePropertiesDlgImpl::validate()
   int pos = 0;
 
   if (ui.le_name->text().isEmpty())
-    err.info(tr("You must specify a name."));
+    qfsm::gui::error::info(tr("You must specify a name."));
   else if (!State::codeValid(m->getType(), c))
-    err.info(tr("Code is not in binary format."));
+    qfsm::gui::error::info(tr("Code is not in binary format."));
   else if (!State::mooreOutputValid(m->getType(), ui.le_mooreoutputs->text()))
-    err.info(tr("Moore outputs are not in the correct format."));
+    qfsm::gui::error::info(tr("Moore outputs are not in the correct format."));
   // else if (!Utils::binStringValid(le_mooreoutputs->text()))
   // err.info(tr("Moore outputs are not in binary format."));
   else if (valRadius->validate(r, pos) != QValidator::Acceptable)
-    err.info(tr("Radius out of range."));
+    qfsm::gui::error::info(tr("Radius out of range."));
   else if (valLineWidth->validate(l, pos) != QValidator::Acceptable)
-    err.info(tr("Linewidth out of range."));
+    qfsm::gui::error::info(tr("Linewidth out of range."));
   else
     accept();
 }
@@ -111,7 +111,7 @@ void StatePropertiesDlgImpl::setColor(const QColor& a_color)
   }
   m_outlineColor = a_color;
 
-  const QString colorText{QVariant{ m_outlineColor }.toString()};
+  const QString colorText{ QVariant{ m_outlineColor }.toString() };
   QString styleSheetText{};
   if (m_outlineColor != Qt::black) {
     styleSheetText = QString{ "background-color:%1" }.arg(colorText);

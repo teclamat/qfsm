@@ -16,21 +16,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef ERROR_H
-#define ERROR_H
+#include "error.hpp"
 
-/**
- * @class Error
- * @brief This class provides an easy interface for error messageboxes.
- *
- */
-class Error {
-public:
-  Error();
+#include "literals.hpp"
 
-  static int info(QString text);
-  static int warningOk(QString text);
-  static int warningOkCancel(QString text);
-};
+namespace qfsm::gui::error {
 
-#endif
+int info(const QString& a_message, QMessageBox::StandardButtons a_buttons)
+{
+  return QMessageBox::information(nullptr, u"Qfsm"_qs, a_message, Button::Ok | a_buttons);
+}
+
+int warnOk(const QString& a_message, QMessageBox::StandardButtons a_buttons)
+{
+  return QMessageBox::warning(nullptr, u"Qfsm"_qs, a_message, Button::Ok | a_buttons);
+}
+
+} // namespace qfsm::gui::error

@@ -16,13 +16,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-// #include <q3buttongroup.h>
+#include "gui/error.hpp"
+
 #include <qradiobutton.h>
 
 #include "TransitionPropertiesDlg.h"
 
 #include "Const.h"
-#include "Error.h"
 #include "Transition.h"
 #include "TransitionInfo.h"
 
@@ -35,11 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  true to construct a modal dialog.
  */
-TransitionPropertiesDlgImpl::TransitionPropertiesDlgImpl(QWidget *parent,
-                                                         const char *name,
-                                                         bool modal,
+TransitionPropertiesDlgImpl::TransitionPropertiesDlgImpl(QWidget* parent, const char* name, bool modal,
                                                          Qt::WindowFlags fl)
-    : QDialog(parent, fl) {
+  : QDialog(parent, fl)
+{
   ui.setupUi(this);
 
   connect(ui.pb_ok, &QPushButton::clicked, this, &TransitionPropertiesDlgImpl::validate);
@@ -58,8 +57,8 @@ TransitionPropertiesDlgImpl::TransitionPropertiesDlgImpl(QWidget *parent,
 TransitionPropertiesDlgImpl::~TransitionPropertiesDlgImpl() {}
 
 /// Validates the strings entered as the transition inputs and outputs
-void TransitionPropertiesDlgImpl::validate() {
-  Error err;
+void TransitionPropertiesDlgImpl::validate()
+{
   QString in, out;
   int type;
   int cres;
@@ -72,50 +71,52 @@ void TransitionPropertiesDlgImpl::validate() {
   cres = Transition::conditionValid(type, in);
   if (cres) {
     switch (cres) {
-    case 1:
-      err.info(tr("Input condition is not in binary format."));
-      break;
-    case 2:
-      err.info(tr("Incomplete escape sequence."));
-      break;
-    case 3:
-      err.info(tr("'-' has to define a range."));
-      break;
-    case 4:
-      err.info(tr("Output must be only one character."));
-      break;
-    case 5:
-      err.info(tr("Invalid escape sequence.\nThe format is \\0xx, where xx is "
-                  "a\nhexadecimal value"));
-      break;
-    default:
-      err.info(tr("Input condition is not in the correct format."));
-      break;
+      case 1:
+        qfsm::gui::error::info(tr("Input condition is not in binary format."));
+        break;
+      case 2:
+        qfsm::gui::error::info(tr("Incomplete escape sequence."));
+        break;
+      case 3:
+        qfsm::gui::error::info(tr("'-' has to define a range."));
+        break;
+      case 4:
+        qfsm::gui::error::info(tr("Output must be only one character."));
+        break;
+      case 5:
+        qfsm::gui::error::info(
+            tr("Invalid escape sequence.\nThe format is \\0xx, where xx is "
+               "a\nhexadecimal value"));
+        break;
+      default:
+        qfsm::gui::error::info(tr("Input condition is not in the correct format."));
+        break;
     }
     return;
   } else {
     cres = Transition::conditionValid(type, out, false);
     if (cres) {
       switch (cres) {
-      case 1:
-        err.info(tr("Output condition is not in binary format."));
-        break;
-      case 2:
-        err.info(tr("Incomplete escape sequence."));
-        break;
-      case 3:
-        err.info(tr("'-' has to define a range."));
-        break;
-      case 4:
-        err.info(tr("Output must be only one character."));
-        break;
-      case 5:
-        err.info(tr("Invalid escape sequence.\nThe format is \\0xx, where xx "
-                    "is a\nhexadecimal value"));
-        break;
-      default:
-        err.info(tr("Output condition is not in the correct format."));
-        break;
+        case 1:
+          qfsm::gui::error::info(tr("Output condition is not in binary format."));
+          break;
+        case 2:
+          qfsm::gui::error::info(tr("Incomplete escape sequence."));
+          break;
+        case 3:
+          qfsm::gui::error::info(tr("'-' has to define a range."));
+          break;
+        case 4:
+          qfsm::gui::error::info(tr("Output must be only one character."));
+          break;
+        case 5:
+          qfsm::gui::error::info(
+              tr("Invalid escape sequence.\nThe format is \\0xx, where xx "
+                 "is a\nhexadecimal value"));
+          break;
+        default:
+          qfsm::gui::error::info(tr("Output condition is not in the correct format."));
+          break;
       }
       return;
     } else
@@ -124,7 +125,8 @@ void TransitionPropertiesDlgImpl::validate() {
 }
 
 /// Returns the type of the transition
-int TransitionPropertiesDlgImpl::getType() {
+int TransitionPropertiesDlgImpl::getType()
+{
   if (ui.rb_ascii->isChecked())
     return 1;
   if (ui.rb_text->isChecked())
@@ -142,7 +144,8 @@ int TransitionPropertiesDlgImpl::getType() {
     */
 }
 
-void TransitionPropertiesDlgImpl::resetFields() {
+void TransitionPropertiesDlgImpl::resetFields()
+{
   ui.cb_default->setEnabled(false);
   ui.cb_invert->setEnabled(false);
   ui.cb_any->setEnabled(false);
@@ -152,7 +155,8 @@ void TransitionPropertiesDlgImpl::resetFields() {
 }
 
 /// Sets the type of the transition
-void TransitionPropertiesDlgImpl::setType(int t) {
+void TransitionPropertiesDlgImpl::setType(int t)
+{
   // qDebug("setType %d", t);
   if (t == Binary) {
     ui.rb_bin->setEnabled(true);
@@ -196,7 +200,8 @@ void TransitionPropertiesDlgImpl::setType(int t) {
 }
 
 /// Called when the 'Binary' button is clicked
-void TransitionPropertiesDlgImpl::binaryClicked() {
+void TransitionPropertiesDlgImpl::binaryClicked()
+{
   // qDebug("binaryClicked()");
   ui.le_input->setMaxLength(binmax_in);
   ui.le_output->setMaxLength(binmax_out);
@@ -221,7 +226,8 @@ void TransitionPropertiesDlgImpl::binaryClicked() {
 }
 
 /// Called when the 'ASCII' button is clicked
-void TransitionPropertiesDlgImpl::asciiClicked() {
+void TransitionPropertiesDlgImpl::asciiClicked()
+{
   // qDebug("ASCIIClicked()");
   ui.le_input->setMaxLength(MAX_ASCII_INPUTLENGTH);
   ui.le_output->setMaxLength(MAX_ASCII_OUTPUTLENGTH);
@@ -245,7 +251,8 @@ void TransitionPropertiesDlgImpl::asciiClicked() {
   }
 }
 
-void TransitionPropertiesDlgImpl::freeTextClicked() {
+void TransitionPropertiesDlgImpl::freeTextClicked()
+{
   // qDebug("freeTextClicked()");
   ui.le_input->setMaxLength(MAX_TEXT_INPUTLENGTH);
   ui.le_output->setMaxLength(MAX_TEXT_OUTPUTLENGTH);
@@ -278,7 +285,8 @@ invertClicked();
     */
 }
 
-void TransitionPropertiesDlgImpl::anyClicked() {
+void TransitionPropertiesDlgImpl::anyClicked()
+{
   if (ui.cb_any->isChecked()) {
     ui.cb_invert->setEnabled(false);
     ui.cb_default->setEnabled(false);
@@ -290,7 +298,8 @@ void TransitionPropertiesDlgImpl::anyClicked() {
   }
 }
 
-void TransitionPropertiesDlgImpl::defaultClicked() {
+void TransitionPropertiesDlgImpl::defaultClicked()
+{
   if (ui.cb_default->isChecked()) {
     ui.cb_invert->setEnabled(false);
     ui.cb_any->setEnabled(false);
@@ -305,7 +314,8 @@ void TransitionPropertiesDlgImpl::defaultClicked() {
   }
 }
 
-void TransitionPropertiesDlgImpl::invertClicked() {
+void TransitionPropertiesDlgImpl::invertClicked()
+{
   if (ui.cb_invert->isChecked()) {
     ui.le_input->setEnabled(true);
     ui.cb_default->setEnabled(false);
@@ -318,7 +328,8 @@ void TransitionPropertiesDlgImpl::invertClicked() {
 }
 
 /// Returns the input condition string
-QString TransitionPropertiesDlgImpl::getInputs() {
+QString TransitionPropertiesDlgImpl::getInputs()
+{
   QString inputs = ui.le_input->text().simplified();
   inputs.replace(" | ", "|");
   inputs.replace(" |", "|");
@@ -327,6 +338,7 @@ QString TransitionPropertiesDlgImpl::getInputs() {
 }
 
 /// Sets the input condition string
-void TransitionPropertiesDlgImpl::setInputs(QString s) {
+void TransitionPropertiesDlgImpl::setInputs(QString s)
+{
   ui.le_input->setText(s.replace("|", " | "));
 }

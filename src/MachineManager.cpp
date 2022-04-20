@@ -17,30 +17,36 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "MachineManager.h"
-#include "Error.h"
+
+#include "gui/error.hpp"
+
 #include "Machine.h"
+#include "MachinePropertiesDlg.h"
 #include "MainWindow.h"
 #include "Project.h"
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
-//#include "dialogs/DMachineProperties.h"
-#include "MachinePropertiesDlg.h"
 
 /// Constructor
-MachineManager::MachineManager(QObject *parent, const char *name)
-    : QObject(parent) {
-  main = (MainWindow *)parent;
+MachineManager::MachineManager(QObject* parent, const char* name)
+  : QObject(parent)
+{
+  main = (MainWindow*)parent;
   //  machine_props = new DMachineProperties;
-  machine_props = new MachinePropertiesDlgImpl((QWidget *)parent, 0, true);
+  machine_props = new MachinePropertiesDlgImpl((QWidget*)parent, 0, true);
 }
 
 /// Destructor
-MachineManager::~MachineManager() { delete machine_props; }
+MachineManager::~MachineManager()
+{
+  delete machine_props;
+}
 
 /**
  * Adds a new machine to the project @a p
  */
-int MachineManager::addMachine(qfsm::Project *p) {
+int MachineManager::addMachine(qfsm::Project* p)
+{
   int result;
   QString n, v, a, d;
   int nb, ni, no;
@@ -53,7 +59,6 @@ int MachineManager::addMachine(qfsm::Project *p) {
   int type;
   bool draw_it;
   int ires;
-  Error err;
 
   machine_props->enableType(true);
   machine_props->setType(0);
@@ -92,18 +97,16 @@ int MachineManager::addMachine(qfsm::Project *p) {
       atype = machine_props->getArrowType();
       draw_it = machine_props->getDrawITrans();
 
-      p->addMachine(n, v, a, d, type, nb, onamesm, ni, inames, no, onames, sf,
-                    tf, atype, draw_it);
+      p->addMachine(n, v, a, d, type, nb, onamesm, ni, inames, no, onames, sf, tf, atype, draw_it);
 
       p->mainWindow()->updateIOView(p->machine());
 
       if (type == 0 &&
-          (nb != p->machine()->translateNames(onamesm).size() ||
-          ni != p->machine()->translateNames(inames).size() ||
-          no != p->machine()->translateNames(onames).size())) {
-        ires = err.warningOkCancel(
-            tr("Warning.\nThe number of bits does not match the number of "
-               "signal names. \nDo you want to proceed?"));
+          (nb != p->machine()->translateNames(onamesm).size() || ni != p->machine()->translateNames(inames).size() ||
+           no != p->machine()->translateNames(onames).size())) {
+        ires = qfsm::gui::error::warn(tr("Warning.\nThe number of bits does not match the number of "
+                                         "signal names. \nDo you want to proceed?"),
+                                      qfsm::gui::error::Button::Cancel);
         if (ires == QMessageBox::Ok)
           break;
         else
@@ -119,14 +122,13 @@ int MachineManager::addMachine(qfsm::Project *p) {
 /**
  * Edits the machine in the project @a p.
  */
-void MachineManager::editMachine(qfsm::Project *p) {
+void MachineManager::editMachine(qfsm::Project* p)
+{
   bool result;
   int mtype, numbit, numin, numout;
   int nnumbit, nnumin, nnumout;
-  QString name, nname, version, author, description, nversion, nauthor,
-      ndescription;
-  Machine *m;
-  Error err;
+  QString name, nname, version, author, description, nversion, nauthor, ndescription;
+  Machine* m;
   int ires;
   QFont sf, tf;
   int atype;
@@ -189,25 +191,22 @@ void MachineManager::editMachine(qfsm::Project *p) {
     nauthor = machine_props->getAuthor();
     ndescription = machine_props->getDescription();
 
-    QList<GState *> states = m->getSList();
+    QList<GState*> states = m->getSList();
 
     if (nnumbit < numbit || nnumin < numin || nnumout < numout) {
-      ires = err.warningOkCancel(
-          tr("Warning.\nReducing the number of bits may result in data loss. "
-             "\nDo you want to proceed?"));
+      ires = qfsm::gui::error::warn(tr("Warning.\nReducing the number of bits may result in data loss. "
+                                       "\nDo you want to proceed?"),
+                                    qfsm::gui::error::Button::Cancel);
       if (ires != QMessageBox::Ok)
         return;
     }
 
-    if (nnumbit !=
-            m->translateNames(machine_props->getMooreOutputNames()).size() ||
-        nnumin !=
-            m->translateNames(machine_props->getMealyInputNames()).size() ||
-        nnumout !=
-            m->translateNames(machine_props->getMealyOutputNames()).size()) {
-      ires = err.warningOkCancel(
-          tr("Warning.\nThe number of bits does not match the number of signal "
-             "names. \nDo you want to proceed?"));
+    if (nnumbit != m->translateNames(machine_props->getMooreOutputNames()).size() ||
+        nnumin != m->translateNames(machine_props->getMealyInputNames()).size() ||
+        nnumout != m->translateNames(machine_props->getMealyOutputNames()).size()) {
+      ires = qfsm::gui::error::warn(tr("Warning.\nThe number of bits does not match the number of signal "
+                                       "names. \nDo you want to proceed?"),
+                                    qfsm::gui::error::Button::Cancel);
       if (ires != QMessageBox::Ok)
         return;
     }

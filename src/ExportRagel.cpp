@@ -16,18 +16,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "ExportRagel.h"
+
+#include "gui/error.hpp"
+
+#include "IOInfo.h"
+#include "Machine.h"
+#include "Options.h"
+#include "TransitionInfo.h"
+#include "UndoBuffer.h"
+
 #include <QMessageBox>
 #include <QRegularExpression>
+
 #include <fstream>
 #include <iostream>
-
-#include "ExportRagel.h"
-#include "Machine.h"
-#include "TransitionInfo.h"
-#include "Error.h"
-#include "IOInfo.h"
-#include "Options.h"
-#include "UndoBuffer.h"
 
 // using namespace std;
 
@@ -53,11 +56,11 @@ bool ExportRagel::validateMachine(Machine* m)
     QString n = is.next()->getStateName();
     if (n == "start") {
       result = false;
-      if (Error::warningOkCancel(msg.arg("start")) == QMessageBox::Cancel)
+      if (qfsm::gui::error::warn(msg.arg("start"), qfsm::gui::error::Button::Cancel) == QMessageBox::Cancel)
         return false;
     } else if (n == "final") {
       result = false;
-      if (Error::warningOkCancel(msg.arg("final")) == QMessageBox::Cancel)
+      if (qfsm::gui::error::warn(msg.arg("final"), qfsm::gui::error::Button::Cancel) == QMessageBox::Cancel)
         return false;
     }
     QString firstletter;
@@ -65,7 +68,7 @@ bool ExportRagel::validateMachine(Machine* m)
     QRegularExpression regexp("[a-zA-Z_]");
     if (!regexp.match(firstletter).hasMatch()) {
       result = false;
-      if (Error::warningOkCancel(msg2.arg(n)) == QMessageBox::Cancel)
+      if (qfsm::gui::error::warn(msg2.arg(n), qfsm::gui::error::Button::Cancel) == QMessageBox::Cancel)
         return false;
     }
   }
@@ -319,7 +322,7 @@ int ExportRagel::writeActionFile(const char* filename, const char* ragelfile)
       break;
   }
 
-  if (lang_action == 1)  // Java
+  if (lang_action == 1)       // Java
     aout << "}" << std::endl; // end of class definition
 
   return 0;

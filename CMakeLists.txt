@@ -29,6 +29,7 @@ set(QFSM_HEADERS
   src/gui/actionsmanager.hpp
   src/gui/transitionitem.hpp
   src/gui/controlhandleitem.hpp
+  src/gui/error.hpp
 
   src/optionsmanager.hpp
   src/maincontrol.hpp
@@ -41,7 +42,6 @@ set(QFSM_HEADERS
   src/Draw.h
   src/DrawArea.h
   src/Edit.h
-  src/Error.h
   src/Export.h
   src/ExportAHDL.h
   src/ExportAHDLDlg.h
@@ -129,6 +129,7 @@ set(QFSM_SOURCES
   src/gui/view.cpp
   src/gui/actionsmanager.cpp
   src/gui/controlhandleitem.cpp
+  src/gui/error.cpp
 
   src/optionsmanager.cpp
   src/info.cpp
@@ -139,7 +140,6 @@ set(QFSM_SOURCES
   src/Draw.cpp
   src/DrawArea.cpp
   src/Edit.cpp
-  src/Error.cpp
   src/Export.cpp
   src/ExportAHDL.cpp
   src/ExportAHDLDlg.cpp

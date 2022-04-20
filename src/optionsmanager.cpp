@@ -134,7 +134,6 @@ void OptionsManager::readOption(Group a_group, const QString& a_name, const QVar
 {
   const QString key = settingKey(a_group, a_name);
   const QVariant data = m_settings->value(key, a_default);
-  auto type = data.type();
   m_optionsMap[key] = { data, a_flags };
 }
 

@@ -19,7 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "MainWindow.h"
 #include "DrawArea.h"
 #include "Edit.h"
-#include "Error.h"
 #include "ExportAHDL.h"
 #include "ExportEPS.h"
 #include "ExportIODescription.h"
@@ -55,6 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "optionsmanager.hpp"
 
 #include "gui/actionsmanager.hpp"
+#include "gui/error.hpp"
 #include "gui/stateitem.hpp"
 #include "gui/transitionitem.hpp"
 #include "gui/view.hpp"
@@ -1008,7 +1008,7 @@ void MainWindow::fileOpen()
     //      m_statusBar->showMessage(tr("File %1 opened").arg(fileio->getActFile()),
     //      3000);
   } else if (!fileio->getActFilePath().isNull()) {
-    Error::info(tr("File %1 could not be opened").arg(fileio->getActFilePath()));
+    qfsm::gui::error::info(tr("File %1 could not be opened").arg(fileio->getActFilePath()));
     m_statusBar->clearMessage();
   }
   /*
@@ -1060,7 +1060,7 @@ void MainWindow::fileOpenRecent(QString fileName)
 
     m_optionsManager->addRecentsEntry(fileio->getActFilePath());
   } else {
-    Error::info(tr("File %1 could not be opened").arg(fileName));
+    qfsm::gui::error::info(tr("File %1 could not be opened").arg(fileName));
     m_statusBar->clearMessage();
     m_optionsManager->removeRecentsEntry(fileName);
   }
@@ -1172,7 +1172,7 @@ void MainWindow::fileImportGraphviz()
       m_mainView->updateSize();
     }
   } else if (!fileio->getActImportFilePath().isNull()) {
-    Error::info(tr("File %1 could not be opened").arg(fileio->getActFileName()));
+    qfsm::gui::error::info(tr("File %1 could not be opened").arg(fileio->getActFileName()));
     m_statusBar->clearMessage();
   }
 }
@@ -1298,7 +1298,7 @@ bool MainWindow::fileExportVHDL()
 
       errorMessage += invalidNames.join("\n");
 
-      Error::warningOk(errorMessage);
+      qfsm::gui::error::warn(errorMessage);
 
       m_statusBar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
       delete exp;
@@ -1316,8 +1316,8 @@ bool MainWindow::fileExportVHDL()
 
     QFile ftmp(path_entity);
     if (ftmp.exists()) {
-      if (Error::warningOkCancel(tr("File %1 exists. Do you want to overwrite it?").arg(path_entity)) !=
-          QMessageBox::Ok) {
+      if (qfsm::gui::error::warn(tr("File %1 exists. Do you want to overwrite it?").arg(path_entity),
+                                 qfsm::gui::error::Button::Cancel) != QMessageBox::Ok) {
         delete exp;
         return false;
       }
@@ -1326,7 +1326,7 @@ bool MainWindow::fileExportVHDL()
     std::ofstream fout_entity(path_entity.toStdString());
 
     if (!fout_entity) {
-      Error::warningOk(tr("Unable to write file %1!").arg(path_entity));
+      qfsm::gui::error::warn(tr("Unable to write file %1!").arg(path_entity));
       delete exp;
       return false;
     }
@@ -1334,8 +1334,8 @@ bool MainWindow::fileExportVHDL()
     if (doc_options.getVHDLSepFiles()) {
       ftmp.setFileName(path_arch);
       if (ftmp.exists()) {
-        if (Error::warningOkCancel(tr("File %1 exists. Do you want to overwrite it?").arg(path_arch)) !=
-            QMessageBox::Ok) {
+        if (qfsm::gui::error::warn(tr("File %1 exists. Do you want to overwrite it?").arg(path_arch),
+                                   qfsm::gui::error::Button::Cancel) != QMessageBox::Ok) {
           delete exp;
           return false;
         }
@@ -1343,7 +1343,7 @@ bool MainWindow::fileExportVHDL()
 
       std::ofstream fout_architecture(path_arch.toStdString());
       if (!fout_architecture) {
-        Error::warningOk(tr("Unable to write file %1!").arg(path_arch));
+        qfsm::gui::error::warn(tr("Unable to write file %1!").arg(path_arch));
         delete exp;
         return false;
       }
@@ -1393,7 +1393,6 @@ bool MainWindow::fileExportTestbench()
     int dialog_result;
     QString errorMessage;
     QStringList invalidNames;
-    Error err;
     QString base_dir_name, testbench_dir_name, testvector_dir_name, package_dir_name, logfile_dir_name;
     QDir testbenchDir, testvectorDir, packageDir, logfileDir;
     std::ofstream *testbench_out, *testvector_out, *package_out;
@@ -1503,23 +1502,23 @@ bool MainWindow::fileExportTestbench()
 
         QFile ftmp(base_dir_name + doc_options.getTestbenchVHDLPath());
         if (ftmp.exists()) {
-          if (Error::warningOkCancel(
-                  tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestbenchVHDLPath())) !=
-              QMessageBox::Ok)
+          if (qfsm::gui::error::warn(
+                  tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestbenchVHDLPath()),
+                  qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
             return false;
         }
         ftmp.setFileName(base_dir_name + doc_options.getTestvectorASCIIPath());
         if (ftmp.exists()) {
-          if (Error::warningOkCancel(
-                  tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestvectorASCIIPath())) !=
-              QMessageBox::Ok)
+          if (qfsm::gui::error::warn(
+                  tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestvectorASCIIPath()),
+                  qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
             return false;
         }
         ftmp.setFileName(base_dir_name + doc_options.getTestpackageVHDLPath());
         if (ftmp.exists()) {
-          if (Error::warningOkCancel(
-                  tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestpackageVHDLPath())) !=
-              QMessageBox::Ok)
+          if (qfsm::gui::error::warn(
+                  tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestpackageVHDLPath()),
+                  qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
             return false;
         }
 
@@ -1528,15 +1527,15 @@ bool MainWindow::fileExportTestbench()
         package_out = new std::ofstream((base_dir_name + doc_options.getTestpackageVHDLPath()).toLatin1().data());
 
         if (!testbench_out) {
-          Error::warningOk(tr("Unable to open file %1!").arg(doc_options.getTestbenchVHDLPath()));
+          qfsm::gui::error::warn(tr("Unable to open file %1!").arg(doc_options.getTestbenchVHDLPath()));
           return false;
         }
         if (!testvector_out) {
-          Error::warningOk(tr("Unable to open file %1!").arg(doc_options.getTestvectorASCIIPath()));
+          qfsm::gui::error::warn(tr("Unable to open file %1!").arg(doc_options.getTestvectorASCIIPath()));
           return false;
         }
         if (!package_out) {
-          Error::warningOk(tr("Unable to open file %1!").arg(doc_options.getTestpackageVHDLPath()));
+          qfsm::gui::error::warn(tr("Unable to open file %1!").arg(doc_options.getTestpackageVHDLPath()));
           return false;
         }
         break;
@@ -1549,7 +1548,7 @@ bool MainWindow::fileExportTestbench()
       errorMessage = tr("Export of file %1 failed!").arg(fileio->getActExportFileName()) + "\n\n" +
                      tr("The following identifiers do not match the VHDL syntax:") + "\n";
       errorMessage += invalidNames.join("\n");
-      Error::warningOk(errorMessage);
+      qfsm::gui::error::warn(errorMessage);
 
       m_statusBar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
       delete testvector_out;
@@ -1831,7 +1830,8 @@ bool MainWindow::fileExportRagel()
     if (create_action_file) {
       QFile ftmp(act_file);
       if (ftmp.exists()) {
-        if (Error::warningOkCancel(tr("File %1 exists. Do you want to overwrite it?").arg(act_file)) != QMessageBox::Ok)
+        if (qfsm::gui::error::warn(tr("File %1 exists. Do you want to overwrite it?").arg(act_file),
+                                   qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
           create_action_file = false;
       }
     }
