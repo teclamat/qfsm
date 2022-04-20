@@ -1,9 +1,9 @@
 #include "actionsmanager.hpp"
 
-#include "MainControl.h"
 #include "MainWindow.h"
 #include "UndoBuffer.h"
 #include "literals.hpp"
+#include "maincontrol.hpp"
 #include "optionsmanager.hpp"
 
 #include <QAction>

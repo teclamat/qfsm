@@ -31,6 +31,7 @@ set(QFSM_HEADERS
   src/gui/controlhandleitem.hpp
 
   src/optionsmanager.hpp
+  src/maincontrol.hpp
 
   # src/ListBoxItems.h
   src/AppInfo.h
@@ -83,7 +84,6 @@ set(QFSM_HEADERS
   src/Machine.h
   src/MachineManager.h
   src/MachinePropertiesDlg.h
-  src/MainControl.h
   src/MainWindow.h
   src/OptDisplayDlg.h
   src/OptGeneral.h
@@ -131,6 +131,7 @@ set(QFSM_SOURCES
   src/gui/controlhandleitem.cpp
 
   src/optionsmanager.cpp
+  src/maincontrol.cpp
 
   src/AppInfo.cpp
   src/Convert.cpp
@@ -181,7 +182,6 @@ set(QFSM_SOURCES
   src/Machine.cpp
   src/MachineManager.cpp
   src/MachinePropertiesDlg.cpp
-  src/MainControl.cpp
   src/MainWindow.cpp
   src/OptDisplayDlg.cpp
   src/OptGeneral.cpp

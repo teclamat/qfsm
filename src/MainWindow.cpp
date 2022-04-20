@@ -16,27 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qcursor.h>
-#include <qobject.h>
-#include <qsettings.h>
-#include <qtoolbutton.h>
-#include <QCloseEvent>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QFocusEvent>
-#include <QKeyEvent>
-#include <QMainWindow>
-#include <QMenu>
-#include <QMimeData>
-#include <QPixmap>
-#include <QUrl>
-
-#include <fstream>
-#include <sstream>
-#include <string>
-
+#include "MainWindow.h"
 #include "AppInfo.h"
 #include "DrawArea.h"
 #include "Edit.h"
@@ -56,9 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ExportVerilog.h"
 #include "FileIO.h"
 #include "ICheck.h"
+#include "IOInfo.h"
 #include "ImportGraphviz.h"
-#include "MainControl.h"
-#include "MainWindow.h"
 #include "PrintManager.h"
 #include "Project.h"
 #include "ScrollView.h"
@@ -72,51 +51,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
 
+#include "maincontrol.hpp"
+#include "optionsmanager.hpp"
+
 #include "gui/actionsmanager.hpp"
 #include "gui/stateitem.hpp"
 #include "gui/transitionitem.hpp"
 #include "gui/view.hpp"
 
-#include "optionsmanager.hpp"
+#include <QApplication>
+#include <QClipboard>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QMenuBar>
+#include <QMimeData>
+#include <QObject>
+#include <QSettings>
+#include <QUrl>
 
-#include "../pics/c_mag.xpm"
-#include "../pics/editcopy.xpm"
-#include "../pics/editcopyoff.xpm"
-#include "../pics/editcut.xpm"
-#include "../pics/editcutoff.xpm"
-#include "../pics/editpaste.xpm"
-#include "../pics/editpasteoff.xpm"
-#include "../pics/editundo.xpm"
-#include "../pics/editundooff.xpm"
-#include "../pics/filenew.xpm"
-#include "../pics/fileopen.xpm"
-#include "../pics/fileprint.xpm"
-#include "../pics/fileprintoff.xpm"
-#include "../pics/filesave.xpm"
-#include "../pics/filesaveoff.xpm"
-#include "../pics/machinesim.xpm"
-#include "../pics/machinesimoff.xpm"
-#include "../pics/pan.xpm"
-#include "../pics/panoff.xpm"
-#include "../pics/qfsm_64.xpm"
-#include "../pics/select.xpm"
-#include "../pics/selectoff.xpm"
-#include "../pics/statenew.xpm"
-#include "../pics/statenewoff.xpm"
-#include "../pics/transnew.xpm"
-#include "../pics/transnewoff.xpm"
-#include "../pics/transstraighten.xpm"
-#include "../pics/transstraightenoff.xpm"
-#include "../pics/zoom.xpm"
-#include "../pics/zoomin.xpm"
-#include "../pics/zoomoff.xpm"
-#include "../pics/zoomout.xpm"
-
-#include "IOInfo.h"
-
-#include <QOpenGLWidget>
-
-// using namespace std;
+#include <fstream>
+#include <sstream>
+#include <string>
 
 constexpr auto QFSM_MIME_DATA_TYPE = "text/qfsm-objects";
 
@@ -145,8 +100,6 @@ MainWindow::MainWindow(QObject* a_parent)
   appIcon.addFile(":/icons/qfsm32.png", { 32, 32 });
   appIcon.addFile(":/icons/qfsm48.png", { 48, 48 });
   setWindowIcon(appIcon);
-
-  // QPixmap paicon((const char**)qfsm_64_xpm);
 
   createToolBar();
 
@@ -178,7 +131,6 @@ MainWindow::MainWindow(QObject* a_parent)
 
   // File -> Export
   QMenu* menu_export = m_actionsManager->menu(Group::Export);
-  // menu_export->setMouseTracking(true);
   menu_export->addAction(tr("E&PS..."), this, &MainWindow::fileExportEPS);
   menu_export->addAction(tr("&SVG..."), this, &MainWindow::fileExportSVG);
   menu_export->addAction(tr("&PNG..."), this, &MainWindow::fileExportPNG);
@@ -254,15 +206,8 @@ MainWindow::MainWindow(QObject* a_parent)
   mb_changed->setButtonText(QMessageBox::Cancel, tr("Cancel"));
 
   fileio->loadOptions(&doc_options);
-  fileio->loadMRU(m_control->getMRUList());
 
   tabwidgetdialog = new OptionsDlg(this);
-  // tabwidgetdialog->resize(400, 300);
-  // tabwidgetdialog->setWindowTitle(tr("Qfsm Options"));
-  // optionsDialog->setOkButton();
-  // optionsDialog->setCancelButton();
-
-  // tabdialog = new QTabWidget(tabwidgetdialog);
 
   opt_general = new OptGeneralDlgImpl(tabwidgetdialog);
   opt_general->init();
@@ -276,9 +221,6 @@ MainWindow::MainWindow(QObject* a_parent)
   tabwidgetdialog->ui.tabs->addTab(opt_general, tr("&General"));
   tabwidgetdialog->ui.tabs->addTab(opt_display, tr("&Display"));
   tabwidgetdialog->ui.tabs->addTab(opt_printing, tr("&Printing"));
-  // tabdialog->adjustSize();
-
-  // tabwidgetdialog->adjustSize();
 
   ahdl_export = new ExportAHDLDlgImpl(this);
   ahdl_export->init(&doc_options);
@@ -920,49 +862,10 @@ void MainWindow::updateAll()
 void MainWindow::refreshMRU()
 {
   QMenu* menu_mru = m_actionsManager->menu(qfsm::gui::ActionsManager::Group::Recent);
-  int id, index = 0;
   menu_mru->clear();
-  // QStringList list = m_control->getMRUList();
 
-  // fileio->loadMRU(list);
-  const QStringList list = m_optionsManager->recentsList();
-
-  for (auto it = list.cbegin(); it != list.cend(); ++it) {
-    // id = menu_mru->insertItem(*it);
-    menu_mru->addAction(*it, [=]() { fileOpenRecent(index); });
-    // switch (index) {
-    //   case 0:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent0()));
-    //     break;
-    //   case 1:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent1()));
-    //     break;
-    //   case 2:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent2()));
-    //     break;
-    //   case 3:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent3()));
-    //     break;
-    //   case 4:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent4()));
-    //     break;
-    //   case 5:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent5()));
-    //     break;
-    //   case 6:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent6()));
-    //     break;
-    //   case 7:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent7()));
-    //     break;
-    //   case 8:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent8()));
-    //     break;
-    //   case 9:
-    //     menu_mru->addAction(*it, this, SLOT(fileOpenRecent9()));
-    //     break;
-    // }
-    ++index;
+  for (const QString& recentFile : m_optionsManager->recentsList()) {
+    menu_mru->addAction(recentFile, [=]() { fileOpenRecent(recentFile); });
   }
 }
 
@@ -1100,9 +1003,6 @@ void MainWindow::fileOpen()
     } else
       m_mainView->widget()->repaint();
 
-    //    menu_mru->insertItem(fileio->getActFile(), -1, 0);
-    // m_control->addMRUEntry(fileio->getActFilePath());
-    // fileio->saveMRU(m_control->getMRUList());
     m_optionsManager->addRecentsEntry(fileio->getActFilePath());
 
     //      m_statusBar->showMessage(tr("File %1 opened").arg(fileio->getActFile()),
@@ -1158,106 +1058,12 @@ void MainWindow::fileOpenRecent(QString fileName)
     } else
       m_mainView->widget()->repaint();
 
-    //    menu_mru->insertItem(fileio->getActFile(), -1, 0);
-    // m_control->addMRUEntry(fileio->getActFilePath());
-    // fileio->saveMRU(m_control->getMRUList());
     m_optionsManager->addRecentsEntry(fileio->getActFilePath());
   } else {
     Error::info(tr("File %1 could not be opened").arg(fileName));
     m_statusBar->clearMessage();
-    m_control->removeMRUEntry(fileName);
-    fileio->saveMRU(m_control->getMRUList());
+    m_optionsManager->removeRecentsEntry(fileName);
   }
-  /*
-  setCursor(oldcursor1);
-  m_mainView->viewport()->setCursor(oldcursor2);
-  */
-}
-
-void MainWindow::fileOpenRecent(int a_index) {
-  QStringList list = m_optionsManager->recentsList();
-  if (list.count() > a_index)
-    fileOpenRecent(list[a_index]);
-}
-
-/// Opens the file in the MRU list entry 0
-void MainWindow::fileOpenRecent0()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 0)
-    fileOpenRecent(list[0]);
-}
-
-/// Opens the file in the MRU list entry 1
-void MainWindow::fileOpenRecent1()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 1)
-    fileOpenRecent(list[1]);
-}
-
-/// Opens the file in the MRU list entry 2
-void MainWindow::fileOpenRecent2()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 2)
-    fileOpenRecent(list[2]);
-}
-
-/// Opens the file in the MRU list entry 3
-void MainWindow::fileOpenRecent3()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 3)
-    fileOpenRecent(list[3]);
-}
-
-/// Opens the file in the MRU list entry 4
-void MainWindow::fileOpenRecent4()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 4)
-    fileOpenRecent(list[4]);
-}
-
-/// Opens the file in the MRU list entry 5
-void MainWindow::fileOpenRecent5()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 5)
-    fileOpenRecent(list[5]);
-}
-
-/// Opens the file in the MRU list entry 6
-void MainWindow::fileOpenRecent6()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 6)
-    fileOpenRecent(list[6]);
-}
-
-/// Opens the file in the MRU list entry 7
-void MainWindow::fileOpenRecent7()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 7)
-    fileOpenRecent(list[7]);
-}
-
-/// Opens the file in the MRU list entry 8
-void MainWindow::fileOpenRecent8()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 8)
-    fileOpenRecent(list[8]);
-}
-
-/// Opens the file in the MRU list entry 9
-void MainWindow::fileOpenRecent9()
-{
-  QStringList list = m_control->getMRUList();
-  if (list.count() > 9)
-    fileOpenRecent(list[9]);
 }
 
 /// Saves the current file.
@@ -1277,8 +1083,6 @@ bool MainWindow::fileSave()
       m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
       m_project->undoBuffer()->clear();
       if (saveas) {
-        // m_control->addMRUEntry(fileio->getActFilePath());
-        // fileio->saveMRU(m_control->getMRUList());
         m_optionsManager->addRecentsEntry(fileio->getActFilePath());
       }
     }
@@ -1309,8 +1113,6 @@ bool MainWindow::fileSaveAs()
     if (result) {
       m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
       m_project->undoBuffer()->clear();
-      // m_control->addMRUEntry(fileio->getActFilePath());
-      // fileio->saveMRU(m_control->getMRUList());
       m_optionsManager->addRecentsEntry(fileio->getActFilePath());
     }
 

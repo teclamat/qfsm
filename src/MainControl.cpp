@@ -16,9 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "MainControl.h"
+#include "maincontrol.hpp"
 
-#include "Const.h"
 #include "MainWindow.h"
 
 namespace qfsm {
@@ -36,37 +35,17 @@ void MainControl::newWindow()
   window->show();
 }
 
-/// Creates a new main window and opens the file named @a fileName in it
-void MainControl::newWindow(const char* fileName)
+void MainControl::newWindow(const char* a_fileName)
 {
-  MainWindow* w = new MainWindow(this);
-  w->setLanguage(m_language);
-  w->show();
-  w->fileOpenRecent(fileName);
+  MainWindow* window = new MainWindow{ this };
+  window->setLanguage(m_language);
+  window->show();
+  window->fileOpenRecent(a_fileName);
 }
 
 void MainControl::quitWindow(MainWindow* a_window)
 {
-  //  w->hide();
-  //  w->close();
-  // if (w->aboutToClose)
-  //   delete w;
   a_window->deleteLater();
 }
 
-void MainControl::addMRUEntry(const QString& a_fileName)
-{
-  m_recentList.removeAll(a_fileName);
-  m_recentList.prepend(a_fileName);
-
-  if (m_recentList.count() > MAX_MRUENTRIES) {
-    m_recentList.erase(m_recentList.begin() + MAX_MRUENTRIES, m_recentList.end());
-  }
-}
-
-void MainControl::removeMRUEntry(const QString& a_fileName)
-{
-  m_recentList.removeAll(a_fileName);
-}
-
-}
+} // namespace qfsm

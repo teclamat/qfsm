@@ -26,34 +26,35 @@ the WinMain function is used instead of main.
 Qt 5/6 port by Mateusz Tecław
 */
 
-#include "MainControl.h"
+#include "literals.hpp"
+#include "maincontrol.hpp"
 
 #include <QApplication>
-#include <QDebug>
-#include <QDir>
-#include <QFile>
 #include <QLocale>
-#include <QSettings>
-#include <QString>
-#include <QTextStream>
 #include <QTranslator>
+// #include <QDebug>
+// #include <QDir>
+// #include <QFile>
+// #include <QSettings>
+// #include <QString>
+// #include <QTextStream>
 
-QString loadLanguage(QTranslator* trans);
+// QString loadLanguage(QTranslator* trans);
 
 int main(int argc, char** argv)
 {
   QApplication qfsmApp{ argc, argv };
-  QApplication::setOrganizationName(QStringLiteral("qfsm"));
+  QApplication::setOrganizationName(u"qfsm"_qs);
 
   // QTranslator trans(0);
   // QString lang = loadLanguage(&trans);
   // qfsm.installTranslator(&trans);
+  qfsm::MainControl control{};
+
   QTranslator qfsmAppTranslator{};
   if (qfsmAppTranslator.load(QLocale::system(), u"qfsm"_qs, u"_"_qs, u":/i18n"_qs)) {
     qfsmApp.installTranslator(&qfsmAppTranslator);
   }
-
-  qfsm::MainControl control{};
 
   if (argc <= 1) {
     control.newWindow();
@@ -94,80 +95,80 @@ void loadLanguage(QTranslator* trans)
 }
 */
 
-QString loadLanguage(QTranslator* trans)
-{
-  QString qfsmpath;
-  QDir dir = QDir::home();
-  QDir qfsmdir(dir.absolutePath() + "/.qfsm");
-  if (!qfsmdir.exists()) {
-    if (!dir.mkdir(".qfsm"))
-      qDebug() << ".qfsm not created";
-  }
+// QString loadLanguage(QTranslator* trans)
+// {
+//   QString qfsmpath;
+//   QDir dir = QDir::home();
+//   QDir qfsmdir(dir.absolutePath() + "/.qfsm");
+//   if (!qfsmdir.exists()) {
+//     if (!dir.mkdir(".qfsm"))
+//       qDebug() << ".qfsm not created";
+//   }
 
-  QFile file(qfsmdir.absolutePath() + "/language");
-  QTextStream fin(&file);
+//   QFile file(qfsmdir.absolutePath() + "/language");
+//   QTextStream fin(&file);
 
-  if (file.isOpen()) {
-    qDebug() << "language file already open";
-    file.close();
-  }
+//   if (file.isOpen()) {
+//     qDebug() << "language file already open";
+//     file.close();
+//   }
 
-  QString s;
+//   QString s;
 
-  if (!file.open(QIODevice::ReadOnly)) {
-    qDebug() << "language file could not be opened.";
+//   if (!file.open(QIODevice::ReadOnly)) {
+//     qDebug() << "language file could not be opened.";
 
-    QLocale loc = QLocale::system();
-    switch (loc.language()) {
-      case QLocale::German:
-        s = "German";
-        break;
-      case QLocale::French:
-        s = "French";
-        break;
-      default:
-        s = "English";
-        break;
-    }
-    qDebug() << "Most appropriate system locale:" << s;
-  } else {
-    fin >> s;
-    qDebug() << "Locale by language file:" << s;
-  }
+//     QLocale loc = QLocale::system();
+//     switch (loc.language()) {
+//       case QLocale::German:
+//         s = "German";
+//         break;
+//       case QLocale::French:
+//         s = "French";
+//         break;
+//       default:
+//         s = "English";
+//         break;
+//     }
+//     qDebug() << "Most appropriate system locale:" << s;
+//   } else {
+//     fin >> s;
+//     qDebug() << "Locale by language file:" << s;
+//   }
 
-  qfsmpath = getenv("QFSMDIR");
-  //  QDir dir; //(qfsmpath);
-  if (qfsmpath.isEmpty()) {
-    qDebug("$QFSMDIR not set!");
-#ifdef Q_OS_WIN
-    QString tmppath;
-    QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Qfsm", QSettings::NativeFormat);
-    tmppath = settings.value("Install_Dir", QVariant("-1")).toString();
-    qDebug() << "tmppath:" << tmppath;
-    if (tmppath == "-1")
-      dir = QDir::current();
-    else
-      dir.cd(tmppath);
-    //	dir.cdUp();
+//   qfsmpath = getenv("QFSMDIR");
+//   //  QDir dir; //(qfsmpath);
+//   if (qfsmpath.isEmpty()) {
+//     qDebug("$QFSMDIR not set!");
+// #ifdef Q_OS_WIN
+//     QString tmppath;
+//     QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Qfsm", QSettings::NativeFormat);
+//     tmppath = settings.value("Install_Dir", QVariant("-1")).toString();
+//     qDebug() << "tmppath:" << tmppath;
+//     if (tmppath == "-1")
+//       dir = QDir::current();
+//     else
+//       dir.cd(tmppath);
+//     //	dir.cdUp();
 
-    dir.cd(QFSM_LANGUAGE_DIR);
-    qfsmpath = dir.absolutePath();
-#else
-    qfsmpath = QFSM_LANGUAGE_DIR;
-    dir = QDir(qfsmpath); // QDir::current();
-#endif
-    qDebug() << "Looking for language files in" << qfsmpath;
-    //	QMessageBox::information(NULL, "debug info", qfsmpath);
-  } else {
-    dir = QDir(qfsmpath); // QDir::current();
-    if (!dir.cd("po"))
-      dir.cd(QFSM_LANGUAGE_DIR);
-  }
+//     dir.cd(QFSM_LANGUAGE_DIR);
+//     qfsmpath = dir.absolutePath();
+// #else
+//     qfsmpath = QFSM_LANGUAGE_DIR;
+//     dir = QDir(qfsmpath); // QDir::current();
+// #endif
+//     qDebug() << "Looking for language files in" << qfsmpath;
+//     //	QMessageBox::information(NULL, "debug info", qfsmpath);
+//   } else {
+//     dir = QDir(qfsmpath); // QDir::current();
+//     if (!dir.cd("po"))
+//       dir.cd(QFSM_LANGUAGE_DIR);
+//   }
 
-  if (dir.exists())
-    trans->load(s + ".qm", dir.absolutePath());
+//   if (dir.exists())
+//     trans->load(s + ".qm", dir.absolutePath());
 
-  file.close();
+//   file.close();
 
-  return s;
-}
+//   return s;
+// }

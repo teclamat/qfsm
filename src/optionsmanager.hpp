@@ -70,6 +70,7 @@ class OptionsManager : public QObject {
 
   const QStringList& recentsList() const;
   void addRecentsEntry(const QString& a_entry);
+  void removeRecentsEntry(const QString& a_entry);
   void clearRecentsList();
 
  private:

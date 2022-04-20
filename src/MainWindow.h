@@ -57,14 +57,10 @@ All buttons must be added to the toolbar by calling addWidget.
 #include <QKeyEvent>
 #include <QMainWindow>
 #include <QMenu>
-#include <QPixmap>
 #include <QTabWidget>
 #include <QToolBar>
-// #include <q3tabdialog.h>
 #include <QCursor>
-#include <QMenuBar>
 #include <QMessageBox>
-#include <QToolButton>
 
 #include "ExportAHDLDlg.h"
 #include "ExportRagelDlg.h"
@@ -373,17 +369,6 @@ class MainWindow : public QMainWindow {
   void fileQuit();
 
   void fileOpenRecent(QString fileName);
-  void fileOpenRecent(int a_index);
-  void fileOpenRecent0();
-  void fileOpenRecent1();
-  void fileOpenRecent2();
-  void fileOpenRecent3();
-  void fileOpenRecent4();
-  void fileOpenRecent5();
-  void fileOpenRecent6();
-  void fileOpenRecent7();
-  void fileOpenRecent8();
-  void fileOpenRecent9();
 
   void editUndo();
   void editCut();

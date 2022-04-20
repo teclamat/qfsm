@@ -63,8 +63,6 @@ class FileIO : public QObject {
   bool exportFile(qfsm::Project*, Export*, ScrollView* sv = NULL);
   int saveOptions(Options*);
   int loadOptions(Options*);
-  bool loadMRU(QStringList&);
-  bool saveMRU(QStringList);
 
   void setActFilePath(QString file) /// Sets actual file name.
   {

@@ -24,12 +24,11 @@ changed request whether ins null or empty to .isEmpty()
 Qt 5/6 port by Mateusz Tecław
 */
 
-#ifndef MAINCONTROL_H
-#define MAINCONTROL_H
+#ifndef SRC_MAINCONTROL_HPP
+#define SRC_MAINCONTROL_HPP
 
 #include <QObject>
 #include <QString>
-#include <QStringList>
 
 class MainWindow;
 
@@ -48,17 +47,6 @@ class MainControl : public QObject {
   /// Destroys Main Control object.
   ~MainControl() = default;
 
-  /// Adds an entry to the MRU file list.
-  /// @param a_fileName file name entry to be added to recents list.
-  void addMRUEntry(const QString& a_fileName);
-
-  /// Removes an entry from the MRU file list.
-  /// @param a_fileName file name entry to remove from recents list.
-  void removeMRUEntry(const QString& a_fileName);
-
-  /// Returns the MRU file list
-  QStringList& getMRUList() { return m_recentList; }
-
  public slots:
   /// Creates a new main window and opens it.
   void newWindow();
@@ -73,10 +61,8 @@ class MainControl : public QObject {
 
  private:
   QString m_language;
-
-  QStringList m_recentList{};
 };
 
 } // namespace qfsm
 
-#endif
+#endif // SRC_MAINCONTROL_HPP

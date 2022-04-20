@@ -91,7 +91,8 @@ const QStringList& OptionsManager::recentsList() const
   return m_recentsList;
 }
 
-void OptionsManager::addRecentsEntry(const QString& a_entry) {
+void OptionsManager::addRecentsEntry(const QString& a_entry)
+{
   m_recentsList.removeOne(a_entry);
   m_recentsList.prepend(a_entry);
 
@@ -100,6 +101,13 @@ void OptionsManager::addRecentsEntry(const QString& a_entry) {
   }
 
   m_settings->setValue(settingKey(Group::General, option::recentFiles), m_recentsList);
+}
+
+void OptionsManager::removeRecentsEntry(const QString& a_entry)
+{
+  if (m_recentsList.removeAll(a_entry)) {
+    m_settings->setValue(settingKey(Group::General, option::recentFiles), m_recentsList);
+  }
 }
 
 void OptionsManager::clearRecentsList()

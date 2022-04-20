@@ -656,64 +656,6 @@ bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
   return false;
 }
 
-/// Saves the list of most recently used files
-bool FileIO::saveMRU(QStringList list)
-{
-  QDir dir = QDir::home();
-
-  QDir qfsmdir = createQfsmDir();
-
-  QFile file(qfsmdir.absolutePath() + "/mru_files");
-  if (!file.open(QIODevice::WriteOnly)) {
-    qDebug("mru_files not saved");
-    return false;
-  }
-
-  QTextStream fout(&file);
-
-  QStringList::Iterator it;
-
-  for (it = list.begin(); it != list.end(); ++it) {
-    fout << (*it) << Qt::endl;
-  }
-  file.close();
-
-  return true;
-}
-
-/// Loads the list of most recently used files
-bool FileIO::loadMRU(QStringList& _list)
-{
-  _list.clear();
-
-  QString entry;
-
-  QDir dir = QDir::home();
-
-  QDir qfsmdir = createQfsmDir();
-
-  QFile file(qfsmdir.absolutePath() + "/mru_files");
-  if (!file.open(QIODevice::ReadOnly)) {
-    qDebug("mru_files not opened");
-    return false;
-  }
-
-  QTextStream fin(&file);
-
-  do {
-    entry = fin.readLine();
-    entry = entry.trimmed();
-
-    if (!entry.isEmpty()) {
-      _list.append(entry);
-    }
-  } while (!entry.isEmpty());
-
-  file.close();
-
-  return true;
-}
-
 QDir FileIO::createQfsmDir()
 {
   QDir dir = QDir::home();
