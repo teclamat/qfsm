@@ -32,9 +32,9 @@ set(QFSM_HEADERS
 
   src/optionsmanager.hpp
   src/maincontrol.hpp
+  src/info.hpp
 
   # src/ListBoxItems.h
-  src/AppInfo.h
   src/Const.h
   src/Convert.h
   src/DRect.h
@@ -131,9 +131,9 @@ set(QFSM_SOURCES
   src/gui/controlhandleitem.cpp
 
   src/optionsmanager.cpp
+  src/info.cpp
   src/maincontrol.cpp
 
-  src/AppInfo.cpp
   src/Convert.cpp
   src/DRect.cpp
   src/Draw.cpp

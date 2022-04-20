@@ -16,7 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "AppInfo.h"
+#include "info.hpp"
+
+#include "literals.hpp"
 
 #include <QIcon>
 #include <QMessageBox>
@@ -31,14 +33,28 @@ static auto endl = ::endl;
 }
 #endif
 
-namespace qfsm {
+namespace qfsm::info {
 
-int AppInfo::s_versionMajor = QFSM_VERSION_MAJOR;
-int AppInfo::s_versionMinor = QFSM_VERSION_MINOR;
-QString AppInfo::s_author = QStringLiteral("Stefan Duffner, Rainer Strobel, Aaron Erhardt");
-QString AppInfo::s_buildDate = QStringLiteral(QFSM_BUILD_DATE);
+constexpr int s_versionMajor = QFSM_VERSION_MAJOR;
+constexpr int s_versionMinor = QFSM_VERSION_MINOR;
+static const QString s_author = u"Stefan Duffner, Rainer Strobel, Aaron Erhardt"_qs;
+static const QString s_buildDate = QStringLiteral(QFSM_BUILD_DATE);
 
-double AppInfo::getVersionDouble()
+/// Gets major version info.
+/// @return Integer number representing major version number.
+int getVersionMajor()
+{
+  return s_versionMajor;
+};
+
+/// Gets minor version info.
+/// @return Integer number representing minor version number.
+int getVersionMinor()
+{
+  return s_versionMinor;
+};
+
+double getVersionDouble()
 {
   double version = static_cast<double>(s_versionMinor);
   while (version > 1.0) {
@@ -47,7 +63,22 @@ double AppInfo::getVersionDouble()
   return version + static_cast<double>(s_versionMajor);
 }
 
-void AppInfo::about(QWidget* a_targetWidget)
+QString getVersion()
+{
+  return QString{ "%1.%2" }.arg(s_versionMajor).arg(s_versionMinor);
+};
+
+QString getDate()
+{
+  return s_buildDate;
+};
+
+QString getAuthor()
+{
+  return s_author;
+};
+
+void about(QWidget* a_targetWidget)
 {
   if (a_targetWidget == nullptr) {
     return;

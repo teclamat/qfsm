@@ -17,7 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "MainWindow.h"
-#include "AppInfo.h"
 #include "DrawArea.h"
 #include "Edit.h"
 #include "Error.h"
@@ -51,6 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
 
+#include "info.hpp"
 #include "maincontrol.hpp"
 #include "optionsmanager.hpp"
 
@@ -2449,7 +2449,7 @@ void MainWindow::helpManual()
 /// Displays a help dialog about qfsm.
 void MainWindow::helpAbout()
 {
-  qfsm::AppInfo::about(this);
+  qfsm::info::about(this);
 }
 
 /// Displays a help dialog about Qt.

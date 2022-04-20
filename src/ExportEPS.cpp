@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ExportEPS.h"
 #include "Machine.h"
 #include "TransitionInfo.h"
-//#include "AppInfo.h"
 #include "Draw.h"
 #include "DrawArea.h"
 #include "IOInfo.h"

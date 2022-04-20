@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ExportVVVV.h"
 #include "Machine.h"
 #include "TransitionInfo.h"
-//#include "AppInfo.h"
 #include "IOInfo.h"
 #include "Options.h"
 

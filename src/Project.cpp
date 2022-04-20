@@ -17,7 +17,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "Project.h"
-#include "AppInfo.h"
+
+#include "info.hpp"
+
 #include "DrawArea.h"
 #include "GObject.h"
 #include "GState.h"
@@ -128,7 +130,7 @@ void Project::saveTo(QIODevice* a_device, bool a_onlySelected) const
 
   xml.writeStartElement(QStringLiteral("qfsmproject"));
   xml.writeAttribute(QStringLiteral("author"), QStringLiteral("Qfsm"));
-  xml.writeAttribute(QStringLiteral("version"), qfsm::AppInfo::getVersion());
+  xml.writeAttribute(QStringLiteral("version"), qfsm::info::getVersion());
 
   if (!m_machine) {
     xml.writeEndDocument();

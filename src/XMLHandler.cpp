@@ -18,7 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <qmessagebox.h>
 
-#include "AppInfo.h"
+#include "info.hpp"
+
 #include "Convert.h"
 #include "Error.h"
 #include "FileIO.h"
@@ -110,7 +111,7 @@ bool XMLHandler::parse()
 /// Starts a new document
 bool XMLHandler::startDocument()
 {
-  version = qfsm::AppInfo::getVersionDouble();
+  version = qfsm::info::getVersionDouble();
   itransition = nullptr;
   saveinitialstate = -1;
   inamescont = false;
