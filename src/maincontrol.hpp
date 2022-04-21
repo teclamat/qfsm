@@ -53,7 +53,7 @@ class MainControl : public QObject {
 
   /// Creates a new main window and opens the file named @a a_fileName in it.
   /// @param a_fileName file name from recent files list.
-  void newWindow(const char* a_fileName);
+  void newWindow(const QString& a_fileName);
 
   /// Closes the main window @a a_window.
   /// @param a_window window to close.

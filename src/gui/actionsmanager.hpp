@@ -77,6 +77,7 @@ class ActionsManager : public QObject {
   void setEnabled(Group a_group, QList<Action> a_actions, bool a_enabled = true);
 
   void update();
+  void updatePaste();
   void setupNames();
 
  private:

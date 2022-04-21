@@ -25,13 +25,12 @@ removed the line hz/=10;
 #ifndef SIMULATORDLGIMPL_H
 #define SIMULATORDLGIMPL_H
 
+#include "ui_SimulatorDlg.h"
+
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
-// Added by qt3to4:
-#include "WSpinBox.h"
-#include "ui_SimulatorDlg.h"
 #include <QCloseEvent>
 #include <QPixmap>
 

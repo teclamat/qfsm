@@ -202,7 +202,6 @@ class MainWindow : public QMainWindow {
 
  private:
   void createToolBar();
-  void destroyToolBar();
 
  private:
   /// Pointer to the main control.
@@ -216,33 +215,11 @@ class MainWindow : public QMainWindow {
   qfsm::Project* m_project{ nullptr };
 
  private:
-  // /// File menu
-  // QMenu* menu_file;
-  // /// File->Import menu
-  // QMenu* menu_import;
-  // /// File->Export menu
-  // QMenu* menu_export;
-  // /// Edit menu
-  // QMenu* menu_edit;
-  // /// View menu
-  // QMenu* menu_view;
-  // /// Machine menu
-  // QMenu* menu_machine;
-  // /// State menu
-  // QMenu* menu_state;
-  // /// Transition menu
-  // QMenu* menu_trans;
-  // /// Help menu
-  // QMenu* menu_help;
-  // /// 'File->Most recently used' menu
-  // QMenu* menu_mru;
   /// Toolbar
   QToolBar* toolbar;
 
   // menu item IDs
-  // QAction* id_import;          ///< Menu id 'File->Import'
   QAction* id_import_graphviz; ///< Menu id 'File->Import->Graphviz'
-  // QAction* id_export;          ///< Menu id 'File->Export'
   QAction* id_export_ahdl;     ///< Menu id 'File->Export->AHDL'
   QAction* id_export_vhdl;     ///< Menu id 'File->Export->VDHL'
   QAction* id_export_verilog;  ///< Menu id 'File->Export->Verilog HDL'
@@ -260,8 +237,6 @@ class MainWindow : public QMainWindow {
   DocumentMode m_mode{ DocumentMode::Select };
 
   OptionsDlg* tabwidgetdialog;
-  /// Tabdialog (options)
-  // QTabWidget* tabdialog;
   /// General options dialog
   OptGeneralDlgImpl* opt_general;
   /// Display options dialog
@@ -296,8 +271,7 @@ class MainWindow : public QMainWindow {
   /// If true the control key was pressed
   bool control_pressed;
 
-  /// true if a cut operation, false if a copy operation is performed (used in
-  /// paste)
+  /// true if a cut operation, false if a copy operation is performed (used in paste)
   bool m_isCutOperation;
   /// Language
   QString language;
@@ -324,26 +298,24 @@ class MainWindow : public QMainWindow {
   void refreshMRU();
   void repaintViewport();
   void updateAll();
-  void updatePaste();
   void updateMenuBar();
   void updateTitleBar();
   void updateStatusBar();
   void updateVVVV();
 
-  // void menuItemActivated(QAction* id);
   void editMenuAboutToShow();
   void showContextState();
   void showContextTrans();
   void showContext();
 
-  void sbMessage(QString s);
-  void sbMessage(QString s, int t);
+  void statusMessage(const QString& a_message);
+  void statusMessage(const QString& a_message, int a_timeout);
   void setWaitCursor();
   void setPreviousCursor();
 
   void fileNew();
-  void fileOpen(const QString& a_fileName = {});
-  // void fileOpenRecent(QString fileName);
+  void fileOpen();
+  void fileOpen(const QString& a_fileName);
   bool fileSave();
   bool fileSaveAs();
 
@@ -368,7 +340,6 @@ class MainWindow : public QMainWindow {
   void filePrint();
   bool fileClose();
   void fileQuit();
-
 
   void editUndo();
   void editCut();

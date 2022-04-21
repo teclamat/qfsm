@@ -35,7 +35,7 @@ void MainControl::newWindow()
   window->show();
 }
 
-void MainControl::newWindow(const char* a_fileName)
+void MainControl::newWindow(const QString& a_fileName)
 {
   MainWindow* window = new MainWindow{ this };
   window->setLanguage(m_language);

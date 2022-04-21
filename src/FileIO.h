@@ -54,9 +54,10 @@ class FileIO : public QObject {
   Q_OBJECT
  public:
   FileIO(QWidget*);
-  ~FileIO();
+  ~FileIO() = default;
 
-  qfsm::Project* openFileXML(QString mrufile = {});
+  QStringList selectProjectFiles() const;
+  qfsm::Project* openFileXML(const QString& a_fileName);
   bool saveFile(qfsm::Project*);
   bool saveFileAs(qfsm::Project*);
   qfsm::Project* importFile(Import*, ScrollView* sv = NULL);
@@ -102,7 +103,7 @@ class FileIO : public QObject {
 
  signals:
   /// Sets a statusbar message
-  void sbMessage(QString);
+  void statusMessage(QString);
   /// Sets the hourglass cursor
   void setWaitCursor();
   /// Resets the cursor to the previous one
@@ -130,7 +131,7 @@ class FileIO : public QObject {
   /// Current export file name
   QString act_exportfile;
   /// File dialog
-  QFileDialog* filedlg;
+  QFileDialog* m_fileDialog;
   /// File dialog (import)
   QFileDialog* importdlg;
   /// File dialog (export)

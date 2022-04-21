@@ -57,10 +57,10 @@ static auto dec = ::dec;
 FileIO::FileIO(QWidget* parent)
   : QObject(parent)
 {
-  filedlg = new QFileDialog(parent, "", act_dir.dirName(), "Finite State Machine (*.fsm)");
-  filedlg->setFileMode(QFileDialog::AnyFile);
-  filedlg->setAcceptMode(QFileDialog::AcceptSave);
-  filedlg->setOption(QFileDialog::DontConfirmOverwrite);
+  m_fileDialog = new QFileDialog(parent, "", act_dir.dirName(), "Finite State Machine (*.fsm)");
+  m_fileDialog->setFileMode(QFileDialog::AnyFile);
+  m_fileDialog->setAcceptMode(QFileDialog::AcceptSave);
+  m_fileDialog->setOption(QFileDialog::DontConfirmOverwrite);
 
   importdlg = new QFileDialog(parent, "", act_dir.dirName(), "");
   importdlg->setFileMode(QFileDialog::AnyFile);
@@ -89,58 +89,49 @@ FileIO::FileIO(QWidget* parent)
   main = (MainWindow*)parent;
 }
 
-/// Destructor
-FileIO::~FileIO() {}
+QStringList FileIO::selectProjectFiles() const
+{
+  return QFileDialog::getOpenFileNames(nullptr, tr("Open Project Files"), act_dir.dirName(),
+                                       tr("Finite State Machine (*.fsm)"));
+}
 
 /**
  * Opens a 'fsm'-file.
  * Opens the '.fsm' file @a mrufile.
  * If @a mrufile is null a file dialog is opened first.
  */
-qfsm::Project* FileIO::openFileXML(QString mrufile /*=QString::null*/)
+qfsm::Project* FileIO::openFileXML(const QString& a_fileName)
 {
-  qfsm::Project* p = NULL;
-  //  filedlg->setMode(Q3FileDialog::ExistingFile);
-  filedlg->setAcceptMode(QFileDialog::AcceptOpen);
-  filedlg->setFileMode(QFileDialog::ExistingFile);
-
-  if (mrufile.isEmpty()) {
-    if (!filedlg->exec()) {
-      act_file = QString{};
-      return p;
-    }
-    act_file = filedlg->selectedFiles().first();
-  } else {
-    if (!QFile::exists(mrufile))
-      return NULL;
-
-    act_file = mrufile;
+  if (a_fileName.isEmpty()) {
+    return nullptr;
   }
 
-  emit sbMessage(tr("File loading..."));
+  act_file = a_fileName;
+
+  emit statusMessage(tr("File loading..."));
   QFile file(act_file);
-  if (!file.open(QFile::ReadOnly))
-    return NULL;
-
-  p = new qfsm::Project(main);
-  XMLHandler handler(p);
-  handler.setDevice(&file);
-  // QXmlInputSource source(file);
-  // QXmlSimpleReader reader;
-
-  // reader.setContentHandler(&handler);
-  emit setWaitCursor();
-  if (handler.parse()) {
-    file.close();
-    emit setPreviousCursor();
-    return p;
+  if (!file.open(QFile::ReadOnly)) {
+    return nullptr;
   }
+
+  qfsm::Project* project = new qfsm::Project{ main };
+  XMLHandler handler{ project };
+  handler.setDevice(&file);
+
+  emit setWaitCursor();
+
+  if (!handler.parse()) {
+    if (project->isValid()) {
+      project->machine()->updateDefaultTransitions();
+    }
+    project->deleteLater();
+    project = nullptr;
+  }
+
   file.close();
-
-  p->machine()->updateDefaultTransitions();
-
   emit setPreviousCursor();
-  return NULL;
+
+  return project;
 }
 
 /**
@@ -161,23 +152,23 @@ bool FileIO::saveFileAs(qfsm::Project* p)
         break;
     }
   }
-  //  filedlg->setMode(Q3FileDialog::AnyFile);
-  filedlg->setAcceptMode(QFileDialog::AcceptSave);
-  filedlg->setFileMode(QFileDialog::AnyFile);
+  //  m_fileDialog->setMode(Q3FileDialog::AnyFile);
+  m_fileDialog->setAcceptMode(QFileDialog::AcceptSave);
+  m_fileDialog->setFileMode(QFileDialog::AnyFile);
   if (!act_file.isEmpty())
-    //    filedlg->setSelection(act_file);
-    filedlg->selectFile(act_file);
+    //    m_fileDialog->setSelection(act_file);
+    m_fileDialog->selectFile(act_file);
 
-  if (filedlg->exec()) {
-    act_file = filedlg->selectedFiles().first();
+  if (m_fileDialog->exec()) {
+    act_file = m_fileDialog->selectedFiles().first();
 
     QString name = act_file.right(act_file.length() - act_file.lastIndexOf("/"));
     if (name.right(4) != ".fsm")
       act_file.append(".fsm");
 
     if (QFile::exists(act_file)) {
-      if (qfsm::gui::msg::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) !=
-          QMessageBox::Ok)
+      if (qfsm::gui::msg::warn(tr("File exists. Do you want to overwrite it?"),
+                               qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok)
         return false;
     }
 
@@ -635,8 +626,8 @@ bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
 
     QFile ftmp(act_exportfile);
     if (ftmp.exists()) {
-      if (qfsm::gui::msg::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) !=
-          QMessageBox::Ok)
+      if (qfsm::gui::msg::warn(tr("File exists. Do you want to overwrite it?"),
+                               qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok)
         return false;
     }
 

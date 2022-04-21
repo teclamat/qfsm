@@ -116,7 +116,6 @@ set(QFSM_HEADERS
   src/Undo.h
   src/UndoBuffer.h
   src/Utils.h
-  src/WSpinBox.h
   src/XMLHandler.h
   src/Zoom.h
 )
@@ -214,7 +213,6 @@ set(QFSM_SOURCES
   src/Undo.cpp
   src/UndoBuffer.cpp
   src/Utils.cpp
-  src/WSpinBox.cpp
   src/XMLHandler.cpp
   src/Zoom.cpp
   src/main.cpp

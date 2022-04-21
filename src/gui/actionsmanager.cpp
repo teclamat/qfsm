@@ -66,10 +66,8 @@ void ActionsManager::setEnabled(Group a_group, QList<Action> a_actions, bool a_e
 
 void ActionsManager::update()
 {
-  const QClipboard* clipboard = qApp->clipboard();
   const bool hasProject = m_window->project() && m_window->project()->isValid();
   const bool hasUndoActions = hasProject && !m_window->project()->undoBuffer()->isEmpty();
-  const bool hasClipboardData = clipboard->mimeData() && clipboard->mimeData()->hasFormat(u"text/qfsm-objects"_qs);
   const int selectedStatesCount = m_window->view()->selectedStates();
   const int selectedTransitionsCount = m_window->view()->selectedTransitions();
   const int selectedItemsCount = selectedStatesCount + selectedTransitionsCount;
@@ -79,8 +77,17 @@ void ActionsManager::update()
   setEnabled(Group::State, Action::Final, selectedStatesCount > 0);
   setEnabled(Group::State, { Action::Initial, Action::Edit }, selectedStatesCount == 1);
   setEnabled(Group::Edit, { Action::Cut, Action::Copy, Action::Delete }, selectedItemsCount > 0);
-  setEnabled(Group::Edit, Action::Paste, hasProject && hasClipboardData);
   setEnabled(Group::Edit, Action::Undo, hasUndoActions);
+
+  updatePaste();
+}
+
+void ActionsManager::updatePaste() {
+  const QClipboard* clipboard = qApp->clipboard();
+  const bool hasProject = m_window->project() && m_window->project()->isValid();
+  const bool hasClipboardData = clipboard->mimeData() && clipboard->mimeData()->hasFormat(u"text/qfsm-objects"_qs);
+
+  setEnabled(Group::Edit, Action::Paste, hasProject && hasClipboardData);
 }
 
 void ActionsManager::setupNames()
