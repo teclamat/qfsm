@@ -1,6 +1,7 @@
 #include "actionsmanager.hpp"
 
 #include "MainWindow.h"
+#include "TransitionInfo.h"
 #include "UndoBuffer.h"
 #include "literals.hpp"
 #include "maincontrol.hpp"
@@ -66,28 +67,49 @@ void ActionsManager::setEnabled(Group a_group, QList<Action> a_actions, bool a_e
 
 void ActionsManager::update()
 {
-  const bool hasProject = m_window->project() && m_window->project()->isValid();
+  const bool notSimulating = m_window->mode() != DocumentMode::Simulating;
+  const bool hasProject = m_window->project();
+  const bool hasValidProject = hasProject && m_window->project()->isValid();
+  const bool hasTextType = hasValidProject && (m_window->project()->machine()->getType() == TransitionType::Text);
   const bool hasUndoActions = hasProject && !m_window->project()->undoBuffer()->isEmpty();
+  const int statesCount = hasValidProject ? m_window->project()->machine()->getNumStates() : 0;
   const int selectedStatesCount = m_window->view()->selectedStates();
   const int selectedTransitionsCount = m_window->view()->selectedTransitions();
   const int selectedItemsCount = selectedStatesCount + selectedTransitionsCount;
 
-  setEnabled(Group::Transition, Action::Straight, selectedTransitionsCount > 0);
-  setEnabled(Group::Transition, Action::Edit, selectedTransitionsCount == 1);
+  m_menus[Group::Export]->setEnabled(hasProject);
+  m_menus[Group::View]->setEnabled(hasProject);
+  m_menus[Group::Machine]->setEnabled(hasProject);
+  m_menus[Group::State]->setEnabled(hasProject && notSimulating);
+  m_menus[Group::Transition]->setEnabled(hasProject && notSimulating);
+
+  setEnabled(Group::File, { Action::Save, Action::SaveAs, Action::Print, Action::Close }, hasProject);
+  setEnabled(Group::Edit, Action::Undo, notSimulating && hasUndoActions);
+  setEnabled(Group::Edit, { Action::Cut, Action::Copy, Action::Delete }, notSimulating && (selectedItemsCount > 0));
+  setEnabled(Group::Edit, { Action::SelectAll, Action::ClearSelect }, hasProject && notSimulating);
+  setEnabled(Group::View, { Action::ZoomIn, Action::ZoomOut }, hasProject);
+  setEnabled(Group::View, { Action::Select, Action::Pan }, hasProject && notSimulating);
+  setEnabled(Group::View, { Action::Codes, Action::MooreOut }, !hasTextType);
+  setEnabled(Group::Machine, Action::Simulate, hasValidProject && !hasTextType && (statesCount > 0));
+  setEnabled(Group::Machine, Action::Edit, notSimulating);
+  setEnabled(Group::State, Action::Add, hasProject);
   setEnabled(Group::State, Action::Final, selectedStatesCount > 0);
   setEnabled(Group::State, { Action::Initial, Action::Edit }, selectedStatesCount == 1);
-  setEnabled(Group::Edit, { Action::Cut, Action::Copy, Action::Delete }, selectedItemsCount > 0);
-  setEnabled(Group::Edit, Action::Undo, hasUndoActions);
+  setEnabled(Group::Transition, Action::Add, hasProject);
+  setEnabled(Group::Transition, Action::Straight, selectedTransitionsCount > 0);
+  setEnabled(Group::Transition, Action::Edit, selectedTransitionsCount == 1);
 
   updatePaste();
 }
 
-void ActionsManager::updatePaste() {
+void ActionsManager::updatePaste()
+{
+  const bool notSimulating = m_window->mode() != DocumentMode::Simulating;
   const QClipboard* clipboard = qApp->clipboard();
   const bool hasProject = m_window->project() && m_window->project()->isValid();
   const bool hasClipboardData = clipboard->mimeData() && clipboard->mimeData()->hasFormat(u"text/qfsm-objects"_qs);
 
-  setEnabled(Group::Edit, Action::Paste, hasProject && hasClipboardData);
+  setEnabled(Group::Edit, Action::Paste, hasProject && notSimulating && hasClipboardData);
 }
 
 void ActionsManager::setupNames()
@@ -104,6 +126,23 @@ void ActionsManager::setupNames()
   m_actions[Group::File][Action::NewWindow]->setText(tr("New Window"));
   m_actions[Group::File][Action::Close]->setText(tr("Close"));
   m_actions[Group::File][Action::Quit]->setText(tr("Quit"));
+
+  m_actions[Group::Export][Action::ExportEPS]->setText(tr("EPS..."));
+  m_actions[Group::Export][Action::ExportSVG]->setText(tr("SVG..."));
+  m_actions[Group::Export][Action::ExportPNG]->setText(tr("PNG..."));
+  m_actions[Group::Export][Action::ExportAHDL]->setText(tr("AHDL..."));
+  m_actions[Group::Export][Action::ExportVHDL]->setText(tr("VHDL..."));
+  m_actions[Group::Export][Action::ExportVerilog]->setText(tr("Verilog HDL..."));
+  m_actions[Group::Export][Action::ExportKISS]->setText(tr("KISS..."));
+  m_actions[Group::Export][Action::ExportTestbench]->setText(tr("VHDL Testbench"));
+  m_actions[Group::Export][Action::ExportIoDesc]->setText(tr("I/O Description"));
+  m_actions[Group::Export][Action::ExportSCXML]->setText(tr("SCXML"));
+  m_actions[Group::Export][Action::ExportVVVV]->setText(tr("vvvv Automata code"));
+  m_actions[Group::Export][Action::ExportSTASCII]->setText(tr("State Table (ASCII)..."));
+  m_actions[Group::Export][Action::ExportSTLatex]->setText(tr("State Table (Latex)..."));
+  m_actions[Group::Export][Action::ExportSTHTML]->setText(tr("State Table (HTML)..."));
+  m_actions[Group::Export][Action::ExportRagel]->setText(tr("Ragel..."));
+  m_actions[Group::Export][Action::ExportSMC]->setText(tr("SMC..."));
 
   m_actions[Group::Edit][Action::Undo]->setText(tr("Undo"));
   m_actions[Group::Edit][Action::Undo]->setToolTip(tr("Undo last action"));
@@ -146,7 +185,7 @@ void ActionsManager::setupNames()
   m_actions[Group::State][Action::Final]->setText(tr("Toggle Final State"));
   m_actions[Group::State][Action::Edit]->setText(tr("Edit..."));
 
-  m_actions[Group::Transition][Action::Add]->setText(tr("New"));
+  m_actions[Group::Transition][Action::Add]->setText(tr("New", "neuter"));
   m_actions[Group::Transition][Action::Add]->setToolTip(tr("Add new transitions"));
   m_actions[Group::Transition][Action::Straight]->setText(tr("Straighten"));
   m_actions[Group::Transition][Action::Straight]->setToolTip(tr("Straightens selected transitions"));
@@ -237,6 +276,55 @@ void ActionsManager::setupActions()
   action = m_actions[Group::File][Action::Quit] = new QAction{ this };
   action->setShortcut(QKeySequence::Quit);
   connect(action, &QAction::triggered, m_window, &MainWindow::fileQuit);
+
+  // Export
+  action = m_actions[Group::Export][Action::ExportEPS] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportEPS);
+
+  action = m_actions[Group::Export][Action::ExportSVG] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportSVG);
+
+  action = m_actions[Group::Export][Action::ExportPNG] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportPNG);
+
+  action = m_actions[Group::Export][Action::ExportAHDL] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportAHDL);
+
+  action = m_actions[Group::Export][Action::ExportVHDL] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportVHDL);
+
+  action = m_actions[Group::Export][Action::ExportVerilog] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportVerilog);
+
+  action = m_actions[Group::Export][Action::ExportKISS] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportKISS);
+
+  action = m_actions[Group::Export][Action::ExportTestbench] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportTestbench);
+
+  action = m_actions[Group::Export][Action::ExportIoDesc] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportIODescription);
+
+  action = m_actions[Group::Export][Action::ExportSCXML] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportSCXML);
+
+  action = m_actions[Group::Export][Action::ExportVVVV] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportVVVV);
+
+  action = m_actions[Group::Export][Action::ExportSTASCII] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportSTASCII);
+
+  action = m_actions[Group::Export][Action::ExportSTLatex] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportSTLatex);
+
+  action = m_actions[Group::Export][Action::ExportSTHTML] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportSTHTML);
+
+  action = m_actions[Group::Export][Action::ExportRagel] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportRagel);
+
+  action = m_actions[Group::Export][Action::ExportSMC] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileExportSMC);
 
   // Edit
 
@@ -423,8 +511,29 @@ void ActionsManager::setupMenus()
   // Import
   m_menus[Group::Import] = new QMenu{ m_window };
 
-  // Import
-  m_menus[Group::Export] = new QMenu{ m_window };
+  // Export
+  menu = m_menus[Group::Export] = new QMenu{ m_window };
+  menu->addAction(m_actions[Group::Export][Action::ExportEPS]);
+  menu->addAction(m_actions[Group::Export][Action::ExportSVG]);
+  menu->addAction(m_actions[Group::Export][Action::ExportPNG]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Export][Action::ExportAHDL]);
+  menu->addAction(m_actions[Group::Export][Action::ExportVHDL]);
+  menu->addAction(m_actions[Group::Export][Action::ExportVerilog]);
+  menu->addAction(m_actions[Group::Export][Action::ExportKISS]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Export][Action::ExportTestbench]);
+  menu->addAction(m_actions[Group::Export][Action::ExportIoDesc]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Export][Action::ExportSCXML]);
+  menu->addAction(m_actions[Group::Export][Action::ExportVVVV]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Export][Action::ExportSTASCII]);
+  menu->addAction(m_actions[Group::Export][Action::ExportSTLatex]);
+  menu->addAction(m_actions[Group::Export][Action::ExportSTHTML]);
+  menu->addSeparator();
+  menu->addAction(m_actions[Group::Export][Action::ExportRagel]);
+  menu->addAction(m_actions[Group::Export][Action::ExportSMC]);
 
   // File
   menu = m_menus[Group::File] = new QMenu{ m_window };

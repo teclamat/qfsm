@@ -58,7 +58,23 @@ class ActionsManager : public QObject {
     Straight,
     Manual,
     About,
-    AboutQt
+    AboutQt,
+    ExportEPS,
+    ExportSVG,
+    ExportPNG,
+    ExportAHDL,
+    ExportVHDL,
+    ExportVerilog,
+    ExportKISS,
+    ExportTestbench,
+    ExportIoDesc,
+    ExportSCXML,
+    ExportVVVV,
+    ExportSTASCII,
+    ExportSTLatex,
+    ExportSTHTML,
+    ExportRagel,
+    ExportSMC
   };
 
   using ActionGroup = QHash<Action, QAction*>;
@@ -76,6 +92,7 @@ class ActionsManager : public QObject {
   void setEnabled(Group a_group, Action a_action, bool a_enabled = true);
   void setEnabled(Group a_group, QList<Action> a_actions, bool a_enabled = true);
 
+ public slots:
   void update();
   void updatePaste();
   void setupNames();

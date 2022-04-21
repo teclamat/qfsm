@@ -1,29 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en">
-<context>
-    <name>ExportAHDLDlg</name>
-    <message>
-        <source>AHDL Export Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use Moore outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
+<TS version="2.1" language="en_US">
 <context>
     <name>ExportRagel</name>
     <message>
@@ -32,144 +9,6 @@
     </message>
     <message>
         <source>The name of state &apos;%1&apos; begins with an invalid character.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ExportRagelDlg</name>
-    <message>
-        <source>Ragel Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a separate file containing a framework for actions/functions that are executed during or after the processing of the FSM.
-This file is necessary to create code that can be compiled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create action file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C / C++ / objective C</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Java</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ruby</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add default transition loop to every state</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ExportStateTableDlg</name>
-    <message>
-        <source>State Table Export Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include asyncronous output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve inverted conditions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rows: States / Columns: Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rows: Events / Columns: States</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ExportTestbenchDlg</name>
-    <message>
-        <source>Testbench Export Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use std_logic_1164 package </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write I/O description into header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>VHDL testbench file name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Testvector file name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>VHDL subprogram package file name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Base directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log file directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Negated reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use input/output names</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -189,109 +28,6 @@ This file is necessary to create code that can be compiled.</source>
     </message>
 </context>
 <context>
-    <name>ExportVHDLDlg</name>
-    <message>
-        <source>VHDL Export Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use symbolic names for states</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use std_logic_1164 package </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use input/output names</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export state codes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Negated reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write I/O description into header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Produce Alliance compliant code</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IF-THEN notation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CASE-WHEN notation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Basic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export File Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Architecture File Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add debug output state</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Separate files for Architecture and Entity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous look-ahead buffer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Architecture name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>behave</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Transiton Conditions</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ExportVHDLDlgImpl</name>
     <message>
         <source>Entity File Name</source>
@@ -299,68 +35,6 @@ This file is necessary to create code that can be compiled.</source>
     </message>
     <message>
         <source>Export File Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ExportVVVVDlg</name>
-    <message>
-        <source>vvvv Automata Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add &quot;Reset&quot; transition for every state</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset event:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset action:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DoReset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Segoe UI&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Sans Serif&apos;; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ExportVerilogDlg</name>
-    <message>
-        <source>Verilog Export Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronous reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -394,6 +68,14 @@ p, li { white-space: pre-wrap; }
         <source>File cannot be written.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Open Project Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Finite State Machine (*.fsm)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GState</name>
@@ -411,82 +93,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Code:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ICheckDlg</name>
-    <message>
-        <source>Integrity Check</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>100%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Transitions connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No dead locks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>States reachable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Completeness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unambiguous Conditions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unambiguous state codes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Initial state</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Final states reachable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Final state</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>IOViewDlg</name>
-    <message>
-        <source>IOView</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Segoe UI&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Inputs:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Moore Outputs:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;DejaVu Sans&apos;; font-weight:600;&quot;&gt;Mealy Outputs:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -513,93 +119,6 @@ Do you want to proceed?</source>
         <source>Warning.
 The number of bits does not match the number of signal names. 
 Do you want to proceed?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MachinePropertiesDlg</name>
-    <message>
-        <source>Machine Properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ASCII</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Free Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Names:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inputs:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Transition Font</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State Font</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Arrow Type:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Draw initial transition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mealy:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Moore:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -662,74 +181,6 @@ Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;New...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New &amp;Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Machine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Transition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to save it?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -758,31 +209,7 @@ Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(modified)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>loaded.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File %1 could not be opened</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>saved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -791,14 +218,6 @@ Do you want to proceed?</source>
     </message>
     <message>
         <source>The following identifiers do not match the VHDL syntax:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export of file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -820,42 +239,6 @@ Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>closed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>object cut.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>objects cut.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>object copied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>objects copied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>object pasted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>objects pasted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>object deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>objects deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Checking machine...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -865,14 +248,6 @@ Create it?</source>
     </message>
     <message>
         <source>&amp;Graphviz...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Import</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -892,84 +267,83 @@ Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Grid is %1</source>
+        <source>Invalid file type.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>OptDisplayDlg</name>
-    <message>
-        <source>Grid</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%n object(s) pasted.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size:</source>
+        <source> (modified)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Shadows</source>
+        <source>%1 created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Display shadows</source>
+        <source>File %1 loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Transitions</source>
+        <source>File `%1` could not be opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use &apos;?&apos; and &apos;!&apos; to mark inputs and outputs</source>
+        <source>File %1 saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Display input/output names</source>
+        <source>File %1 imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Draw Box around inputs/outputs</source>
+        <source>File %1 exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Tooltips</source>
+        <source>Export of file %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default transition descriptor:</source>
+        <source>Export of file %1 failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Inversion descriptor:</source>
+        <source>File %1 closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n object(s) cut.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n object(s) copied.</source>
+        <translation>
+            <numerusform>%n object copied.</numerusform>
+            <numerusform>%n objects copied.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n object(s) deleted.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Grid is on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;Any input&quot; descriptor:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Initial transition descriptor:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OptGeneralDlg</name>
-    <message>
-        <source>Language:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Language settings go into effect the next time you start Qfsm.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OptPrintingDlg</name>
-    <message>
-        <source>Print header</source>
+        <source>Grid is off.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -985,13 +359,6 @@ Create it?</source>
     </message>
     <message>
         <source>default</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OptionsDlg</name>
-    <message>
-        <source>Qfsm Options</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1069,187 +436,9 @@ Create it?</source>
     </message>
 </context>
 <context>
-    <name>SimulatorDlg</name>
-    <message>
-        <source>Simulator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ASCII</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>15</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>14</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>13</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>12</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>11</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>10</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>9</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State Code:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clock</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Frequency:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>StateManager</name>
     <message>
         <source>State_</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>StatePropertiesDlg</name>
-    <message>
-        <source>State Properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Radius:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Code:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>40</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Moore Outputs:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line width:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Colour</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Entry Actions:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Exit Actions:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1306,61 +495,6 @@ Create it?</source>
     </message>
     <message>
         <source>States</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TransitionPropertiesDlg</name>
-    <message>
-        <source>Transition Properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ASCII</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Free Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Output:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invert condition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default transition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Any input</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Input:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1433,220 +567,265 @@ Do you want to increase the number of mealy outputs of the machine?</source>
 <context>
     <name>qfsm::gui::ActionsManager</name>
     <message>
-        <source>&amp;New...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Creates a new file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Opens a file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Saves this file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Prints this file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New &amp;Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>U&amp;ndo</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Undo last action</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C&amp;ut</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Cuts Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Copies Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Pastes the clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>De&amp;lete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Clear selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State &amp;Codes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Moo&amp;re Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mealy I&amp;nputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mea&amp;ly Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Shadows</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Grid</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;IO View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Select objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Pan view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom &amp;In</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Zooms into the view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom &amp;Out</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Zoom out of the view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom &amp;100%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Simulate...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Simulates this machine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Integrity Check</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Auto correct State Codes...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Add new states</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set &amp;Initial State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Toggle Final State</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Add new transitions</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Straighten</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Straightens selected transitions</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <source>Qfsm &amp;Manual...</source>
-        <translation type="unfinished"></translation>
+        <source>New...</source>
+        <translation></translation>
     </message>
     <message>
-        <source>&amp;About...</source>
-        <translation type="unfinished"></translation>
+        <source>Open...</source>
+        <translation></translation>
     </message>
     <message>
-        <source>About &amp;Qt...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Print...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>New Window</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>State Codes</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Moore Outputs</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Mealy Inputs</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Mealy Outputs</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Shadows</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>IO View</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Pan view</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Zoom 100%</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Simulate...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Integrity Check</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Auto correct State Codes...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set Initial State</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Toggle Final State</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Qfsm Manual...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>About...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>About Qt...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open Recent</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Machine</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Transition</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <comment>neuter</comment>
+        <translation></translation>
     </message>
 </context>
 </TS>

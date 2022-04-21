@@ -16,15 +16,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-// #include <math.h>
-#include <QRegularExpression>
-#include <QString>
-// Added by qt3to4:
-#include <QList>
-#include <cmath>
 #include "Convert.h"
 #include "IOInfoASCII.h"
 #include "IOInfoList.h"
+
+#include <QRegularExpression>
+#include <QString>
+#include <QList>
+
+#include <cmath>
 
 /**
  * Standard constructor.
@@ -305,70 +305,6 @@ void Convert::invertX10(int len, char* buffer, char* inverted)
  */
 IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t)
 {
-  /*
-  int dezdig;
-  QString hexdig = "0123456789ABCDEF";
-  int count=0;
-  QString actdig;
-  int slen = hex.length();
-  int numconv=0;		// number of converted bits
-  char* bintmp = new char[slen*4+1];
-  int diff1=0, diff2=0;
-  char* bin = new char[len+1];
-  IOInfoBin result(t);
-
-  memset(bintmp, 0, 4*slen);
-  memset(bin, 0, len);
-
-  count = (slen*4-len)/4; 	// ignore leading digits
-  if (count<0)
-    count=0;
-
-  while (count<slen)
-  {
-    actdig = hex[count].upper();
-    dezdig = hexdig.find(actdig);
-    if (dezdig==-1)
-      dezdig=0;
-
-    for(int i=3; i>=0; i--)
-    {
-//      if (numconv+3-i<len)
-      {
-        if (dezdig-int(pow(2.0,i)+0.5)>=0)
-        {
-          bintmp[numconv+3-i]=1;
-          dezdig-=int(pow(2.0,i)+0.5);
-        }
-        else
-          bintmp[numconv+3-i]=0;
-      }
-    }
-    count++;
-    numconv+=4;
-  }
-
-  if (len%4)
-    diff2=4-len%4;
-  if (4*slen<len)
-    diff1=len-4*slen;
-
-  if (numconv>len)
-    numconv=len;
-  memcpy(bin+diff1, bintmp+diff2, numconv);
-
-  bin[len]=10;
-
-//  invertX10(len, bininv, bin);
-
-
-  result.setInfo(bin);
-
-  delete [] bintmp;
-  delete [] bin;
-
-  return result;
-  */
   QString binString("");
   for (int c = 0; c < hex.length(); c++) {
     switch (hex[c].toLatin1()) {
@@ -434,20 +370,18 @@ IOInfoBin Convert::hexStrToX10(int len, const QString hex, IOType t)
  * @param bininv binary data
  * @return string with hexadecimal data
  */
-QString Convert::X10ToHexStr(/*int len, char* bininv*/ IOInfoBin invio)
+QString Convert::X10ToHexStr(IOInfoBin invio)
 {
   if (!invio.isSingle())
     return QString("");
   int count = 0;
   int dsum = 0;
   QString hexdig = "0123456789ABCDEF";
-  QString bin; //= new char[len+1];
+  QString bin;
   IOInfoBin io(invio.getType());
-  //  Convert conv;
   QString hex;
   int len;
 
-  //  conv.invertX10(len, bininv, bin);
   io = invio;
   io.invertBits();
   bin = io.getInfo();
@@ -462,8 +396,6 @@ QString Convert::X10ToHexStr(/*int len, char* bininv*/ IOInfoBin invio)
     }
     hex = hexdig[dsum] + hex;
   }
-
-  //  delete [] bin;
 
   return hex;
 }

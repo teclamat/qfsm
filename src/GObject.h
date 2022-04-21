@@ -24,7 +24,6 @@ added #include <QRect>
 #ifndef GOBJECT_H
 #define GOBJECT_H
 
-#include <qobject.h>
 #include <qpoint.h>
 #include <QRect>
 
@@ -37,11 +36,10 @@ class Options;
  * @brief Base class for all graphical objects.
  *
  */
-class GObject //: public QObject
+class GObject
 {
-  //  Q_OBJECT
  public:
-  GObject(double, double); // , QObject* parent=0, const char* name=0 );
+  GObject(double, double);
   virtual ~GObject();
 
   /// Gets @a x and @a y coordinate of object.

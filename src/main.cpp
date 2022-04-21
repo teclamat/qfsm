@@ -52,7 +52,7 @@ int main(int argc, char** argv)
   qfsm::MainControl control{};
 
   QTranslator qfsmAppTranslator{};
-  if (qfsmAppTranslator.load(QLocale::system(), u"qfsm"_qs, u"_"_qs, u":/i18n"_qs)) {
+  if (qfsmAppTranslator.load(QLocale{ QLocale::Polish }, u"qfsm"_qs, u"_"_qs, u":/i18n"_qs)) {
     qfsmApp.installTranslator(&qfsmAppTranslator);
   }
 

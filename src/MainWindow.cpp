@@ -130,30 +130,6 @@ MainWindow::MainWindow(QObject* a_parent)
   menu_import->setEnabled(false);
 #endif
 
-  // File -> Export
-  QMenu* menu_export = m_actionsManager->menu(Group::Export);
-  menu_export->addAction(tr("E&PS..."), this, &MainWindow::fileExportEPS);
-  menu_export->addAction(tr("&SVG..."), this, &MainWindow::fileExportSVG);
-  menu_export->addAction(tr("&PNG..."), this, &MainWindow::fileExportPNG);
-  menu_export->addSeparator();
-  id_export_ahdl = menu_export->addAction(tr("&AHDL..."), this, &MainWindow::fileExportAHDL);
-  id_export_vhdl = menu_export->addAction(tr("&VHDL..."), this, &MainWindow::fileExportVHDL);
-  id_export_verilog = menu_export->addAction(tr("V&erilog HDL..."), this, &MainWindow::fileExportVerilog);
-  id_export_kiss = menu_export->addAction(tr("&KISS"), this, &MainWindow::fileExportKISS);
-  menu_export->addSeparator();
-  menu_export->addAction(tr("VHDL &Testbench"), this, &MainWindow::fileExportTestbench);
-  menu_export->addAction(tr("I/O &Description"), this, &MainWindow::fileExportIODescription);
-  menu_export->addSeparator();
-  id_export_scxml = menu_export->addAction(tr("SC&XML"), this, &MainWindow::fileExportSCXML);
-  id_export_vvvv = menu_export->addAction(tr("vvvv A&utomata code"), this, &MainWindow::fileExportVVVV);
-  menu_export->addSeparator();
-  menu_export->addAction(tr("State Table (ASC&II)..."), this, &MainWindow::fileExportSTASCII);
-  menu_export->addAction(tr("State Table (&Latex)..."), this, &MainWindow::fileExportSTLatex);
-  menu_export->addAction(tr("State Table (&HTML)..."), this, &MainWindow::fileExportSTHTML);
-  menu_export->addSeparator();
-  id_export_ragel = menu_export->addAction(tr("&Ragel..."), this, &MainWindow::fileExportRagel);
-  id_export_smc = menu_export->addAction(tr("SM&C..."), this, &MainWindow::fileExportSMC);
-
   QMenuBar* mainMenuBar = menuBar();
   mainMenuBar->addMenu(m_actionsManager->menu(Group::File));
   mainMenuBar->addMenu(m_actionsManager->menu(Group::Edit));
@@ -246,6 +222,7 @@ MainWindow::MainWindow(QObject* a_parent)
   control_pressed = false;
   m_isCutOperation = false;
 
+  connect(this, &MainWindow::modeChanged, m_actionsManager, &qfsm::gui::ActionsManager::update);
   connect(this, &MainWindow::modeChanged, m_view, &qfsm::gui::View::onModeChanged);
 
   setMode(DocumentMode::Select);
@@ -255,14 +232,13 @@ MainWindow::MainWindow(QObject* a_parent)
   //  SLOT(contextMenuHiding())); connect(cmenu_trans, SIGNAL(aboutToHide()),
   //  m_mainView, SLOT(contextMenuHiding())); connect(cmenu_sview,
   //  SIGNAL(aboutToHide()), m_mainView, SLOT(contextMenuHiding()));
-  connect(this, SIGNAL(allSelected()), m_mainView->getDrawArea(), SLOT(allSelected()));
+  // connect(this, SIGNAL(allSelected()), m_mainView->getDrawArea(), SLOT(allSelected()));
   connect(this, SIGNAL(objectsPasted()), m_mainView->getDrawArea(), SLOT(objectsPasted()));
   connect(this, SIGNAL(quitWindow(MainWindow*)), m_control, SLOT(quitWindow(MainWindow*)));
   connect(this, SIGNAL(escapePressed()), m_mainView->getDrawArea(), SLOT(escapePressed()));
   connect(m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)), m_statusBar, SLOT(setZoom(int)));
   connect(this, SIGNAL(updateStatusZoom(int)), m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)));
   connect(fileio, SIGNAL(statusMessage(QString)), this, SLOT(statusMessage(QString)));
-  // connect(menu_edit, SIGNAL(aboutToShow()), this, SLOT(editMenuAboutToShow()));
   connect(fileio, SIGNAL(setWaitCursor()), this, SLOT(setWaitCursor()));
   connect(fileio, SIGNAL(setPreviousCursor()), this, SLOT(setPreviousCursor()));
   connect(view_io, SIGNAL(closing()), this, SLOT(viewIOView()));
@@ -284,7 +260,6 @@ MainWindow::~MainWindow()
   delete printmanager;
   delete fileio;
   delete m_statusBar;
-  // delete tabdialog;
   delete simulator;
   delete ichecker;
 
@@ -387,7 +362,7 @@ void MainWindow::closeEvent(QCloseEvent* e)
 /// Called when this window receives the focus
 void MainWindow::focusInEvent(QFocusEvent* a_event)
 {
-  if (a_event->gotFocus() && (a_event->reason() != Qt::PopupFocusReason)) {
+  if (a_event->gotFocus() && (a_event->reason() != Qt::FocusReason::PopupFocusReason)) {
     m_actionsManager->updatePaste();
   }
 }
@@ -429,7 +404,7 @@ void MainWindow::dropEvent(QDropEvent* e)
   if (mm->hasUrls()) {
     path = mm->urls().first().path();
     if (path.right(4) != ".fsm") {
-      statusMessage(tr("Invalid file type"));
+      statusMessage(tr("Invalid file type."));
       return;
     }
 
@@ -466,12 +441,6 @@ void MainWindow::dropEvent(QDropEvent* e)
   //  data=QString(mm->data("text/qfsm-objects"));
 }
 
-/// Called when the edit menu is about to show
-void MainWindow::editMenuAboutToShow()
-{
-  m_mainView->getDrawArea()->resetContext();
-}
-
 /**
  * Sets the current mode and updates the menus.
  */
@@ -482,22 +451,6 @@ void MainWindow::setMode(DocumentMode a_mode)
   }
   m_mode = a_mode;
   emit modeChanged(m_mode);
-
-  // switch (m_mode) {
-  //   case DocumentMode::Pan:
-  //     m_view->viewport()->setCursor(Qt::CursorShape::ClosedHandCursor);
-  //     m_mainView->viewport()->setCursor(Qt::SizeAllCursor);
-  //     break;
-  //   case DocumentMode::NewState:
-  //   case DocumentMode::NewTransition:
-  //     m_view->viewport()->setCursor(Qt::CursorShape::CrossCursor);
-  //     m_mainView->viewport()->setCursor(Qt::CrossCursor);
-  //     break;
-  //   default:
-  //     m_view->viewport()->setCursor(Qt::CursorShape::ArrowCursor);
-  //     m_mainView->viewport()->setCursor(Qt::ArrowCursor);
-  //     break;
-  // }
 }
 
 /// Repaints the scroll view
@@ -527,28 +480,34 @@ void MainWindow::updateMenuBar()
     // id_newstate->setEnabled(true);
     // id_newtrans->setEnabled(true);
     if (m_project->machine() && m_project->machine()->getType() == Ascii)
-      id_export_ragel->setEnabled(true);
+      ;
+    // id_export_ragel->setEnabled(true);
     else
-      id_export_ragel->setEnabled(false);
+      ;
+    // id_export_ragel->setEnabled(false);
     if (m_project->machine() && m_project->machine()->getType() == Text) {
-      id_export_ahdl->setEnabled(false);
-      id_export_vhdl->setEnabled(false);
-      id_export_verilog->setEnabled(false);
-      id_export_kiss->setEnabled(false);
-      id_export_vvvv->setEnabled(true);
-      id_export_scxml->setEnabled(true);
-      id_export_smc->setEnabled(true);
+
+      // id_export_ahdl->setEnabled(false);
+      // id_export_vhdl->setEnabled(false);
+      // id_export_verilog->setEnabled(false);
+      // id_export_kiss->setEnabled(false);
+      // id_export_vvvv->setEnabled(true);
+      // id_export_scxml->setEnabled(true);
+      // id_export_smc->setEnabled(true);
+
       // id_viewstateenc->setEnabled(false);
       // id_viewmoore->setEnabled(false);
       // tbmachinesim->setEnabled(false);
     } else {
-      id_export_ahdl->setEnabled(true);
-      id_export_vhdl->setEnabled(true);
-      id_export_verilog->setEnabled(true);
-      id_export_kiss->setEnabled(true);
-      id_export_vvvv->setEnabled(false);
-      id_export_scxml->setEnabled(false);
-      id_export_smc->setEnabled(false);
+
+      // id_export_ahdl->setEnabled(true);
+      // id_export_vhdl->setEnabled(true);
+      // id_export_verilog->setEnabled(true);
+      // id_export_kiss->setEnabled(true);
+      // id_export_vvvv->setEnabled(false);
+      // id_export_scxml->setEnabled(false);
+      // id_export_smc->setEnabled(false);
+
       // id_viewstateenc->setEnabled(true);
       // id_viewmoore->setEnabled(true);
       // tbmachinesim->setEnabled(true);
@@ -828,11 +787,11 @@ void MainWindow::updateAll()
 /// Refreshes the MRU file list
 void MainWindow::refreshMRU()
 {
-  QMenu* menu_mru = m_actionsManager->menu(qfsm::gui::ActionsManager::Group::Recent);
-  menu_mru->clear();
+  QMenu* recentFilesMenu = m_actionsManager->menu(qfsm::gui::ActionsManager::Group::Recent);
+  recentFilesMenu->clear();
 
   for (const QString& recentFile : m_optionsManager->recentsList()) {
-    menu_mru->addAction(recentFile, [&]() { fileOpen(recentFile); });
+    recentFilesMenu->addAction(recentFile, [&]() { fileOpen(recentFile); });
   }
 }
 
@@ -900,9 +859,9 @@ void MainWindow::fileNew()
       m_project = NULL;
     }
     m_project = p;
-    fileio->setActFilePath(QString{});
+    fileio->setActFilePath({});
 
-    statusMessage(m_project->machine()->getName() + " " + tr("created."), 2000);
+    statusMessage(tr("%1 created.").arg(m_project->machine()->getName()), 2000);
   } else {
     p->deleteLater();
     return;
@@ -959,7 +918,7 @@ void MainWindow::fileOpen(const QString& a_fileName)
     m_project = newProject;
     m_project->undoBuffer()->clear();
 
-    statusMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
+    statusMessage(tr("File %1 loaded.").arg(fileio->getActFileName()), 2000);
 
     for (GState* state : m_project->machine()->getSList()) {
       qfsm::gui::StateItem* stateItem = new qfsm::gui::StateItem{ state };
@@ -1080,7 +1039,7 @@ bool MainWindow::fileSaveAs()
     result = fileio->saveFileAs(m_project);
 
     if (result) {
-      statusMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
+      statusMessage(tr("File %1 saved.").arg(fileio->getActFileName()), 2000);
       m_project->undoBuffer()->clear();
       m_optionsManager->addRecentsEntry(fileio->getActFilePath());
     }
@@ -1124,7 +1083,7 @@ void MainWindow::fileImportGraphviz()
       delete m_project;
       m_project = NULL;
     }
-    statusMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("imported."), 2000);
+    statusMessage(tr("File %1 imported.").arg(fileio->getActFileName()), 2000);
     m_project = p;
     p->undoBuffer()->clear();
 
@@ -1158,8 +1117,9 @@ bool MainWindow::fileExportEPS()
     result = fileio->exportFile(m_project, exp, m_mainView);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1179,8 +1139,9 @@ bool MainWindow::fileExportSVG()
     result = fileio->exportFile(m_project, exp, m_mainView);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1200,8 +1161,9 @@ bool MainWindow::fileExportPNG()
     result = fileio->exportFile(m_project, exp, m_mainView);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1229,8 +1191,9 @@ bool MainWindow::fileExportAHDL()
     result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1269,7 +1232,7 @@ bool MainWindow::fileExportVHDL()
 
       qfsm::gui::msg::warn(errorMessage);
 
-      statusMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
+      statusMessage(tr("Export of file %1 failed").arg(fileio->getActExportFileName()), 2000);
       delete exp;
       return false;
     }
@@ -1326,8 +1289,9 @@ bool MainWindow::fileExportVHDL()
     //  result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1345,8 +1309,9 @@ bool MainWindow::fileExportIODescription()
     result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1519,7 +1484,7 @@ bool MainWindow::fileExportTestbench()
       errorMessage += invalidNames.join("\n");
       qfsm::gui::msg::warn(errorMessage);
 
-      statusMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
+      statusMessage(tr("Export of file %1 failed.").arg(fileio->getActExportFileName()), 2000);
       delete testvector_out;
       delete testbench_out;
       delete package_out;
@@ -1543,8 +1508,9 @@ bool MainWindow::fileExportTestbench()
     delete testbench_out;
     delete package_out;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1572,8 +1538,9 @@ bool MainWindow::fileExportVerilog()
     result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1592,8 +1559,9 @@ bool MainWindow::fileExportKISS()
     result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1610,12 +1578,6 @@ bool MainWindow::fileExportVVVV()
     m_project->machine()->updateDefaultTransitions();
     updateVVVV();
     vvvv_export->show();
-    /*
-    if (result)
-      statusMessage(tr("File")+" "+ fileio->getActExportFileName() + " " +
-          tr("exported."), 2000);
-
-          */
     updateAll();
     return result;
   }
@@ -1633,8 +1595,9 @@ bool MainWindow::fileExportSCXML()
     result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1683,8 +1646,9 @@ bool MainWindow::fileExportSTASCII()
     delete exp;
     delete tb;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     setCursor(oldcursor1);
     m_mainView->viewport()->setCursor(oldcursor2);
@@ -1721,8 +1685,9 @@ bool MainWindow::fileExportSTLatex()
     delete exp;
     delete tb;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     setCursor(oldcursor1);
     m_mainView->viewport()->setCursor(oldcursor2);
@@ -1759,8 +1724,9 @@ bool MainWindow::fileExportSTHTML()
     delete exp;
     delete tb;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     setCursor(oldcursor1);
     m_mainView->viewport()->setCursor(oldcursor2);
@@ -1810,8 +1776,9 @@ bool MainWindow::fileExportRagel()
 
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1830,8 +1797,9 @@ bool MainWindow::fileExportSMC()
     result = fileio->exportFile(m_project, exp);
     delete exp;
 
-    if (result)
-      statusMessage(tr("File") + " " + fileio->getActExportFileName() + " " + tr("exported."), 2000);
+    if (result) {
+      statusMessage(tr("File %1 exported.").arg(fileio->getActExportFileName()), 2000);
+    }
 
     updateAll();
     return result;
@@ -1877,20 +1845,14 @@ bool MainWindow::fileClose()
       }
     }
 
-    delete m_project;
-    m_project = NULL;
+    simulator->closeDlg();
+    m_view->scene()->clear();
+    m_project->deleteLater();
+    m_project = nullptr;
 
-    m_mainView->getDrawArea()->resetState();
-    m_mainView->updateBackground();
-    m_mainView->getDrawArea()->getSelection()->clear();
-    m_mainView->getDrawArea()->repaint();
+    statusMessage(tr("File %1 closed.").arg(fileio->getActFileName()), 2000);
 
     setMode(DocumentMode::Select);
-    simulator->closeDlg();
-
-    statusMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("closed."), 2000);
-
-    updateAll();
 
     return true;
   }
@@ -1902,8 +1864,8 @@ void MainWindow::editUndo()
 {
   if (m_project) {
     m_project->undoBuffer()->undo();
-    updateAll();
-    m_mainView->widget()->repaint();
+    m_view->scene()->update();
+    m_actionsManager->update();
   }
 }
 
@@ -1912,14 +1874,13 @@ void MainWindow::editUndo()
 void MainWindow::editCut()
 {
   const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
-  const QString cutOperationText = (selectionCount == 1) ? tr("object cut.") : tr("objects cut.");
 
   m_isCutOperation = true;
   editCopy();
   editDelete();
   m_isCutOperation = false;
 
-  statusMessage(QString{ "%1 %2" }.arg(selectionCount).arg(cutOperationText), 2000);
+  statusMessage(tr("%n object(s) cut.", nullptr, selectionCount), 2000);
 
   m_actionsManager->updatePaste();
 }
@@ -1944,9 +1905,7 @@ void MainWindow::editCopy()
 
   if (!m_isCutOperation) {
     const int selectionCount = m_mainView->getDrawArea()->getSelection()->count();
-    const QString copyOperationText = (selectionCount == 1) ? tr("object copied.") : tr("objects copied.");
-
-    statusMessage(QString{ "%1 %2" }.arg(selectionCount).arg(copyOperationText), 2000);
+    statusMessage(tr("%n object(s) copied.", nullptr, selectionCount), 2000);
     m_actionsManager->updatePaste();
   }
 }
@@ -1981,9 +1940,7 @@ void MainWindow::editPaste()
   }
 
   const int selectionCount = selection->count();
-  const QString pastedText = (selectionCount == 1) ? tr("object pasted.") : tr("objects pasted.");
-
-  statusMessage(QString{ "%1 %2" }.arg(selectionCount).arg(pastedText), 2000);
+  statusMessage(tr("%n object(s) pasted.", nullptr, selectionCount), 2000);
   m_mainView->widget()->repaint();
   updateAll();
 }
@@ -2000,8 +1957,7 @@ void MainWindow::editDelete()
   }
 
   if (!m_isCutOperation) {
-    const QString deleteOperationText = (selectionCount == 1) ? tr("object deleted.") : tr("objects deleted.");
-    statusMessage(QString{ "%1 %2" }.arg(selectionCount).arg(deleteOperationText), 2000);
+    statusMessage(tr("%n object(s) deleted.", nullptr, selectionCount), 2000);
   }
 
   m_project->setChanged();
@@ -2019,20 +1975,14 @@ void MainWindow::editSelect()
 void MainWindow::editSelectAll()
 {
   m_view->scene()->selectAll();
-  // DRect bound;
-  // if (m_mainView->getDrawArea()->getSelection()->selectAll(m_project->machine(), bound))
-  //   emit allSelected();
-  // m_mainView->getDrawArea()->setSelectionRect(bound);
-  // updateAll();
+  m_actionsManager->update();
 }
 
 /// Called when 'Edit->Deselect all' is clicked
 void MainWindow::editDeselectAll()
 {
   m_view->scene()->clearSelection();
-  // m_mainView->getDrawArea()->getSelection()->deselectAll(m_project->machine());
-  // m_mainView->widget()->repaint();
-  // updateAll();
+  m_actionsManager->update();
 }
 
 /// Edit options.
@@ -2129,15 +2079,11 @@ void MainWindow::viewMealyInputs()
 /// Toggle view grid.
 void MainWindow::viewGrid()
 {
-  // QString str;
-  // doc_options.setViewGrid(!doc_options.getViewGrid());
-  // if (doc_options.getViewGrid())
-  //   str = tr("on");
-  // else
-  //   str = tr("off");
-
   const bool value = m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::grid);
-  statusMessage(tr("Grid is %1").arg(value ? "on" : "off"), 2000);
+
+  statusMessage(value ? tr("Grid is on.") : tr("Grid is off."), 2000);
+
+  m_view->scene()->update();
 
   // updateAll();
   // m_mainView->widget()->repaint();

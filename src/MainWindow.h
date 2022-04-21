@@ -220,14 +220,14 @@ class MainWindow : public QMainWindow {
 
   // menu item IDs
   QAction* id_import_graphviz; ///< Menu id 'File->Import->Graphviz'
-  QAction* id_export_ahdl;     ///< Menu id 'File->Export->AHDL'
-  QAction* id_export_vhdl;     ///< Menu id 'File->Export->VDHL'
-  QAction* id_export_verilog;  ///< Menu id 'File->Export->Verilog HDL'
-  QAction* id_export_kiss;     ///< Menu id 'File->Export->KISS'
-  QAction* id_export_vvvv;     ///< Menu id 'File->Export->vvvv Automata code'
-  QAction* id_export_scxml;    ///< Menu id 'File->Export->SCXML'
-  QAction* id_export_ragel;    ///< Menu id 'File->Export->Ragel'
-  QAction* id_export_smc;      ///< Menu id 'File->Export->SMC'
+  // QAction* id_export_ahdl;     ///< Menu id 'File->Export->AHDL'
+  // QAction* id_export_vhdl;     ///< Menu id 'File->Export->VDHL'
+  // QAction* id_export_verilog;  ///< Menu id 'File->Export->Verilog HDL'
+  // QAction* id_export_kiss;     ///< Menu id 'File->Export->KISS'
+  // QAction* id_export_vvvv;     ///< Menu id 'File->Export->vvvv Automata code'
+  // QAction* id_export_scxml;    ///< Menu id 'File->Export->SCXML'
+  // QAction* id_export_ragel;    ///< Menu id 'File->Export->Ragel'
+  // QAction* id_export_smc;      ///< Menu id 'File->Export->SMC'
 
   /// Messagebox that is opend when the user wants to close a changed file
   QMessageBox* mb_changed;
@@ -281,8 +281,6 @@ class MainWindow : public QMainWindow {
   QIcon appIcon{};
 
  signals:
-  /// Emited when 'Select all' is performed
-  void allSelected();
   /// Emited when a set of objects has been pasted into this main window
   void objectsPasted();
   /// Emited when this main window is about to close
@@ -303,7 +301,6 @@ class MainWindow : public QMainWindow {
   void updateStatusBar();
   void updateVVVV();
 
-  void editMenuAboutToShow();
   void showContextState();
   void showContextTrans();
   void showContext();
