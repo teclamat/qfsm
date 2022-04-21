@@ -202,7 +202,7 @@ void ActionsManager::setupActions()
   action = m_actions[Group::File][Action::Open] = new QAction{ this };
   action->setIcon(m_icons[u"open"_qs]);
   action->setShortcut(QKeySequence::Open);
-  connect(action, &QAction::triggered, m_window, &MainWindow::fileOpen);
+  connect(action, &QAction::triggered, [this](bool) { m_window->fileOpen(); });
 
   action = m_actions[Group::File][Action::Save] = new QAction{ this };
   action->setIcon(m_icons[u"save"_qs]);

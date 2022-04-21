@@ -40,7 +40,7 @@ void MainControl::newWindow(const char* a_fileName)
   MainWindow* window = new MainWindow{ this };
   window->setLanguage(m_language);
   window->show();
-  window->fileOpenRecent(a_fileName);
+  window->fileOpen(a_fileName);
 }
 
 void MainControl::quitWindow(MainWindow* a_window)

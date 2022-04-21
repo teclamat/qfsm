@@ -342,7 +342,8 @@ class MainWindow : public QMainWindow {
   void setPreviousCursor();
 
   void fileNew();
-  void fileOpen();
+  void fileOpen(const QString& a_fileName = {});
+  // void fileOpenRecent(QString fileName);
   bool fileSave();
   bool fileSaveAs();
 
@@ -368,7 +369,6 @@ class MainWindow : public QMainWindow {
   bool fileClose();
   void fileQuit();
 
-  void fileOpenRecent(QString fileName);
 
   void editUndo();
   void editCut();

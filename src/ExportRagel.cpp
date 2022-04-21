@@ -56,11 +56,11 @@ bool ExportRagel::validateMachine(Machine* m)
     QString n = is.next()->getStateName();
     if (n == "start") {
       result = false;
-      if (qfsm::gui::error::warn(msg.arg("start"), qfsm::gui::error::Button::Cancel) == QMessageBox::Cancel)
+      if (qfsm::gui::msg::warn(msg.arg("start"), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Cancel)
         return false;
     } else if (n == "final") {
       result = false;
-      if (qfsm::gui::error::warn(msg.arg("final"), qfsm::gui::error::Button::Cancel) == QMessageBox::Cancel)
+      if (qfsm::gui::msg::warn(msg.arg("final"), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Cancel)
         return false;
     }
     QString firstletter;
@@ -68,7 +68,7 @@ bool ExportRagel::validateMachine(Machine* m)
     QRegularExpression regexp("[a-zA-Z_]");
     if (!regexp.match(firstletter).hasMatch()) {
       result = false;
-      if (qfsm::gui::error::warn(msg2.arg(n), qfsm::gui::error::Button::Cancel) == QMessageBox::Cancel)
+      if (qfsm::gui::msg::warn(msg2.arg(n), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Cancel)
         return false;
     }
   }

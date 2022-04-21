@@ -104,9 +104,9 @@ int MachineManager::addMachine(qfsm::Project* p)
       if (type == 0 &&
           (nb != p->machine()->translateNames(onamesm).size() || ni != p->machine()->translateNames(inames).size() ||
            no != p->machine()->translateNames(onames).size())) {
-        ires = qfsm::gui::error::warn(tr("Warning.\nThe number of bits does not match the number of "
+        ires = qfsm::gui::msg::warn(tr("Warning.\nThe number of bits does not match the number of "
                                          "signal names. \nDo you want to proceed?"),
-                                      qfsm::gui::error::Button::Cancel);
+                                      qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel);
         if (ires == QMessageBox::Ok)
           break;
         else
@@ -194,9 +194,9 @@ void MachineManager::editMachine(qfsm::Project* p)
     QList<GState*> states = m->getSList();
 
     if (nnumbit < numbit || nnumin < numin || nnumout < numout) {
-      ires = qfsm::gui::error::warn(tr("Warning.\nReducing the number of bits may result in data loss. "
+      ires = qfsm::gui::msg::warn(tr("Warning.\nReducing the number of bits may result in data loss. "
                                        "\nDo you want to proceed?"),
-                                    qfsm::gui::error::Button::Cancel);
+                                    qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel);
       if (ires != QMessageBox::Ok)
         return;
     }
@@ -204,9 +204,9 @@ void MachineManager::editMachine(qfsm::Project* p)
     if (nnumbit != m->translateNames(machine_props->getMooreOutputNames()).size() ||
         nnumin != m->translateNames(machine_props->getMealyInputNames()).size() ||
         nnumout != m->translateNames(machine_props->getMealyOutputNames()).size()) {
-      ires = qfsm::gui::error::warn(tr("Warning.\nThe number of bits does not match the number of signal "
+      ires = qfsm::gui::msg::warn(tr("Warning.\nThe number of bits does not match the number of signal "
                                        "names. \nDo you want to proceed?"),
-                                    qfsm::gui::error::Button::Cancel);
+                                    qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel);
       if (ires != QMessageBox::Ok)
         return;
     }

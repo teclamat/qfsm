@@ -233,7 +233,7 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
       const int mtype = atts.value("type").toInt();
       if (mtype != machine->getType()) {
         // if (!quiet)
-        ::qfsm::gui::error::warn(tr("The types of the two machines are not compatible."));
+        ::qfsm::gui::msg::warn(tr("The types of the two machines are not compatible."));
         return false;
       }
       // }
@@ -251,33 +251,33 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     // } // end for
 
     if (!quiet && nummooreout > machine->getNumMooreOutputs()) {
-      if (::qfsm::gui::error::warn(tr("The number of moore outputs exceeds the limit "
+      if (::qfsm::gui::msg::warn(tr("The number of moore outputs exceeds the limit "
                                       "of this machine.\nDo you want to increase the number of "
                                       "moore outputs of the "
                                       "machine?"),
-                                   qfsm::gui::error::Button::Cancel) == QMessageBox::Ok) {
+                                   qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
         machine->setNumMooreOutputs(nummooreout);
       }
     } else if (create_new_machine)
       machine->setNumMooreOutputs(nummooreout);
 
     if (!quiet && numin > machine->getNumInputs()) {
-      if (::qfsm::gui::error::warn(tr("The number of mealy inputs exceeds the limit "
+      if (::qfsm::gui::msg::warn(tr("The number of mealy inputs exceeds the limit "
                                       "of this machine.\nDo you want to increase the number of "
                                       "mealy inputs of the "
                                       "machine?"),
-                                   qfsm::gui::error::Button::Cancel) == QMessageBox::Ok) {
+                                   qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
         machine->setNumInputs(numin);
       }
     } else if (create_new_machine)
       machine->setNumInputs(numin);
 
     if (!quiet && numout > machine->getNumOutputs()) {
-      if (::qfsm::gui::error::warn(tr("The number of mealy outputs exceeds the limit "
+      if (::qfsm::gui::msg::warn(tr("The number of mealy outputs exceeds the limit "
                                       "of this machine.\nDo you want to increase the number of "
                                       "mealy outputs of the "
                                       "machine?"),
-                                   qfsm::gui::error::Button::Cancel) == QMessageBox::Ok) {
+                                   qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
         machine->setNumOutputs(numout);
       }
     } else if (create_new_machine)

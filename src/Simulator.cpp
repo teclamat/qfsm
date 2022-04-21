@@ -70,7 +70,7 @@ bool Simulator::startSimulation(Machine* m)
   machine = m;
 
   if (m->getInitialState() == NULL) {
-    qfsm::gui::error::info(tr("You have to define an initial state."));
+    qfsm::gui::msg::info(tr("You have to define an initial state."));
     return false;
   }
 
@@ -180,7 +180,7 @@ void Simulator::next()
   if (simdlg->isIBinChecked()) {
     if (Transition::conditionValid(Binary, in, false)) {
       if (!simdlg->isClockOn())
-        qfsm::gui::error::info(tr("Input is not in binary format."));
+        qfsm::gui::msg::info(tr("Input is not in binary format."));
       else
         // simdlg->setInputs("");
         simdlg->clearInput();
@@ -193,7 +193,7 @@ void Simulator::next()
     intmp = intmp.replace(QRegularExpression("[0-9a-fA-F\\s]"), "");
     if (!intmp.isEmpty()) {
       if (!simdlg->isClockOn())
-        qfsm::gui::error::info(tr("Input is not in hexadecimal format."));
+        qfsm::gui::msg::info(tr("Input is not in hexadecimal format."));
       else
         // simdlg->setInputs("");
         simdlg->clearInput();
@@ -207,7 +207,7 @@ void Simulator::next()
     ioinfo = &ioascii;
     if (!ioascii.isSingle()) {
       if (!ioascii.getInfo().isEmpty() && !simdlg->isClockOn())
-        qfsm::gui::error::info(tr("The input is not a single character."));
+        qfsm::gui::msg::info(tr("The input is not a single character."));
       else
         // simdlg->setInputs("");
         simdlg->clearInput();

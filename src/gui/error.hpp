@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QString>
 
 /// Provides an easy interface for error messageboxes.
-/// @namespace qfsm::gui::error
-namespace qfsm::gui::error {
+/// @namespace qfsm::gui::msg
+namespace qfsm::gui::msg {
 
 /// Enumerates possible messagebox buttons.
 /// @typedef Button
@@ -34,14 +34,14 @@ using Button = QMessageBox::StandardButton;
 /// @param a_message text to be displayed.
 /// @param a_buttons buttons to show in message box, defaults to OK.
 /// @return Return value of message box.
-int info(const QString& a_message, QMessageBox::StandardButtons a_buttons = {});
+int info(const QString& a_message, QMessageBox::StandardButtons a_buttons = Button::Ok);
 
 /// Displays warning message box.
 /// @param a_message text to be displayed.
 /// @param a_buttons buttons to show in message box, defaults to OK.
 /// @return Return value of message box.
-int warn(const QString& a_message, QMessageBox::StandardButtons a_buttons = {});
+int warn(const QString& a_message, QMessageBox::StandardButtons a_buttons = Button::Ok);
 
-} // namespace qfsm::gui::error
+} // namespace qfsm::gui::msg
 
 #endif // GUI_ERROR_HPP

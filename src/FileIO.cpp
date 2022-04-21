@@ -104,7 +104,7 @@ qfsm::Project* FileIO::openFileXML(QString mrufile /*=QString::null*/)
   filedlg->setAcceptMode(QFileDialog::AcceptOpen);
   filedlg->setFileMode(QFileDialog::ExistingFile);
 
-  if (mrufile.isNull()) {
+  if (mrufile.isEmpty()) {
     if (!filedlg->exec()) {
       act_file = QString{};
       return p;
@@ -176,7 +176,7 @@ bool FileIO::saveFileAs(qfsm::Project* p)
       act_file.append(".fsm");
 
     if (QFile::exists(act_file)) {
-      if (qfsm::gui::error::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::error::Button::Cancel) !=
+      if (qfsm::gui::msg::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) !=
           QMessageBox::Ok)
         return false;
     }
@@ -219,7 +219,7 @@ bool FileIO::doSaveXML(qfsm::Project* p)
 
   QFile file(act_file);
   if (!file.open(QIODevice::WriteOnly)) {
-    qfsm::gui::error::info(tr("File cannot be written."));
+    qfsm::gui::msg::info(tr("File cannot be written."));
     qDebug("file cannot be opened for writing");
     return false;
   }
@@ -635,7 +635,7 @@ bool FileIO::exportFile(qfsm::Project* p, Export* exp, ScrollView* sv /*=NULL*/)
 
     QFile ftmp(act_exportfile);
     if (ftmp.exists()) {
-      if (qfsm::gui::error::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::error::Button::Cancel) !=
+      if (qfsm::gui::msg::warn(tr("File exists. Do you want to overwrite it?"), qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) !=
           QMessageBox::Ok)
         return false;
     }

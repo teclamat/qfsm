@@ -20,16 +20,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "literals.hpp"
 
-namespace qfsm::gui::error {
+namespace qfsm::gui::msg {
 
 int info(const QString& a_message, QMessageBox::StandardButtons a_buttons)
 {
-  return QMessageBox::information(nullptr, u"Qfsm"_qs, a_message, Button::Ok | a_buttons);
+  return QMessageBox::information(nullptr, u"Qfsm"_qs, a_message, a_buttons);
 }
 
-int warnOk(const QString& a_message, QMessageBox::StandardButtons a_buttons)
+int warn(const QString& a_message, QMessageBox::StandardButtons a_buttons)
 {
-  return QMessageBox::warning(nullptr, u"Qfsm"_qs, a_message, Button::Ok | a_buttons);
+  return QMessageBox::warning(nullptr, u"Qfsm"_qs, a_message, a_buttons);
 }
 
-} // namespace qfsm::gui::error
+} // namespace qfsm::gui::msg

@@ -444,7 +444,7 @@ void MainWindow::dropEvent(QDropEvent* e)
       path = path.right(path.length() - 1);
 #endif
 
-    fileOpenRecent(path);
+    fileOpen(path);
   } else {
     if (e->source() == this)
       return;
@@ -865,7 +865,7 @@ void MainWindow::refreshMRU()
   menu_mru->clear();
 
   for (const QString& recentFile : m_optionsManager->recentsList()) {
-    menu_mru->addAction(recentFile, [=]() { fileOpenRecent(recentFile); });
+    menu_mru->addAction(recentFile, [&]() { fileOpen(recentFile); });
   }
 }
 
@@ -937,6 +937,7 @@ void MainWindow::fileNew()
 
     m_statusBar->showMessage(m_project->machine()->getName() + " " + tr("created."), 2000);
   } else {
+    p->deleteLater();
     return;
   }
 
@@ -948,139 +949,125 @@ void MainWindow::fileNew()
 }
 
 /// Opens an existing file.
-void MainWindow::fileOpen()
+void MainWindow::fileOpen(const QString& a_fileName)
 {
-  qfsm::Project* p;
-
-  if (m_project && m_project->hasChanged()) {
-    switch (mb_changed->exec()) {
-      case QMessageBox::Yes:
-        if (!fileSave())
+  if (m_project) {
+    if (m_project->hasChanged()) {
+      switch (mb_changed->exec()) {
+        case QMessageBox::Yes:
+          if (!fileSave())
+            return;
+          break;
+        case QMessageBox::No:
+          break;
+        case QMessageBox::Cancel:
           return;
-        break;
-      case QMessageBox::No:
-        break;
-      case QMessageBox::Cancel:
-        return;
-        break;
+          break;
+      }
     }
+
+    m_view->scene()->clear();
+    m_project->deleteLater();
+    m_project = nullptr;
   }
 
-  m_view->scene()->clear();
 
-  p = fileio->openFileXML();
-  if (p) {
-    if (m_project) {
-      delete m_project;
-      m_project = NULL;
-    }
+  qfsm::Project* newProject = fileio->openFileXML(a_fileName);
+  if (newProject) {
+    m_project = newProject;
+    m_project->undoBuffer()->clear();
+
     m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
-    m_project = p;
-    p->undoBuffer()->clear();
 
     for (GState* state : m_project->machine()->getSList()) {
       qfsm::gui::StateItem* stateItem = new qfsm::gui::StateItem{ state };
       m_view->scene()->addItem(stateItem);
-      // stateItem->update();
       for (GTransition* transition : state->tlist) {
         qfsm::gui::TransitionItem* transitionItem = new qfsm::gui::TransitionItem{ transition };
         m_view->scene()->addItem(transitionItem);
-        // stateItem->update();
       }
     }
 
-    // m_graphicsScene->update();
-    // m_graphicsView->show();
-
-    updateAll();
-    m_mainView->updateBackground();
-    m_mainView->getDrawArea()->resetState();
-    // m_mainView->getDrawArea()->updateCanvasSize();
-    m_mainView->updateSize();
     if (m_mode == DocumentMode::Simulating) {
       if (!simulator->startSimulation(m_project->machine()))
         setMode(DocumentMode::Select);
-    } else
-      m_mainView->widget()->repaint();
-
-    m_optionsManager->addRecentsEntry(fileio->getActFilePath());
-
-    //      m_statusBar->showMessage(tr("File %1 opened").arg(fileio->getActFile()),
-    //      3000);
-  } else if (!fileio->getActFilePath().isNull()) {
-    qfsm::gui::error::info(tr("File %1 could not be opened").arg(fileio->getActFilePath()));
-    m_statusBar->clearMessage();
-  }
-  /*
-  setCursor(oldcursor1);
-  m_mainView->viewport()->setCursor(oldcursor2);
-  */
-  // qApp->restoreOverrideCursor();
-}
-
-/// Opens a file from the MRU file list with the name @a fileName
-void MainWindow::fileOpenRecent(QString fileName)
-{
-  qfsm::Project* p;
-
-  if (m_project && m_project->hasChanged()) {
-    switch (mb_changed->exec()) {
-      case QMessageBox::Yes:
-        if (!fileSave())
-          return;
-        break;
-      case QMessageBox::No:
-        break;
-      case QMessageBox::Cancel:
-        return;
-        break;
     }
-  }
 
-  p = fileio->openFileXML(fileName);
-  if (p) {
-    if (m_project) {
-      delete m_project;
-      m_project = NULL;
-    }
-    m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
-    m_project = p;
-    p->undoBuffer()->clear();
-
-    updateAll();
-    m_mainView->updateBackground();
-    m_mainView->getDrawArea()->resetState();
-    // m_mainView->getDrawArea()->updateCanvasSize();
-    m_mainView->updateSize();
-    if (m_mode == DocumentMode::Simulating) {
-      if (!simulator->startSimulation(m_project->machine()))
-        setMode(DocumentMode::Select);
-    } else
-      m_mainView->widget()->repaint();
-
+    m_actionsManager->update();
     m_optionsManager->addRecentsEntry(fileio->getActFilePath());
   } else {
-    qfsm::gui::error::info(tr("File %1 could not be opened").arg(fileName));
+    const QString& fileName = a_fileName.isEmpty() ? fileio->getActFilePath() : a_fileName;
+    qfsm::gui::msg::info(tr("File `%1` could not be opened").arg(fileName));
     m_statusBar->clearMessage();
-    m_optionsManager->removeRecentsEntry(fileName);
+    if (!a_fileName.isEmpty()) {
+      m_optionsManager->removeRecentsEntry(a_fileName);
+    }
   }
 }
+
+// /// Opens a file from the MRU file list with the name @a fileName
+// void MainWindow::fileOpenRecent(QString fileName)
+// {
+//   qfsm::Project* p;
+
+//   if (m_project && m_project->hasChanged()) {
+//     switch (mb_changed->exec()) {
+//       case QMessageBox::Yes:
+//         if (!fileSave())
+//           return;
+//         break;
+//       case QMessageBox::No:
+//         break;
+//       case QMessageBox::Cancel:
+//         return;
+//         break;
+//     }
+//   }
+
+//   p = fileio->openFileXML(fileName);
+//   if (p) {
+//     if (m_project) {
+//       delete m_project;
+//       m_project = NULL;
+//     }
+//     m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("loaded."), 2000);
+//     m_project = p;
+//     p->undoBuffer()->clear();
+
+//     updateAll();
+//     m_mainView->updateBackground();
+//     m_mainView->getDrawArea()->resetState();
+//     // m_mainView->getDrawArea()->updateCanvasSize();
+//     m_mainView->updateSize();
+//     if (m_mode == DocumentMode::Simulating) {
+//       if (!simulator->startSimulation(m_project->machine()))
+//         setMode(DocumentMode::Select);
+//     } else
+//       m_mainView->widget()->repaint();
+
+//     m_optionsManager->addRecentsEntry(fileio->getActFilePath());
+//   } else {
+//     qfsm::gui::msg::info(tr("File %1 could not be opened").arg(fileName));
+//     m_statusBar->clearMessage();
+//     m_optionsManager->removeRecentsEntry(fileName);
+//   }
+// }
 
 /// Saves the current file.
 bool MainWindow::fileSave()
 {
+  bool result = false;
+
   if (m_project) {
-    bool result;
-    bool saveas = (fileio->getActFileName().isEmpty());
-    QCursor oldcursor1 = cursor();
-    QCursor oldcursor2 = m_mainView->viewport()->cursor();
-    setCursor(Qt::WaitCursor);
-    m_mainView->viewport()->setCursor(Qt::WaitCursor);
+    const bool saveas = fileio->getActFileName().isEmpty();
+    // QCursor oldcursor1 = cursor();
+    // QCursor oldcursor2 = m_mainView->viewport()->cursor();
+    // setCursor(Qt::WaitCursor);
+    // m_mainView->viewport()->setCursor(Qt::WaitCursor);
 
     result = fileio->saveFile(m_project);
-
     if (result) {
-      m_statusBar->showMessage(tr("File") + " " + fileio->getActFileName() + " " + tr("saved."), 2000);
+      m_statusBar->showMessage(tr("File %1 saved.").arg(fileio->getActFileName()), 2000);
       m_project->undoBuffer()->clear();
       if (saveas) {
         m_optionsManager->addRecentsEntry(fileio->getActFilePath());
@@ -1089,13 +1076,11 @@ bool MainWindow::fileSave()
 
     updateAll();
 
-    setCursor(oldcursor1);
-    m_mainView->viewport()->setCursor(oldcursor2);
-
-    return result;
+    // setCursor(oldcursor1);
+    // m_mainView->viewport()->setCursor(oldcursor2);
   }
 
-  return false;
+  return result;
 }
 
 /// Saves the current file with a new name.
@@ -1172,7 +1157,7 @@ void MainWindow::fileImportGraphviz()
       m_mainView->updateSize();
     }
   } else if (!fileio->getActImportFilePath().isNull()) {
-    qfsm::gui::error::info(tr("File %1 could not be opened").arg(fileio->getActFileName()));
+    qfsm::gui::msg::info(tr("File %1 could not be opened").arg(fileio->getActFileName()));
     m_statusBar->clearMessage();
   }
 }
@@ -1298,7 +1283,7 @@ bool MainWindow::fileExportVHDL()
 
       errorMessage += invalidNames.join("\n");
 
-      qfsm::gui::error::warn(errorMessage);
+      qfsm::gui::msg::warn(errorMessage);
 
       m_statusBar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
       delete exp;
@@ -1316,8 +1301,8 @@ bool MainWindow::fileExportVHDL()
 
     QFile ftmp(path_entity);
     if (ftmp.exists()) {
-      if (qfsm::gui::error::warn(tr("File %1 exists. Do you want to overwrite it?").arg(path_entity),
-                                 qfsm::gui::error::Button::Cancel) != QMessageBox::Ok) {
+      if (qfsm::gui::msg::warn(tr("File %1 exists. Do you want to overwrite it?").arg(path_entity),
+                               qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok) {
         delete exp;
         return false;
       }
@@ -1326,7 +1311,7 @@ bool MainWindow::fileExportVHDL()
     std::ofstream fout_entity(path_entity.toStdString());
 
     if (!fout_entity) {
-      qfsm::gui::error::warn(tr("Unable to write file %1!").arg(path_entity));
+      qfsm::gui::msg::warn(tr("Unable to write file %1!").arg(path_entity));
       delete exp;
       return false;
     }
@@ -1334,8 +1319,8 @@ bool MainWindow::fileExportVHDL()
     if (doc_options.getVHDLSepFiles()) {
       ftmp.setFileName(path_arch);
       if (ftmp.exists()) {
-        if (qfsm::gui::error::warn(tr("File %1 exists. Do you want to overwrite it?").arg(path_arch),
-                                   qfsm::gui::error::Button::Cancel) != QMessageBox::Ok) {
+        if (qfsm::gui::msg::warn(tr("File %1 exists. Do you want to overwrite it?").arg(path_arch),
+                                 qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok) {
           delete exp;
           return false;
         }
@@ -1343,7 +1328,7 @@ bool MainWindow::fileExportVHDL()
 
       std::ofstream fout_architecture(path_arch.toStdString());
       if (!fout_architecture) {
-        qfsm::gui::error::warn(tr("Unable to write file %1!").arg(path_arch));
+        qfsm::gui::msg::warn(tr("Unable to write file %1!").arg(path_arch));
         delete exp;
         return false;
       }
@@ -1502,23 +1487,23 @@ bool MainWindow::fileExportTestbench()
 
         QFile ftmp(base_dir_name + doc_options.getTestbenchVHDLPath());
         if (ftmp.exists()) {
-          if (qfsm::gui::error::warn(
+          if (qfsm::gui::msg::warn(
                   tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestbenchVHDLPath()),
-                  qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
+                  qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok)
             return false;
         }
         ftmp.setFileName(base_dir_name + doc_options.getTestvectorASCIIPath());
         if (ftmp.exists()) {
-          if (qfsm::gui::error::warn(
+          if (qfsm::gui::msg::warn(
                   tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestvectorASCIIPath()),
-                  qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
+                  qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok)
             return false;
         }
         ftmp.setFileName(base_dir_name + doc_options.getTestpackageVHDLPath());
         if (ftmp.exists()) {
-          if (qfsm::gui::error::warn(
+          if (qfsm::gui::msg::warn(
                   tr("File %1 exists. Do you want to overwrite it?").arg(doc_options.getTestpackageVHDLPath()),
-                  qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
+                  qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok)
             return false;
         }
 
@@ -1527,15 +1512,15 @@ bool MainWindow::fileExportTestbench()
         package_out = new std::ofstream((base_dir_name + doc_options.getTestpackageVHDLPath()).toLatin1().data());
 
         if (!testbench_out) {
-          qfsm::gui::error::warn(tr("Unable to open file %1!").arg(doc_options.getTestbenchVHDLPath()));
+          qfsm::gui::msg::warn(tr("Unable to open file %1!").arg(doc_options.getTestbenchVHDLPath()));
           return false;
         }
         if (!testvector_out) {
-          qfsm::gui::error::warn(tr("Unable to open file %1!").arg(doc_options.getTestvectorASCIIPath()));
+          qfsm::gui::msg::warn(tr("Unable to open file %1!").arg(doc_options.getTestvectorASCIIPath()));
           return false;
         }
         if (!package_out) {
-          qfsm::gui::error::warn(tr("Unable to open file %1!").arg(doc_options.getTestpackageVHDLPath()));
+          qfsm::gui::msg::warn(tr("Unable to open file %1!").arg(doc_options.getTestpackageVHDLPath()));
           return false;
         }
         break;
@@ -1548,7 +1533,7 @@ bool MainWindow::fileExportTestbench()
       errorMessage = tr("Export of file %1 failed!").arg(fileio->getActExportFileName()) + "\n\n" +
                      tr("The following identifiers do not match the VHDL syntax:") + "\n";
       errorMessage += invalidNames.join("\n");
-      qfsm::gui::error::warn(errorMessage);
+      qfsm::gui::msg::warn(errorMessage);
 
       m_statusBar->showMessage(tr("Export of file") + " " + fileio->getActExportFileName() + " " + tr("failed."), 2000);
       delete testvector_out;
@@ -1830,8 +1815,8 @@ bool MainWindow::fileExportRagel()
     if (create_action_file) {
       QFile ftmp(act_file);
       if (ftmp.exists()) {
-        if (qfsm::gui::error::warn(tr("File %1 exists. Do you want to overwrite it?").arg(act_file),
-                                   qfsm::gui::error::Button::Cancel) != QMessageBox::Ok)
+        if (qfsm::gui::msg::warn(tr("File %1 exists. Do you want to overwrite it?").arg(act_file),
+                                 qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) != QMessageBox::Ok)
           create_action_file = false;
       }
     }

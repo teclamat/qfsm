@@ -89,17 +89,17 @@ void StatePropertiesDlgImpl::validate()
   int pos = 0;
 
   if (ui.le_name->text().isEmpty())
-    qfsm::gui::error::info(tr("You must specify a name."));
+    qfsm::gui::msg::info(tr("You must specify a name."));
   else if (!State::codeValid(m->getType(), c))
-    qfsm::gui::error::info(tr("Code is not in binary format."));
+    qfsm::gui::msg::info(tr("Code is not in binary format."));
   else if (!State::mooreOutputValid(m->getType(), ui.le_mooreoutputs->text()))
-    qfsm::gui::error::info(tr("Moore outputs are not in the correct format."));
+    qfsm::gui::msg::info(tr("Moore outputs are not in the correct format."));
   // else if (!Utils::binStringValid(le_mooreoutputs->text()))
   // err.info(tr("Moore outputs are not in binary format."));
   else if (valRadius->validate(r, pos) != QValidator::Acceptable)
-    qfsm::gui::error::info(tr("Radius out of range."));
+    qfsm::gui::msg::info(tr("Radius out of range."));
   else if (valLineWidth->validate(l, pos) != QValidator::Acceptable)
-    qfsm::gui::error::info(tr("Linewidth out of range."));
+    qfsm::gui::msg::info(tr("Linewidth out of range."));
   else
     accept();
 }

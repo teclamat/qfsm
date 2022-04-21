@@ -72,24 +72,24 @@ void TransitionPropertiesDlgImpl::validate()
   if (cres) {
     switch (cres) {
       case 1:
-        qfsm::gui::error::info(tr("Input condition is not in binary format."));
+        qfsm::gui::msg::info(tr("Input condition is not in binary format."));
         break;
       case 2:
-        qfsm::gui::error::info(tr("Incomplete escape sequence."));
+        qfsm::gui::msg::info(tr("Incomplete escape sequence."));
         break;
       case 3:
-        qfsm::gui::error::info(tr("'-' has to define a range."));
+        qfsm::gui::msg::info(tr("'-' has to define a range."));
         break;
       case 4:
-        qfsm::gui::error::info(tr("Output must be only one character."));
+        qfsm::gui::msg::info(tr("Output must be only one character."));
         break;
       case 5:
-        qfsm::gui::error::info(
+        qfsm::gui::msg::info(
             tr("Invalid escape sequence.\nThe format is \\0xx, where xx is "
                "a\nhexadecimal value"));
         break;
       default:
-        qfsm::gui::error::info(tr("Input condition is not in the correct format."));
+        qfsm::gui::msg::info(tr("Input condition is not in the correct format."));
         break;
     }
     return;
@@ -98,24 +98,24 @@ void TransitionPropertiesDlgImpl::validate()
     if (cres) {
       switch (cres) {
         case 1:
-          qfsm::gui::error::info(tr("Output condition is not in binary format."));
+          qfsm::gui::msg::info(tr("Output condition is not in binary format."));
           break;
         case 2:
-          qfsm::gui::error::info(tr("Incomplete escape sequence."));
+          qfsm::gui::msg::info(tr("Incomplete escape sequence."));
           break;
         case 3:
-          qfsm::gui::error::info(tr("'-' has to define a range."));
+          qfsm::gui::msg::info(tr("'-' has to define a range."));
           break;
         case 4:
-          qfsm::gui::error::info(tr("Output must be only one character."));
+          qfsm::gui::msg::info(tr("Output must be only one character."));
           break;
         case 5:
-          qfsm::gui::error::info(
+          qfsm::gui::msg::info(
               tr("Invalid escape sequence.\nThe format is \\0xx, where xx "
                  "is a\nhexadecimal value"));
           break;
         default:
-          qfsm::gui::error::info(tr("Output condition is not in the correct format."));
+          qfsm::gui::msg::info(tr("Output condition is not in the correct format."));
           break;
       }
       return;
