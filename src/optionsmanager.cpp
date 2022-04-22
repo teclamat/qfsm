@@ -51,7 +51,7 @@ const QVariant OptionsManager::variant(Group a_group, const QString& a_name) con
 bool OptionsManager::toggleValue(Group a_group, const QString& a_name)
 {
   const QVariant optionValue = variant(a_group, a_name);
-  if (!optionValue.isValid() || (optionValue.type() != QMetaType::Bool)) {
+  if (!optionValue.isValid() || (optionValue.typeId() != QMetaType::Bool)) {
     qWarning() << "[OptionsManager] Cannot toggle non boolean or invalid option:" << settingKey(a_group, a_name);
     return false;
   }

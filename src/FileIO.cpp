@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "FileIO.h"
 
 #include "gui/error.hpp"
+#include "literals.hpp"
 
 #include "Convert.h"
 #include "Export.h"
@@ -74,14 +75,13 @@ FileIO::FileIO(QWidget* parent)
   exportdlg->setAcceptMode(QFileDialog::AcceptSave);
   exportdlg->setOption(QFileDialog::DontConfirmOverwrite);
 
-  mb_statecode = new QMessageBox("qfsm",
+  mb_statecode = new QMessageBox(QMessageBox::Critical, u"Qfsm"_qs,
                                  tr("The file cannot be saved because of incorrect state codes. Do you "
                                     "want to correct that?"),
-                                 QMessageBox::Critical, QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                                 QMessageBox::Cancel | QMessageBox::Escape, parent);
-  mb_statecode->setButtonText(QMessageBox::Yes, tr("Yes"));
-  mb_statecode->setButtonText(QMessageBox::No, tr("No"));
-  mb_statecode->setButtonText(QMessageBox::Cancel, tr("Cancel"));
+                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, parent);
+  // mb_statecode->setButtonText(QMessageBox::Yes, tr("Yes"));
+  // mb_statecode->setButtonText(QMessageBox::No, tr("No"));
+  // mb_statecode->setButtonText(QMessageBox::Cancel, tr("Cancel"));
 
   act_file = QString{};
   act_exportfile = QString{};

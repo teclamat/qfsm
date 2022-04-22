@@ -175,12 +175,12 @@ MainWindow::MainWindow(QObject* a_parent)
   fileio = new FileIO(this);
   printmanager = new PrintManager(this);
 
-  mb_changed = new QMessageBox("qfsm", tr("The file has been changed. Do you want to save it?"),
-                               QMessageBox::Information, QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                               QMessageBox::Cancel | QMessageBox::Escape);
-  mb_changed->setButtonText(QMessageBox::Yes, tr("Yes"));
-  mb_changed->setButtonText(QMessageBox::No, tr("No"));
-  mb_changed->setButtonText(QMessageBox::Cancel, tr("Cancel"));
+  mb_changed =
+      new QMessageBox(QMessageBox::Information, u"Qfsm"_qs, tr("The file has been changed. Do you want to save it?"),
+                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this);
+  // mb_changed->setButtonText(QMessageBox::Yes, tr("Yes"));
+  // mb_changed->setButtonText(QMessageBox::No, tr("No"));
+  // mb_changed->setButtonText(QMessageBox::Cancel, tr("Cancel"));
 
   fileio->loadOptions(&doc_options);
 
@@ -486,7 +486,6 @@ void MainWindow::updateMenuBar()
       ;
     // id_export_ragel->setEnabled(false);
     if (m_project->machine() && m_project->machine()->getType() == Text) {
-
       // id_export_ahdl->setEnabled(false);
       // id_export_vhdl->setEnabled(false);
       // id_export_verilog->setEnabled(false);
@@ -499,7 +498,6 @@ void MainWindow::updateMenuBar()
       // id_viewmoore->setEnabled(false);
       // tbmachinesim->setEnabled(false);
     } else {
-
       // id_export_ahdl->setEnabled(true);
       // id_export_vhdl->setEnabled(true);
       // id_export_verilog->setEnabled(true);
