@@ -2,6 +2,7 @@
 #define SRC_GUI_VIEW_HPP
 
 #include <QGraphicsView>
+#include <QList>
 
 class MainWindow;
 class QMenu;
@@ -14,6 +15,8 @@ enum class DocumentMode;
 namespace qfsm::gui {
 
 class Scene;
+class StateItem;
+class TransitionItem;
 
 class View : public QGraphicsView {
   Q_OBJECT
@@ -23,28 +26,38 @@ class View : public QGraphicsView {
 
   Scene* scene() { return m_scene; };
 
-  int selectedStates() const { return m_selectedStates; }
-  int selectedTransitions() const { return m_selectedTransitions; }
+  QList<StateItem*> selectedStates() const;
+  QList<TransitionItem*> selectedTransitions() const;
+  int selectedStatesCount() const { return m_selectedStatesCount; }
+  int selectedTransitionsCount() const { return m_selectedTransitionsCount; }
 
-public slots:
- void onModeChanged(DocumentMode a_mode);
+ public slots:
+  void onModeChanged(DocumentMode a_mode);
+  void zoomIn();
+  void zoomOut();
+  void zoomReset();
 
-private slots:
- void onSelectionChanged();
+ private:
+  void zoomChange(bool a_fromWheel = false);
 
-private:
- void contextMenuEvent(QContextMenuEvent*) override;
- void mousePressEvent(QMouseEvent*) override;
- void mouseMoveEvent(QMouseEvent*) override;
+ private slots:
+  void onSelectionChanged();
 
-private:
- Scene* m_scene;
- MainWindow* m_window;
- StatusBar* m_status;
- QMenu* m_contextState;
+ private:
+  void contextMenuEvent(QContextMenuEvent*) override;
+  void mousePressEvent(QMouseEvent*) override;
+  void mouseMoveEvent(QMouseEvent*) override;
+  void wheelEvent(QWheelEvent*) override;
 
- int m_selectedStates{};
- int m_selectedTransitions{};
+ private:
+  Scene* m_scene;
+  MainWindow* m_window;
+  StatusBar* m_status;
+  QMenu* m_contextState;
+  int m_zoomLevel;
+
+  int m_selectedStatesCount{};
+  int m_selectedTransitionsCount{};
 };
 
 } // namespace qfsm::gui

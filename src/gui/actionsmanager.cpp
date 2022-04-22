@@ -71,10 +71,11 @@ void ActionsManager::update()
   const bool hasProject = m_window->project();
   const bool hasValidProject = hasProject && m_window->project()->isValid();
   const bool hasTextType = hasValidProject && (m_window->project()->machine()->getType() == TransitionType::Text);
+  const bool hasAsciiType = hasValidProject && (m_window->project()->machine()->getType() == TransitionType::Ascii);
   const bool hasUndoActions = hasProject && !m_window->project()->undoBuffer()->isEmpty();
   const int statesCount = hasValidProject ? m_window->project()->machine()->getNumStates() : 0;
-  const int selectedStatesCount = m_window->view()->selectedStates();
-  const int selectedTransitionsCount = m_window->view()->selectedTransitions();
+  const int selectedStatesCount = m_window->view()->selectedStatesCount();
+  const int selectedTransitionsCount = m_window->view()->selectedTransitionsCount();
   const int selectedItemsCount = selectedStatesCount + selectedTransitionsCount;
 
   m_menus[Group::Export]->setEnabled(hasProject);
@@ -82,6 +83,11 @@ void ActionsManager::update()
   m_menus[Group::Machine]->setEnabled(hasProject);
   m_menus[Group::State]->setEnabled(hasProject && notSimulating);
   m_menus[Group::Transition]->setEnabled(hasProject && notSimulating);
+
+  setEnabled(Group::Export, { Action::ExportAHDL, Action::ExportVHDL, Action::ExportVerilog, Action::ExportKISS },
+             !hasTextType);
+  setEnabled(Group::Export, { Action::ExportVVVV, Action::ExportSCXML, Action::ExportSMC }, hasTextType);
+  setEnabled(Group::Export, Action::ExportRagel, hasAsciiType);
 
   setEnabled(Group::File, { Action::Save, Action::SaveAs, Action::Print, Action::Close }, hasProject);
   setEnabled(Group::Edit, Action::Undo, notSimulating && hasUndoActions);

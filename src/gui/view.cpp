@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "StatusBar.h"
 #include "actionsmanager.hpp"
+#include "common.hpp"
 #include "scene.hpp"
 #include "stateitem.hpp"
 #include "transitionitem.hpp"
@@ -11,7 +12,15 @@
 #include <QContextMenuEvent>
 #include <QDebug>
 
+#include <array>
+
 namespace qfsm::gui {
+
+constexpr int ZOOM_LEVELS = 11;
+constexpr int MAXIMUM_ZOOM_LEVEL = ZOOM_LEVELS - 1;
+constexpr int INITIAL_ZOOM_LEVEL = 4;
+constexpr std::array<double, static_cast<std::size_t>(ZOOM_LEVELS)> ZOOM_FACTORS{ .25, .5,   .75, .9,  1.0, 1.25,
+                                                                                  1.5, 1.75, 2.0, 3.0, 4.0 };
 
 View::View(QMainWindow* a_parent)
   : QGraphicsView{ a_parent }
@@ -19,6 +28,7 @@ View::View(QMainWindow* a_parent)
   , m_window{ qobject_cast<MainWindow*>(a_parent) }
   , m_status{ m_window->getStatusBar() }
   , m_contextState{ new QMenu{ this } }
+  , m_zoomLevel{ INITIAL_ZOOM_LEVEL }
 {
   using Action = ActionsManager::Action;
   using Group = ActionsManager::Group;
@@ -26,6 +36,8 @@ View::View(QMainWindow* a_parent)
   setScene(m_scene);
   setDragMode(QGraphicsView::RubberBandDrag);
   setMouseTracking(true);
+
+  zoomReset();
 
   ActionsManager* manager = m_window->actionsManager();
 
@@ -41,6 +53,60 @@ View::View(QMainWindow* a_parent)
   m_contextState->addAction(manager->action(Group::State, Action::Edit));
 
   connect(m_scene, &Scene::selectionChanged, this, &View::onSelectionChanged);
+}
+
+QList<StateItem*> View::selectedStates() const
+{
+  QList<StateItem*> items{};
+  for (QGraphicsItem* item : m_scene->selectedItems()) {
+    if (item->type() == STATE_TYPE) {
+      items << qgraphicsitem_cast<StateItem*>(item);
+    }
+  }
+  return items;
+}
+
+QList<TransitionItem*> View::selectedTransitions() const
+{
+  QList<TransitionItem*> items{};
+  for (QGraphicsItem* item : m_scene->selectedItems()) {
+    if (item->type() == TRANSITION_TYPE) {
+      items << qgraphicsitem_cast<TransitionItem*>(item);
+    }
+  }
+  return items;
+}
+
+void View::zoomIn()
+{
+  if (m_zoomLevel < MAXIMUM_ZOOM_LEVEL) {
+    ++m_zoomLevel;
+    zoomChange();
+  }
+}
+
+void View::zoomOut()
+{
+  if (m_zoomLevel > 0) {
+    --m_zoomLevel;
+    zoomChange();
+  }
+}
+
+void View::zoomReset()
+{
+  m_zoomLevel = INITIAL_ZOOM_LEVEL;
+  zoomChange();
+}
+
+void View::zoomChange(bool a_fromWheel)
+{
+  const double zoomFactor = ZOOM_FACTORS[static_cast<std::size_t>(m_zoomLevel)];
+  const ViewportAnchor anchor = transformationAnchor();
+  setTransformationAnchor(a_fromWheel ? QGraphicsView::AnchorUnderMouse : QGraphicsView::AnchorViewCenter);
+  setTransform(QTransform::fromScale(zoomFactor, zoomFactor));
+  setTransformationAnchor(anchor);
+  m_status->setZoom(static_cast<int>(zoomFactor * 100));
 }
 
 void View::onModeChanged(DocumentMode a_mode)
@@ -69,13 +135,13 @@ void View::onModeChanged(DocumentMode a_mode)
 void View::onSelectionChanged()
 {
   QList<QGraphicsItem*> items = m_scene->selectedItems();
-  m_selectedStates = 0;
-  m_selectedTransitions = 0;
+  m_selectedStatesCount = 0;
+  m_selectedTransitionsCount = 0;
   for (QGraphicsItem* item : items) {
     if (qgraphicsitem_cast<StateItem*>(item)) {
-      ++m_selectedStates;
+      ++m_selectedStatesCount;
     } else if (qgraphicsitem_cast<TransitionItem*>(item)) {
-      ++m_selectedTransitions;
+      ++m_selectedTransitionsCount;
     }
   }
   m_status->setSelected(items.count());
@@ -99,7 +165,8 @@ void View::contextMenuEvent(QContextMenuEvent* a_event)
   }
 }
 
-void View::mousePressEvent(QMouseEvent* a_event) {
+void View::mousePressEvent(QMouseEvent* a_event)
+{
   QGraphicsView::mousePressEvent(a_event);
 }
 
@@ -110,6 +177,18 @@ void View::mouseMoveEvent(QMouseEvent* a_event)
   m_status->setPosition(position.x(), position.y());
 
   QGraphicsView::mouseMoveEvent(a_event);
+}
+
+void View::wheelEvent(QWheelEvent* a_event)
+{
+  const int angle = a_event->angleDelta().y();
+  if (angle > 0) {
+    ++m_zoomLevel;
+  } else {
+    --m_zoomLevel;
+  }
+  m_zoomLevel = std::clamp(m_zoomLevel, 0, MAXIMUM_ZOOM_LEVEL);
+  zoomChange(true);
 }
 
 } // namespace qfsm::gui

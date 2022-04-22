@@ -179,7 +179,7 @@ class MainWindow : public QMainWindow {
   /// State manager
   StateManager* m_stateManager{};
   /// Machine manager
-  MachineManager* machinemanager{};
+  MachineManager* m_machineManager{};
   /// Transition manager
   TransitionManager* m_transitionManager{};
   /// File I/O
@@ -355,7 +355,6 @@ class MainWindow : public QMainWindow {
   void viewGrid();
   void viewShadows();
   void viewPan();
-  void viewZoom();
   void viewZoomIn();
   void viewZoomOut();
   void viewZoom100();

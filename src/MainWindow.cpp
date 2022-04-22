@@ -170,7 +170,7 @@ MainWindow::MainWindow(QObject* a_parent)
   setStatusBar(m_statusBar);
 
   m_stateManager = new StateManager(this);
-  machinemanager = new MachineManager(this);
+  m_machineManager = new MachineManager(this);
   m_transitionManager = new TransitionManager(this);
   fileio = new FileIO(this);
   printmanager = new PrintManager(this);
@@ -224,9 +224,10 @@ MainWindow::MainWindow(QObject* a_parent)
 
   connect(this, &MainWindow::modeChanged, m_actionsManager, &qfsm::gui::ActionsManager::update);
   connect(this, &MainWindow::modeChanged, m_view, &qfsm::gui::View::onModeChanged);
+  connect(this, &MainWindow::quitWindow, m_control, &qfsm::MainControl::quitWindow);
 
   setMode(DocumentMode::Select);
-  updateAll(); // MenuBar();
+  // updateAll(); // MenuBar();
 
   //  connect(cmenu_state, SIGNAL(aboutToHide()), m_mainView,
   //  SLOT(contextMenuHiding())); connect(cmenu_trans, SIGNAL(aboutToHide()),
@@ -234,10 +235,9 @@ MainWindow::MainWindow(QObject* a_parent)
   //  SIGNAL(aboutToHide()), m_mainView, SLOT(contextMenuHiding()));
   // connect(this, SIGNAL(allSelected()), m_mainView->getDrawArea(), SLOT(allSelected()));
   connect(this, SIGNAL(objectsPasted()), m_mainView->getDrawArea(), SLOT(objectsPasted()));
-  connect(this, SIGNAL(quitWindow(MainWindow*)), m_control, SLOT(quitWindow(MainWindow*)));
   connect(this, SIGNAL(escapePressed()), m_mainView->getDrawArea(), SLOT(escapePressed()));
-  connect(m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)), m_statusBar, SLOT(setZoom(int)));
-  connect(this, SIGNAL(updateStatusZoom(int)), m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)));
+  // connect(m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)), m_statusBar, SLOT(setZoom(int)));
+  // connect(this, SIGNAL(updateStatusZoom(int)), m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)));
   connect(fileio, SIGNAL(statusMessage(QString)), this, SLOT(statusMessage(QString)));
   connect(fileio, SIGNAL(setWaitCursor()), this, SLOT(setWaitCursor()));
   connect(fileio, SIGNAL(setPreviousCursor()), this, SLOT(setPreviousCursor()));
@@ -255,7 +255,6 @@ MainWindow::~MainWindow()
     delete m_project;
 
   delete m_stateManager;
-  delete machinemanager;
   delete m_transitionManager;
   delete printmanager;
   delete fileio;
@@ -437,8 +436,6 @@ void MainWindow::dropEvent(QDropEvent* e)
     m_mainView->widget()->repaint();
     updateAll();
   }
-
-  //  data=QString(mm->data("text/qfsm-objects"));
 }
 
 /**
@@ -463,282 +460,6 @@ void MainWindow::repaintViewport()
 void MainWindow::updateMenuBar()
 {
   m_actionsManager->update();
-
-  int numstates, numtrans;
-
-  // id_import->setEnabled(true);
-  // id_import_graphviz->setEnabled(true);
-
-  if (m_project) {
-    // id_save->setEnabled(true);
-    // id_saveas->setEnabled(true);
-    // id_print->setEnabled(true);
-    // id_export->setEnabled(true);
-    // id_close->setEnabled(true);
-    // id_selectall->setEnabled(true);
-    // id_deselectall->setEnabled(true);
-    // id_newstate->setEnabled(true);
-    // id_newtrans->setEnabled(true);
-    if (m_project->machine() && m_project->machine()->getType() == Ascii)
-      ;
-    // id_export_ragel->setEnabled(true);
-    else
-      ;
-    // id_export_ragel->setEnabled(false);
-    if (m_project->machine() && m_project->machine()->getType() == Text) {
-      // id_export_ahdl->setEnabled(false);
-      // id_export_vhdl->setEnabled(false);
-      // id_export_verilog->setEnabled(false);
-      // id_export_kiss->setEnabled(false);
-      // id_export_vvvv->setEnabled(true);
-      // id_export_scxml->setEnabled(true);
-      // id_export_smc->setEnabled(true);
-
-      // id_viewstateenc->setEnabled(false);
-      // id_viewmoore->setEnabled(false);
-      // tbmachinesim->setEnabled(false);
-    } else {
-      // id_export_ahdl->setEnabled(true);
-      // id_export_vhdl->setEnabled(true);
-      // id_export_verilog->setEnabled(true);
-      // id_export_kiss->setEnabled(true);
-      // id_export_vvvv->setEnabled(false);
-      // id_export_scxml->setEnabled(false);
-      // id_export_smc->setEnabled(false);
-
-      // id_viewstateenc->setEnabled(true);
-      // id_viewmoore->setEnabled(true);
-      // tbmachinesim->setEnabled(true);
-    }
-    // id_viewmealyin->setEnabled(true);
-    // id_viewmealyout->setEnabled(true);
-    // id_viewgrid->setEnabled(true);
-    // id_ioview->setEnabled(true);
-    // id_viewshadows->setEnabled(true);
-
-    // id_zoom->setEnabled(true);
-    // id_zoomin->setEnabled(true);
-    // id_zoomout->setEnabled(true);
-    // id_zoom100->setEnabled(true);
-    // id_select->setEnabled(true);
-    // id_pan->setEnabled(true);
-    // tbselect->setEnabled(true);
-    // tbpan->setEnabled(true);
-    // tbzoom->setEnabled(true);
-    // tbzoomin->setEnabled(true);
-    // tbzoomout->setEnabled(true);
-
-    // id_machineedit->setEnabled(true);
-    // id_correctcodes->setEnabled(true);
-    // id_machineicheck->setEnabled(true);
-    // tbsave->setEnabled(true);
-    // tbprint->setEnabled(true);
-    // tbstatenew->setEnabled(true);
-    // tbtransnew->setEnabled(true);
-  } else {
-    // id_save->setEnabled(false);
-    // id_saveas->setEnabled(false);
-    // id_print->setEnabled(false);
-    // id_export->setEnabled(false);
-    // id_close->setEnabled(false);
-    // id_selectall->setEnabled(false);
-    // id_deselectall->setEnabled(false);
-    // id_newstate->setEnabled(false);
-    // id_newtrans->setEnabled(false);
-    // id_viewstateenc->setEnabled(false);
-    // id_viewmoore->setEnabled(false);
-    // id_viewmealyin->setEnabled(false);
-    // id_viewmealyout->setEnabled(false);
-    // id_viewgrid->setEnabled(false);
-    // id_viewshadows->setEnabled(false);
-    // id_ioview->setEnabled(false);
-
-    // id_zoom->setEnabled(false);
-    // id_zoomin->setEnabled(false);
-    // id_zoomout->setEnabled(false);
-    // id_zoom100->setEnabled(false);
-    // id_select->setEnabled(false);
-    // id_pan->setEnabled(false);
-    // tbselect->setEnabled(false);
-    // tbpan->setEnabled(false);
-    // tbzoom->setEnabled(false);
-    // tbzoomin->setEnabled(false);
-    // tbzoomout->setEnabled(false);
-
-    // id_machineedit->setEnabled(false);
-    // id_correctcodes->setEnabled(false);
-    // id_machineicheck->setEnabled(false);
-    // tbsave->setEnabled(false);
-    // tbprint->setEnabled(false);
-    // tbstatenew->setEnabled(false);
-    // tbtransnew->setEnabled(false);
-    // tbmachinesim->setEnabled(false);
-  }
-
-  numtrans = m_mainView->getDrawArea()->getSelection()->countTransitions();
-  numstates = m_mainView->getDrawArea()->getSelection()->countStates();
-
-  if (m_project && m_project->machine() && m_project->machine()->getType() != Text &&
-      m_project->machine()->getNumStates() > 0) {
-    // id_machinesim->setEnabled(true);
-    // tbmachinesim->setEnabled(true);
-  } else {
-    // id_machinesim->setEnabled(false);
-    // tbmachinesim->setEnabled(false);
-  }
-
-  if (numtrans) {
-    // id_trans_straight->setEnabled(true);
-    // tbtransstraighten->setEnabled(true);
-    // id_cedittrans->setEnabled(true);
-    // id_ctrans_straight->setEnabled(true);
-  } else {
-    // id_trans_straight->setEnabled(false);
-    // tbtransstraighten->setEnabled(false);
-    // id_cedittrans->setEnabled(false);
-    // id_ctrans_straight->setEnabled(false);
-  }
-
-  if (numstates > 0) {
-    // id_setend->setEnabled(true);
-    // id_csetend->setEnabled(true);
-  } else {
-    // id_setend->setEnabled(false);
-    // id_csetend->setEnabled(false);
-  }
-  if (numstates == 1) {
-    // id_setinitial->setEnabled(true);
-    // id_editstate->setEnabled(true);
-  } else {
-    // id_setinitial->setEnabled(false);
-    // id_editstate->setEnabled(false);
-  }
-
-  if (numtrans == 1) {
-    // id_edittrans->setEnabled(true);
-  } else {
-    // id_edittrans->setEnabled(false);
-  }
-
-  if (numstates + numtrans > 0) {
-    // id_delete->setEnabled(true);
-    // id_cut->setEnabled(true);
-    // id_copy->setEnabled(true);
-    // id_csdelete->setEnabled(true);
-    // id_cscut->setEnabled(true);
-    // id_cscopy->setEnabled(true);
-    // id_ctdelete->setEnabled(true);
-    // id_ctcut->setEnabled(true);
-    // id_ctcopy->setEnabled(true);
-    // tbcut->setEnabled(true);
-    // tbcopy->setEnabled(true);
-  } else {
-    // id_delete->setEnabled(false);
-    // id_cut->setEnabled(false);
-    // id_copy->setEnabled(false);
-    // id_csdelete->setEnabled(false);
-    // id_cscut->setEnabled(false);
-    // id_cscopy->setEnabled(false);
-    // id_ctdelete->setEnabled(false);
-    // id_ctcut->setEnabled(false);
-    // id_ctcopy->setEnabled(false);
-    // tbcut->setEnabled(false);
-    // tbcopy->setEnabled(false);
-  }
-
-  //  updatePaste();
-
-  // if (doc_options.getViewStateEncoding())
-  // id_viewstateenc->setChecked(true);
-  // else
-  // id_viewstateenc->setChecked(false);
-
-  // if (doc_options.getViewMoore())
-  //   id_viewmoore->setChecked(true);
-  // else
-  //   id_viewmoore->setChecked(false);
-
-  // if (doc_options.getViewMealyIn())
-  //   id_viewmealyin->setChecked(true);
-  // else
-  //   id_viewmealyin->setChecked(false);
-
-  // if (doc_options.getViewMealyOut())
-  //   id_viewmealyout->setChecked(true);
-  // else
-  //   id_viewmealyout->setChecked(false);
-
-  // if (doc_options.getViewGrid())
-  //   id_viewgrid->setChecked(true);
-  // else
-  //   id_viewgrid->setChecked(false);
-
-  // if (doc_options.getViewIOView())
-  //   id_ioview->setChecked(true);
-  // else
-  //   id_ioview->setChecked(false);
-
-  // if (doc_options.getStateShadows())
-  //   id_viewshadows->setChecked(true);
-  // else
-  //   id_viewshadows->setChecked(false);
-
-  if (m_project && !m_project->undoBuffer()->isEmpty()) {
-    // id_undo->setEnabled(true);
-    // id_csundo->setEnabled(true);
-    // id_ctundo->setEnabled(true);
-    // tbundo->setEnabled(true);
-  } else {
-    // id_undo->setEnabled(false);
-    // id_csundo->setEnabled(false);
-    // id_ctundo->setEnabled(false);
-    // tbundo->setEnabled(false);
-  }
-
-  if (m_mode == DocumentMode::Simulating) {
-    // id_undo->setEnabled(false);
-    // id_csundo->setEnabled(false);
-    // id_ctundo->setEnabled(false);
-    // id_cut->setEnabled(false);
-    // id_copy->setEnabled(false);
-    // id_paste->setEnabled(false);
-    // id_delete->setEnabled(false);
-    // id_cscut->setEnabled(false);
-    // id_cscopy->setEnabled(false);
-    // id_csdelete->setEnabled(false);
-    // id_ctcut->setEnabled(false);
-    // id_ctcopy->setEnabled(false);
-    // id_ctdelete->setEnabled(false);
-
-    // id_select->setEnabled(false);
-    // id_pan->setEnabled(false);
-    // id_newstate->setEnabled(false);
-    // id_newtrans->setEnabled(false);
-    // id_zoom->setEnabled(false);
-
-    // id_selectall->setEnabled(false);
-    // id_deselectall->setEnabled(false);
-    // id_machineedit->setEnabled(false);
-    // id_editstate->setEnabled(false);
-    // id_setinitial->setEnabled(false);
-    // id_ceditstate->setEnabled(false);
-    // id_csetinitial->setEnabled(false);
-    // id_setend->setEnabled(false);
-    // id_edittrans->setEnabled(false);
-    // id_trans_straight->setEnabled(false);
-    // id_cedittrans->setEnabled(false);
-    // id_ctrans_straight->setEnabled(false);
-
-    // tbselect->setEnabled(false);
-    // tbpan->setEnabled(false);
-    // tbzoom->setEnabled(false);
-    // tbundo->setEnabled(false);
-    // tbcut->setEnabled(false);
-    // tbcopy->setEnabled(false);
-    // tbstatenew->setEnabled(false);
-    // tbtransnew->setEnabled(false);
-    // tbtransstraighten->setEnabled(false);
-  }
 }
 
 /// Updates the title bar.
@@ -847,7 +568,7 @@ void MainWindow::fileNew()
   }
   qfsm::Project* p = new qfsm::Project{ this };
 
-  result = machinemanager->addMachine(p);
+  result = m_machineManager->addMachine(p);
   if (result) {
     if (sim)
       simulator->closeDlg();
@@ -2040,107 +1761,62 @@ bool MainWindow::runDragOperation(bool a_forceCopy)
 void MainWindow::viewStateEncoding()
 {
   m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::stateEncoding);
-
-  // doc_options.setViewStateEncoding(!doc_options.getViewStateEncoding());
-  // updateAll();
-  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view moore outputs.
 void MainWindow::viewMooreOutputs()
 {
   m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::mooreOutputs);
-
-  // doc_options.setViewMoore(!doc_options.getViewMoore());
-  // updateAll();
-  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view mealy outputs.
 void MainWindow::viewMealyOutputs()
 {
   m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::mealyOutputs);
-  // doc_options.setViewMealyOut(!doc_options.getViewMealyOut());
-  // updateAll();
-  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view mealy inputs.
 void MainWindow::viewMealyInputs()
 {
   m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::mealyInputs);
-  // doc_options.setViewMealyIn(!doc_options.getViewMealyIn());
-  // updateAll();
-  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view grid.
 void MainWindow::viewGrid()
 {
   const bool value = m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::grid);
-
   statusMessage(value ? tr("Grid is on.") : tr("Grid is off."), 2000);
-
-  m_view->scene()->update();
-
-  // updateAll();
-  // m_mainView->widget()->repaint();
 }
 
 /// Toggle view shadows.
 void MainWindow::viewShadows()
 {
-  m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::shadows);
-  // doc_options.setStateShadows(!doc_options.getStateShadows());
-  // updateAll();
-  // m_mainView->widget()->repaint();
+  const bool value = m_optionsManager->toggleValue(qfsm::option::Group::View, qfsm::option::shadows);
+  statusMessage(value ? tr("Shadows are on.") : tr("Shadows are off."), 2000);
 }
 
 /// Set panning mode
 void MainWindow::viewPan()
 {
-  //  QDragEnterEvent*ev=new QDragEnterEvent(QPoint(0,0),Qt::CopyAction,new
-  //  QMimeData(),Qt::LeftButton,Qt::NoModifier); QPaintEvent*ev=new
-  //  QPaintEvent(QRect(0,0,100,100)); QApplication::postEvent(m_mainView,ev);
-  // m_mainView->widget()->repaint();
-
   setMode(DocumentMode::Pan);
-}
-
-/// Set zooming mode
-void MainWindow::viewZoom()
-{
-  setMode(DocumentMode::Zooming);
 }
 
 /// Zoom in the view.
 void MainWindow::viewZoomIn()
 {
-  //  QPoint middle(m_mainView->visibleWidth()/2, m_mainView->visibleHeight()/2);
-  //  QPoint offset(m_mainView->contentsX(), m_mainView->contentsY());
-  QPoint middle(m_mainView->width() / 2, m_mainView->height() / 2);
-  QPoint offset = m_mainView->getDrawArea()->mapTo(m_mainView, QPoint(0, 0));
-  middle -= offset;
-
-  m_mainView->getDrawArea()->zoomIn(middle); // zoom->zoom(m_mainView, p, true);
+  m_view->zoomIn();
 }
 
 /// Zoom out the view.
 void MainWindow::viewZoomOut()
 {
-  //  QPoint middle(m_mainView->visibleWidth()/2, m_mainView->visibleHeight()/2);
-  //  QPoint offset(m_mainView->contentsX(), m_mainView->contentsY());
-  QPoint middle(m_mainView->width() / 2, m_mainView->height() / 2);
-  QPoint offset = m_mainView->getDrawArea()->mapTo(m_mainView, QPoint(0, 0));
-  middle -= offset;
-
-  m_mainView->getDrawArea()->zoomOut(middle); // zoom->zoom(m_mainView, p, false);
+  m_view->zoomOut();
 }
 
 /// Set zoom to 100%
 void MainWindow::viewZoom100()
 {
-  m_mainView->getDrawArea()->zoomReset();
+  m_view->zoomReset();
 }
 
 /// Toggle IO view
@@ -2152,14 +1828,6 @@ void MainWindow::viewIOView()
   } else {
     view_io->hide();
   }
-  // doc_options.setViewIOView(!doc_options.getViewIOView());
-
-  // if (doc_options.getViewIOView() && m_project)
-  //   view_io->show();
-  // else
-  //   view_io->hide();
-
-  // updateMenuBar();
 }
 
 /// Update IOView text
@@ -2173,25 +1841,15 @@ void MainWindow::updateIOView(Machine* a_machine)
       view_io->hide();
     }
   }
-  // if (m != NULL) {
-  //   view_io->updateIOList(m);
-
-  //   if (doc_options.getViewIOView())
-  //     view_io->show();
-  //   else
-  //     view_io->hide();
-
-  //   updateMenuBar();
-  // }
 }
 
 /// Edit the current machine.
 void MainWindow::machineEdit()
 {
   if (m_project && m_project->isValid()) {
-    machinemanager->editMachine(m_project);
-    updateAll();
-    m_mainView->widget()->repaint();
+    m_machineManager->editMachine(m_project);
+    m_actionsManager->update();
+    m_view->scene()->update();
   }
 }
 
