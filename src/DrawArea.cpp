@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Project.h"
 #include "ScrollView.h"
 #include "Selection.h"
-#include "StatusBar.h"
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "Zoom.h"
@@ -366,11 +365,11 @@ void DrawArea::mouseMoveEvent(QMouseEvent* e)
   QPoint p;
   double scale = zoom->getScale();
   p = e->pos();
-  if (main->project())
-    main->getStatusBar()->setPosition(p.x() / scale, p.y() / scale);
-  else
-    main->getStatusBar()->setPosition(-1, -1);
-  main->getStatusBar()->repaint();
+  // if (main->project())
+  //   main->getStatusBar()->setPosition(p.x() / scale, p.y() / scale);
+  // else
+  //   main->getStatusBar()->setPosition(-1, -1);
+  // main->getStatusBar()->repaint();
   double mousex, mousey;
   if (main->getOptions()->getViewGrid())
     grid->getPoint(p.x() / scale, p.y() / scale, mousex, mousey);

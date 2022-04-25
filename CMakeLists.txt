@@ -23,17 +23,18 @@ else()
 endif()
 
 set(QFSM_HEADERS
-  src/gui/scene.hpp
-  src/gui/stateitem.hpp
-  src/gui/view.hpp
   src/gui/actionsmanager.hpp
-  src/gui/transitionitem.hpp
   src/gui/controlhandleitem.hpp
   src/gui/error.hpp
+  src/gui/scene.hpp
+  src/gui/stateitem.hpp
+  src/gui/statusbar.hpp
+  src/gui/transitionitem.hpp
+  src/gui/view.hpp
 
-  src/optionsmanager.hpp
-  src/maincontrol.hpp
   src/info.hpp
+  src/maincontrol.hpp
+  src/optionsmanager.hpp
 
   # src/ListBoxItems.h
   src/Const.h
@@ -100,7 +101,6 @@ set(QFSM_HEADERS
   src/State.h
   src/StateManager.h
   src/StatePropertiesDlg.h
-  src/StatusBar.h
   src/TableBuilder.h
   src/TableBuilderASCII.h
   src/TableBuilderHTML.h
@@ -122,17 +122,18 @@ set(QFSM_HEADERS
 
 set(QFSM_SOURCES
   # src/ListBoxItems.cpp
-  src/gui/scene.cpp
-  src/gui/stateitem.cpp
-  src/gui/transitionitem.cpp
-  src/gui/view.cpp
   src/gui/actionsmanager.cpp
   src/gui/controlhandleitem.cpp
   src/gui/error.cpp
+  src/gui/scene.cpp
+  src/gui/stateitem.cpp
+  src/gui/statusbar.cpp
+  src/gui/transitionitem.cpp
+  src/gui/view.cpp
 
-  src/optionsmanager.cpp
   src/info.cpp
   src/maincontrol.cpp
+  src/optionsmanager.cpp
 
   src/Convert.cpp
   src/DRect.cpp
@@ -197,7 +198,6 @@ set(QFSM_SOURCES
   src/State.cpp
   src/StateManager.cpp
   src/StatePropertiesDlg.cpp
-  src/StatusBar.cpp
   src/TableBuilder.cpp
   src/TableBuilderASCII.cpp
   src/TableBuilderHTML.cpp

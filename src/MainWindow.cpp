@@ -42,7 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Selection.h"
 #include "Simulator.h"
 #include "StateManager.h"
-#include "StatusBar.h"
 #include "TableBuilderASCII.h"
 #include "TableBuilderHTML.h"
 #include "TableBuilderLatex.h"
@@ -57,6 +56,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gui/actionsmanager.hpp"
 #include "gui/error.hpp"
 #include "gui/stateitem.hpp"
+#include "gui/statusbar.hpp"
 #include "gui/transitionitem.hpp"
 #include "gui/view.hpp"
 
@@ -83,8 +83,8 @@ constexpr auto QFSM_MIME_DATA_TYPE = "text/qfsm-objects";
 MainWindow::MainWindow(QObject* a_parent)
   : QMainWindow{}
   , m_control{ qobject_cast<qfsm::MainControl*>(a_parent) }
-  , m_statusBar{ new StatusBar{ this } }
   , m_optionsManager{ new qfsm::OptionsManager{ this } }
+  , m_statusBar{ new qfsm::gui::StatusBar{ this } }
   , m_actionsManager{ new qfsm::gui::ActionsManager{ this } }
   , m_view{ new qfsm::gui::View{ this } }
   , m_mainView{ new ScrollView(this) }
@@ -93,9 +93,13 @@ MainWindow::MainWindow(QObject* a_parent)
   // m_graphicsScene = new QGraphicsScene{ this };
   // m_graphicsView = new QGraphicsView{ m_graphicsScene, this };
   // m_graphicsView->setViewport(new QOpenGLWidget{});
-  setCentralWidget(m_view);
-  m_view->scene()->setSceneRect(0, 0, 800, 600);
   // setCentralWidget(m_mainView);
+  setCentralWidget(m_view);
+  setStatusBar(m_statusBar);
+
+  m_statusBar->reset();
+
+  m_view->scene()->setSceneRect(0, 0, 800, 600);
   setAcceptDrops(true);
 
   appIcon.addFile(":/icons/qfsm32.png", { 32, 32 });
@@ -123,13 +127,6 @@ MainWindow::MainWindow(QObject* a_parent)
   */
   using Group = qfsm::gui::ActionsManager::Group;
 
-  QMenu* menu_import = m_actionsManager->menu(Group::Import);
-#ifdef GRAPHVIZ_FOUND
-  id_import_graphviz = menu_import->insertItem(tr("&Graphviz..."), this, SLOT(fileImportGraphviz()));
-#else
-  menu_import->setEnabled(false);
-#endif
-
   QMenuBar* mainMenuBar = menuBar();
   mainMenuBar->addMenu(m_actionsManager->menu(Group::File));
   mainMenuBar->addMenu(m_actionsManager->menu(Group::Edit));
@@ -138,6 +135,8 @@ MainWindow::MainWindow(QObject* a_parent)
   mainMenuBar->addMenu(m_actionsManager->menu(Group::State));
   mainMenuBar->addMenu(m_actionsManager->menu(Group::Transition));
   mainMenuBar->addMenu(m_actionsManager->menu(Group::Help));
+
+  m_actionsManager->update();
 
   // Context Menu: State
   // cmenu_state = new QMenu(this);
@@ -166,8 +165,6 @@ MainWindow::MainWindow(QObject* a_parent)
 
   // Context Menu: ScrollView
   // cmenu_sview = menu_edit;
-
-  setStatusBar(m_statusBar);
 
   m_stateManager = new StateManager(this);
   m_machineManager = new MachineManager(this);
@@ -225,8 +222,12 @@ MainWindow::MainWindow(QObject* a_parent)
   connect(this, &MainWindow::modeChanged, m_actionsManager, &qfsm::gui::ActionsManager::update);
   connect(this, &MainWindow::modeChanged, m_view, &qfsm::gui::View::onModeChanged);
   connect(this, &MainWindow::quitWindow, m_control, &qfsm::MainControl::quitWindow);
+  connect(m_view, &qfsm::gui::View::zoomChanged, m_statusBar, &qfsm::gui::StatusBar::onZoomChanged);
+  connect(m_view, &qfsm::gui::View::selectionChanged, m_statusBar, &qfsm::gui::StatusBar::onSelectionChanged);
+  connect(m_view, &qfsm::gui::View::positionChanged, m_statusBar, &qfsm::gui::StatusBar::onPositionChanged);
+  connect(m_view, &qfsm::gui::View::selectionChanged, m_actionsManager, &qfsm::gui::ActionsManager::update);
 
-  setMode(DocumentMode::Select);
+  // setMode(DocumentMode::Select);
   // updateAll(); // MenuBar();
 
   //  connect(cmenu_state, SIGNAL(aboutToHide()), m_mainView,
@@ -236,8 +237,6 @@ MainWindow::MainWindow(QObject* a_parent)
   // connect(this, SIGNAL(allSelected()), m_mainView->getDrawArea(), SLOT(allSelected()));
   connect(this, SIGNAL(objectsPasted()), m_mainView->getDrawArea(), SLOT(objectsPasted()));
   connect(this, SIGNAL(escapePressed()), m_mainView->getDrawArea(), SLOT(escapePressed()));
-  // connect(m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)), m_statusBar, SLOT(setZoom(int)));
-  // connect(this, SIGNAL(updateStatusZoom(int)), m_mainView->getDrawArea(), SIGNAL(zoomedToPercentage(int)));
   connect(fileio, SIGNAL(statusMessage(QString)), this, SLOT(statusMessage(QString)));
   connect(fileio, SIGNAL(setWaitCursor()), this, SLOT(setWaitCursor()));
   connect(fileio, SIGNAL(setPreviousCursor()), this, SLOT(setPreviousCursor()));

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Machine.h"
 #include "MainWindow.h"
 #include "Project.h"
-#include "State.h"
+#include "StateOld.h"
 #include "TransitionInfo.h"
 #include "Utils.h"
 

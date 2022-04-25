@@ -1,7 +1,6 @@
 #include "view.hpp"
 
 #include "MainWindow.h"
-#include "StatusBar.h"
 #include "actionsmanager.hpp"
 #include "common.hpp"
 #include "scene.hpp"
@@ -12,7 +11,9 @@
 #include <QContextMenuEvent>
 #include <QDebug>
 
+#include <algorithm>
 #include <array>
+#include <cstddef>
 
 namespace qfsm::gui {
 
@@ -26,7 +27,6 @@ View::View(QMainWindow* a_parent)
   : QGraphicsView{ a_parent }
   , m_scene{ new Scene{ a_parent } }
   , m_window{ qobject_cast<MainWindow*>(a_parent) }
-  , m_status{ m_window->getStatusBar() }
   , m_contextState{ new QMenu{ this } }
   , m_zoomLevel{ INITIAL_ZOOM_LEVEL }
 {
@@ -106,7 +106,8 @@ void View::zoomChange(bool a_fromWheel)
   setTransformationAnchor(a_fromWheel ? QGraphicsView::AnchorUnderMouse : QGraphicsView::AnchorViewCenter);
   setTransform(QTransform::fromScale(zoomFactor, zoomFactor));
   setTransformationAnchor(anchor);
-  m_status->setZoom(static_cast<int>(zoomFactor * 100));
+
+  emit zoomChanged(zoomFactor);
 }
 
 void View::onModeChanged(DocumentMode a_mode)
@@ -135,6 +136,7 @@ void View::onModeChanged(DocumentMode a_mode)
 void View::onSelectionChanged()
 {
   QList<QGraphicsItem*> items = m_scene->selectedItems();
+
   m_selectedStatesCount = 0;
   m_selectedTransitionsCount = 0;
   for (QGraphicsItem* item : items) {
@@ -144,8 +146,8 @@ void View::onSelectionChanged()
       ++m_selectedTransitionsCount;
     }
   }
-  m_status->setSelected(items.count());
-  m_window->actionsManager()->update();
+
+  emit selectionChanged(items.size());
 }
 
 void View::contextMenuEvent(QContextMenuEvent* a_event)
@@ -172,9 +174,7 @@ void View::mousePressEvent(QMouseEvent* a_event)
 
 void View::mouseMoveEvent(QMouseEvent* a_event)
 {
-  // qDebug() << "Mouse moved to" << a_event->pos() << mapToScene(a_event->pos());
-  const QPointF position = mapToScene(a_event->pos());
-  m_status->setPosition(position.x(), position.y());
+  emit positionChanged(mapToScene(a_event->pos()));
 
   QGraphicsView::mouseMoveEvent(a_event);
 }

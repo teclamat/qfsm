@@ -53,14 +53,14 @@ All buttons must be added to the toolbar by calling addWidget.
 #define MAINWINDOW_H
 
 #include <QCloseEvent>
+#include <QCursor>
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QMainWindow>
 #include <QMenu>
+#include <QMessageBox>
 #include <QTabWidget>
 #include <QToolBar>
-#include <QCursor>
-#include <QMessageBox>
 
 #include "ExportAHDLDlg.h"
 #include "ExportRagelDlg.h"
@@ -88,7 +88,6 @@ All buttons must be added to the toolbar by calling addWidget.
 // class QTranslator;
 class QToolBar;
 class FileIO;
-class StatusBar;
 class PrintManager;
 class Simulator;
 class ICheck;
@@ -100,6 +99,7 @@ class Project;
 class OptionsManager;
 namespace gui {
 class ActionsManager;
+class StatusBar;
 } // namespace gui
 } // namespace qfsm
 
@@ -130,7 +130,6 @@ class MainWindow : public QMainWindow {
   /// Returns the scroll view.
   ScrollView* getScrollView() { return m_mainView; }
   /// Returns the status bar.
-  StatusBar* getStatusBar() { return m_statusBar; }
   qfsm::MainControl* control() { return m_control; }
   qfsm::Project* project() { return m_project; }
   qfsm::OptionsManager* options() { return m_optionsManager; }
@@ -204,10 +203,9 @@ class MainWindow : public QMainWindow {
   void createToolBar();
 
  private:
-  /// Pointer to the main control.
   qfsm::MainControl* m_control;
-  StatusBar* m_statusBar;
   qfsm::OptionsManager* m_optionsManager;
+  qfsm::gui::StatusBar* m_statusBar;
   qfsm::gui::ActionsManager* m_actionsManager;
   qfsm::gui::View* m_view;
   ScrollView* m_mainView;
@@ -217,18 +215,6 @@ class MainWindow : public QMainWindow {
  private:
   /// Toolbar
   QToolBar* toolbar;
-
-  // menu item IDs
-  QAction* id_import_graphviz; ///< Menu id 'File->Import->Graphviz'
-  // QAction* id_export_ahdl;     ///< Menu id 'File->Export->AHDL'
-  // QAction* id_export_vhdl;     ///< Menu id 'File->Export->VDHL'
-  // QAction* id_export_verilog;  ///< Menu id 'File->Export->Verilog HDL'
-  // QAction* id_export_kiss;     ///< Menu id 'File->Export->KISS'
-  // QAction* id_export_vvvv;     ///< Menu id 'File->Export->vvvv Automata code'
-  // QAction* id_export_scxml;    ///< Menu id 'File->Export->SCXML'
-  // QAction* id_export_ragel;    ///< Menu id 'File->Export->Ragel'
-  // QAction* id_export_smc;      ///< Menu id 'File->Export->SMC'
-
   /// Messagebox that is opend when the user wants to close a changed file
   QMessageBox* mb_changed;
   /// Options

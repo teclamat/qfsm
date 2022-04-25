@@ -17,9 +17,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "TableBuilder.h"
-#include "Machine.h"
+#include "MachineOld.h"
 #include "Options.h"
-#include "State.h"
+#include "StateOld.h"
 
 /// Constructor
 TableBuilder::TableBuilder(QObject *parent, Machine *m, Options *opt)

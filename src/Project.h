@@ -30,7 +30,8 @@ Qt 5/6 port by Mateusz Tecław
 #include <QObject>
 #include <QXmlStreamWriter>
 
-class Machine;
+#include <memory>
+
 class MainWindow;
 class UndoBuffer;
 class GObject;
@@ -39,6 +40,10 @@ class GTransition;
 
 /// @namespace qfsm
 namespace qfsm {
+
+class Machine;
+using MachinePtr = std::unique_ptr<Machine>;
+using UndoBufferPtr = std::unique_ptr<UndoBuffer>;
 
 /// Stores project information.
 class Project : public QObject {
@@ -52,7 +57,6 @@ class Project : public QObject {
                   QFont, int, bool draw_it);
   void addMachine(Machine* m);
   Machine* createMachine();
-  void removeMachine();
 
   /// Returns true if the project has changed otherwise false
   bool hasChanged() const { return m_changed; };
@@ -67,8 +71,8 @@ class Project : public QObject {
   /// Returns the main window
   MainWindow* mainWindow() { return m_mainWindow; };
 
-  /// Machine (projects can currently contain only a single machine)
-  Machine* machine() { return m_machine; }
+  const Machine* machine() const { return m_machine.get(); }
+  Machine* machine() { return m_machine.get(); }
 
   bool isValid() const { return m_machine != nullptr; }
 
@@ -81,14 +85,14 @@ class Project : public QObject {
  private:
   void connectMachine();
   static void writeState(QXmlStreamWriter& a_xml, const GState* a_state);
-  static void writeTransition(QXmlStreamWriter& a_xml, const GTransition* a_transition,
-                              bool a_onlySelected, bool a_isPhantom = false);
+  static void writeTransition(QXmlStreamWriter& a_xml, const GTransition* a_transition, bool a_onlySelected,
+                              bool a_isPhantom = false);
 
  private:
-  MainWindow* m_mainWindow;
-  UndoBuffer* m_undoBuffer;
-  Machine* m_machine;
+  MainWindow* m_window;
+  UndoBufferPtr m_undoBuffer;
 
+  MachinePtr m_machine{ nullptr };
   bool m_changed{ false };
 };
 

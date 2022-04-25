@@ -133,6 +133,10 @@ void ActionsManager::setupNames()
   m_actions[Group::File][Action::Close]->setText(tr("Close"));
   m_actions[Group::File][Action::Quit]->setText(tr("Quit"));
 
+#ifdef GRAPHVIZ_FOUND
+  m_actions[Group::Import][Action::ImportGraphviz]->setText(tr("Graphviz..."));
+#endif
+
   m_actions[Group::Export][Action::ExportEPS]->setText(tr("EPS..."));
   m_actions[Group::Export][Action::ExportSVG]->setText(tr("SVG..."));
   m_actions[Group::Export][Action::ExportPNG]->setText(tr("PNG..."));
@@ -282,6 +286,13 @@ void ActionsManager::setupActions()
   action = m_actions[Group::File][Action::Quit] = new QAction{ this };
   action->setShortcut(QKeySequence::Quit);
   connect(action, &QAction::triggered, m_window, &MainWindow::fileQuit);
+
+  // Import
+
+#ifdef GRAPHVIZ_FOUND
+  action = m_actions[Group::Import][Action::ImportGraphviz] = new QAction{ this };
+  connect(action, &QAction::triggered, m_window, &MainWindow::fileImportGraphviz);
+#endif
 
   // Export
   action = m_actions[Group::Export][Action::ExportEPS] = new QAction{ this };
@@ -515,7 +526,12 @@ void ActionsManager::setupMenus()
   connect(menu, &QMenu::aboutToShow, m_window, &MainWindow::refreshMRU);
 
   // Import
-  m_menus[Group::Import] = new QMenu{ m_window };
+  menu = m_menus[Group::Import] = new QMenu{ m_window };
+#ifdef GRAPHVIZ_FOUND
+  menu->addAction(m_actions[Group::Import][Action::ImportGraphviz]);
+#else
+  menu->setEnabled(false);
+#endif
 
   // Export
   menu = m_menus[Group::Export] = new QMenu{ m_window };

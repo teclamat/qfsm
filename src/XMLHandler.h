@@ -24,23 +24,36 @@ removed setAutoDelete calls from constructor
 #ifndef QXMLHANDLER_H
 #define QXMLHANDLER_H
 
+#include <QList>
 #include <QMap>
 #include <QObject>
 #include <QXmlStreamReader>
-#include <QList>
 // #include <qxml.h>
 // Added by qt3to4:
 // #include <Q3ValueList>
 
-#include "GState.h"
-#include "GTransition.h"
+// #include "GState.h"
+// #include "GTransition.h"
 
-class Project;
-class Machine;
-class GState;
-class GTransition;
+#include "hash.hpp"
+
+#include <memory>
+#include <cstddef>
+
+// class Machine;
+// class GState;
+// class GTransition;
 class GITransition;
 class Selection;
+
+namespace qfsm {
+class Machine;
+class Project;
+class State;
+class Transition;
+using StatePtr = std::shared_ptr<State>;
+using TransitionPtr = std::shared_ptr<Transition>;
+} // namespace qfsm
 
 /**
  * @class XMLHandler
@@ -48,38 +61,51 @@ class Selection;
  */
 class XMLHandler : public QObject, public QXmlStreamReader {
   Q_OBJECT
-public:
- XMLHandler(qfsm::Project* newProject, Selection* sel = nullptr, bool keepquiet = true, bool createnewmachine = true);
- ~XMLHandler() = default;
- bool parse();
- bool startDocument();
- bool startElement(const QString& qName, const QXmlStreamAttributes& atts);
- bool endElement(const QString& qName);
- bool characters(const QString& ch);
+ public:
+  XMLHandler(qfsm::Project* newProject, Selection* sel = nullptr, bool keepquiet = true, bool createnewmachine = true);
+  ~XMLHandler() = default;
+  bool parse();
+  bool startDocument();
+  bool startElement(qfsm::Hash a_tagHash, const QXmlStreamAttributes& atts);
+  bool endElement(qfsm::Hash a_tagHash);
+  bool characters(const QString& ch);
 
 private:
-  /// Pointer to the project
- qfsm::Project* project;
- /// Pointer to the machine
- Machine* machine;
+ bool parseMachineTag(const QXmlStreamAttributes& a_attributes);
+ bool parseStateTag(const QXmlStreamAttributes& a_attributes);
+ bool parseTransitionTag(const QXmlStreamAttributes& a_attributes);
+ bool parseInitialTransitionTag(const QXmlStreamAttributes& a_attributes);
+ bool parseFromState();
+ bool parseToState();
+ bool finishMachineTag();
+ bool finishStateTag();
+ bool finishTransitionTag();
+
+private:
+ qfsm::Project* m_project;
+ qfsm::Machine* m_machine;
  /// If true, no error messages are print (or dialog boxes opened) during
  /// parsing
- bool quiet;
+ bool m_quiet;
  /// If true a new machine is created, otherwise an existing one is used
- bool create_new_machine;
+ bool m_createMachine;
  /// Pointer to the selection object
  Selection* selection;
 
  /// Version of Qfsm that created the document
- double version;
+ double m_projectVersion;
  /// Current state
- GState* state;
+ //  GState* state;
+ qfsm::StatePtr m_state{};
  /// Current transition
- GTransition* transition;
+ qfsm::TransitionPtr m_transition{};
  /// Current initial transition
  GITransition* itransition;
  /// Code of the initial state (that has to be saved during parsing)
- int saveinitialstate;
+ int m_initialStateCode;
+
+ QString m_textData{};
+
  /// Input names
  QString inames;
  /// Output names
@@ -97,9 +123,9 @@ private:
  /// deprecated
  bool snamecont;
  /// true is the current state has a code
- bool hascode;
+ bool m_stateHasCode;
  /// Transition tyoe
- int ttype;
+ int m_transitionType;
  /// Input info
  QString iinfo;
  /// Output info
@@ -129,37 +155,35 @@ private:
  /// List of removed states
  QList<int> rstatelist;
  /// Mapping of old state codes to new state codes
- QMap<int, int> codemap;
- /// If true the current state will be added to the machine
- bool addstate;
+ QHash<int, int> m_stateCodesMapping;
  /// true if there is ann initial state
- bool hasinitialstate;
+ bool m_hasInitialState;
  /// List of added states (used for undo)
  QList<GState*> undostatelist;
  /// List of added transitions (used for undo)
  QList<GTransition*> undotranslist;
  /// Old initial state (used for undo)
- GState* oldinitialstate;
+ qfsm::StatePtr m_prevInitialState;
  /// New initial state (used for undo)
  GState* newinitialstate;
  /// Old initial transition (used for undo)
- GITransition* oldinitialtrans;
+ qfsm::TransitionPtr m_prevInitialTransition;
  /// New initial transition (used for undo)
  GITransition* newinitialtrans;
  // Number of moore output bits
- int nummooreout;
+ int m_mooreOutputsCount;
  // Number of mealy input bits
- int numin;
+ int m_mealyInputsCount;
  // Number of mealy output bits
- int numout;
+ int m_mealyOutputsCount;
  /// Number of bits for state encoding
  int state_code_size;
  /// Old number of moore output bits (used for undo)
- int oldnummooreout;
+ int m_prevMooreOutputsCount;
  /// Old number of input bits (used for undo)
- int oldnumin;
+ int m_prevMealyInputsCount;
  /// Old number of output bits (used for undo)
- int oldnumout;
+ int m_prevMealyOutputsCount;
 };
 
 #endif

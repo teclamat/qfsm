@@ -53,7 +53,7 @@ but sometimes it may be needed to call delete during runtime.
 #include "DRect.h"
 #include "GObject.h"
 #include "GTransition.h"
-#include "State.h"
+#include "StateOld.h"
 
 class DrawArea;
 class Machine;

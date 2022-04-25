@@ -50,11 +50,15 @@ Qt 4 QList
 
 #include "Undo.h"
 // #include <q3ptrlist.h>
-#include <QObject>
+// #include <QObject>
 #include <QList>
 
 class MainWindow;
 class GState;
+
+namespace qfsm {
+Project;
+}
 
 /**
  * @class UndoBuffer
@@ -62,7 +66,7 @@ class GState;
  */
 class UndoBuffer {
 public:
-  UndoBuffer(QObject *);
+  UndoBuffer(qfsm::Project* a_project);
   ~UndoBuffer();
 
   /// Returns true if the undo list is empty, otherwise false
@@ -111,7 +115,7 @@ public:
 
 private:
   /// Pointer to the project
- qfsm::Project* project;
+ qfsm::Project* m_project;
  /// List of undo objects
  QList<Undo*> undolist;
 };

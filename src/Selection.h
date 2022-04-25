@@ -28,7 +28,7 @@ replaced Qt 3 iterators by Qt 4 iterators
 #include <QList>
 #include <QObject>
 //#include "ScrollView.h"
-#include "Machine.h"
+#include "MachineOld.h"
 
 class DrawArea;
 class GState;

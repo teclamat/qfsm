@@ -8,7 +8,6 @@ class MainWindow;
 class QMenu;
 class QAction;
 class QMainWindow;
-class StatusBar;
 
 enum class DocumentMode;
 
@@ -37,6 +36,11 @@ class View : public QGraphicsView {
   void zoomOut();
   void zoomReset();
 
+ signals:
+  void zoomChanged(double a_zoomFactor);
+  void selectionChanged(int a_selectionCount);
+  void positionChanged(const QPointF& a_position);
+
  private:
   void zoomChange(bool a_fromWheel = false);
 
@@ -52,7 +56,6 @@ class View : public QGraphicsView {
  private:
   Scene* m_scene;
   MainWindow* m_window;
-  StatusBar* m_status;
   QMenu* m_contextState;
   int m_zoomLevel;
 

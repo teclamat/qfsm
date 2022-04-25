@@ -20,13 +20,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gui/error.hpp"
 #include "info.hpp"
+#include "literals.hpp"
+#include "machine.hpp"
+#include "state.hpp"
+#include "transition.hpp"
 
 #include "Convert.h"
 #include "FileIO.h"
 #include "IOInfoASCII.h"
 #include "IOInfoBin.h"
 #include "IOInfoText.h"
-#include "Machine.h"
 #include "Project.h"
 #include "Selection.h"
 #include "TransitionInfo.h"
@@ -36,34 +39,50 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UndoBuffer.h"
 #include "XMLHandler.h"
 
+constexpr qfsm::Hash PROJECT_TAG = "qfsmproject"_hash;
+constexpr qfsm::Hash MACHINE_TAG = "machine"_hash;
+constexpr qfsm::Hash STATE_TAG = "state"_hash;
+constexpr qfsm::Hash TRANSITION_TAG = "transition"_hash;
+constexpr qfsm::Hash INIT_TRANS_TAG = "itransition"_hash;
+constexpr qfsm::Hash INPUTS_TAG = "inputs"_hash;
+constexpr qfsm::Hash OUTPUTS_TAG = "outputs"_hash;
+constexpr qfsm::Hash TRANS_FROM_STATE = "from"_hash;
+constexpr qfsm::Hash TRANS_TO_STATE = "to"_hash;
+
 /// Constructor
-XMLHandler::XMLHandler(qfsm::Project* newProject, Selection* sel /*=nullptr*/, bool keepquiet /*=true*/,
-                       bool createnewmachine /*=true*/)
-  : QObject((QObject*)newProject)
+XMLHandler::XMLHandler(qfsm::Project* a_project, Selection* sel /*=nullptr*/, bool a_quiet /*=true*/,
+                       bool a_createMachine)
+  : QObject{ a_project }
   , QXmlStreamReader{}
 {
-  project = newProject;
-  machine = nullptr;
-  quiet = keepquiet;
-  create_new_machine = createnewmachine;
-  selection = sel;
+  m_project = a_project;
+  m_createMachine = !m_project->isValid() || a_createMachine;
+  m_machine = m_createMachine ? m_project->createMachine() : m_project->machine();
+  m_quiet = a_quiet;
 
-  state = nullptr;
+  m_state = nullptr;
+  m_transition = nullptr;
+
+  m_prevInitialState = nullptr;
+  m_prevInitialTransition = nullptr;
+  m_prevMooreOutputsCount = 0;
+  m_prevMealyInputsCount = 0;
+  m_prevMealyOutputsCount = 0;
+  m_projectVersion = 1;
+  m_initialStateCode = 0;
+  m_hasInitialState = true;
+  m_stateHasCode = true;
+  m_mooreOutputsCount = 0;
+  m_mealyInputsCount = 0;
+  m_mealyOutputsCount = 0;
+  m_transitionType = 0;
+
+  selection = sel;
   itransition = nullptr;
-  transition = nullptr;
-  oldinitialstate = nullptr;
-  oldinitialtrans = nullptr;
-  oldnummooreout = 0;
-  oldnumin = 0;
-  oldnumout = 0;
-  version = 1;
-  saveinitialstate = 0;
   inamescont = false;
   onamescont = false;
   monamescont = false;
   snamecont = false;
-  hascode = true;
-  ttype = 0;
   invert = false;
   any = false;
   def = false;
@@ -73,13 +92,8 @@ XMLHandler::XMLHandler(qfsm::Project* newProject, Selection* sel /*=nullptr*/, b
   toutcont = false;
   hasfrom = false;
   hasto = false;
-  addstate = false;
-  hasinitialstate = true;
   newinitialstate = nullptr;
   newinitialtrans = nullptr;
-  nummooreout = 0;
-  numin = 0;
-  numout = 0;
   state_code_size = 1;
   //  undostatelist.setAutoDelete(false);
   //  undotranslist.setAutoDelete(false);
@@ -87,38 +101,50 @@ XMLHandler::XMLHandler(qfsm::Project* newProject, Selection* sel /*=nullptr*/, b
 
 bool XMLHandler::parse()
 {
-  while (!atEnd()) {
+  bool result = true;
+
+  while (result && !atEnd()) {
     readNext();
+    const QStringView name = qualifiedName();
     switch (tokenType()) {
-      case TokenType::StartDocument:
+      case TokenType::StartDocument: {
         startDocument();
         break;
-      case TokenType::StartElement:
-        startElement(qualifiedName().toString(), attributes());
+      }
+      case TokenType::StartElement: {
+        result = startElement(qfsm::hash(name.utf16(), name.utf16() + name.size()), attributes());
         break;
-      case TokenType::EndElement:
-        endElement(qualifiedName().toString());
+      }
+      case TokenType::EndElement: {
+        endElement(qfsm::hash(name.utf16(), name.utf16() + name.size()));
         break;
-      case TokenType::Characters:
-        characters(text().toString());
+      }
+      case TokenType::Characters: {
+        if (!isCDATA() && !isWhitespace()) {
+          m_textData = text().toString();
+        }
         break;
+      }
     }
   }
 
-  return !hasError();
+  return result && !hasError();
 }
 
 /// Starts a new document
 bool XMLHandler::startDocument()
 {
-  version = qfsm::info::getVersionDouble();
+  m_projectVersion = qfsm::info::getVersionDouble();
+  m_initialStateCode = -1;
+  m_stateHasCode = false;
+  m_textData.clear();
+  m_stateCodesMapping.clear();
+
   itransition = nullptr;
-  saveinitialstate = -1;
   inamescont = false;
   onamescont = false;
   monamescont = false;
   snamecont = false;
-  hascode = false;
   fromcont = false;
   tocont = false;
   tincont = false;
@@ -126,164 +152,39 @@ bool XMLHandler::startDocument()
   hasfrom = false;
   hasto = false;
   rstatelist.clear();
-  codemap.clear();
 
   return true;
 }
 
 /// Called when a start element was parsed
-bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& atts)
+bool XMLHandler::startElement(qfsm::Hash a_tagHash, const QXmlStreamAttributes& a_attributes)
 {
-  QString aname, avalue;
+  bool result = true;
 
-  if (qName == "qfsmproject") {
-    // validate author and version
-    version = atts.value("version").toDouble();
-    // int len = atts.length();
-    // for (int i = 0; i < len; i++) {
-    //   aname = atts.qName(i);
-    //   if (aname == "version") {
-    //     version = atts.value(i).toDouble();
-    //   }
-    // }
-  } else if (qName == "machine") {
-    machine = project->machine();
-    if (create_new_machine || !machine)
-      machine = new Machine(project);
-    if (machine->getInitialState())
-      hasinitialstate = true;
-    else
-      hasinitialstate = false;
-    if (!create_new_machine) {
-      oldnummooreout = machine->getNumMooreOutputs();
-      oldnumin = machine->getNumInputs();
-      oldnumout = machine->getNumOutputs();
-      oldinitialstate = machine->getInitialState();
-      oldinitialtrans = machine->getInitialTransition();
-      undostatelist.clear();
-      undotranslist.clear();
+  switch (a_tagHash) {
+    case PROJECT_TAG: {
+      m_projectVersion = a_attributes.value("version").toDouble();
+      break;
     }
-    saveinitialstate = -1;
-    inamescont = false;
-    onamescont = false;
-    monamescont = false;
-    snamecont = false;
-    itransition = nullptr;
-    rstatelist.clear();
-    codemap.clear();
-
-    if (create_new_machine) {
-      // if (aname == "name")
-      machine->setName(atts.value("name").toString());
-      // else if (aname == "version")
-      machine->setVersion(atts.value("version").toString());
-      // else if (aname == "author")
-      machine->setAuthor(atts.value("author").toString());
-      // else if (aname == "description")
-      machine->setDescription(atts.value("description").toString());
-      // else if (aname == "type") {
-      // int mtype = atts.value("type").toInt();
-      machine->setType(atts.value("type").toInt());
-      // } else if (aname == "statefont") {
-      QFont ftmp = machine->getSFont();
-      ftmp.setStyleHint(QFont::SansSerif);
-      ftmp.setFamily(atts.value("statefont").toString());
-      ftmp.setPointSize(atts.value("statefontsize").toInt());
-      ftmp.setWeight((QFont::Weight)atts.value("statefontweight").toInt());
-      ftmp.setItalic(atts.value("statefontitalic").toInt());
-      machine->setSFont(ftmp);
-      // } else if (aname == "statefontsize") {
-      //   QFont ftmp = machine->getSFont();
-      //   machine->setSFont(ftmp);
-      // } else if (aname == "statefontweight") {
-      //   QFont ftmp = machine->getSFont();
-      //   ftmp.setWeight(atts.value(i).toInt());
-      //   machine->setSFont(ftmp);
-      // } else if (aname == "statefontitalic") {
-      //   QFont ftmp = machine->getSFont();
-      //   ftmp.setItalic(atts.value(i).toInt());
-      //   machine->setSFont(ftmp);
-      // } else if (aname == "transfont") {
-      ftmp = machine->getTFont();
-      ftmp.setStyleHint(QFont::SansSerif);
-      ftmp.setFamily(atts.value("transfont").toString());
-      ftmp.setPointSize(atts.value("transfontsize").toInt());
-      ftmp.setWeight((QFont::Weight)atts.value("transfontweight").toInt());
-      ftmp.setItalic(atts.value("transfontitalic").toInt());
-      machine->setTFont(ftmp);
-      // } else if (aname == "transfontsize") {
-      //   QFont ftmp = machine->getTFont();
-      //   ftmp.setPointSize(atts.value(i).toInt());
-      //   machine->setTFont(ftmp);
-      // } else if (aname == "transfontweight") {
-      //   QFont ftmp = machine->getTFont();
-      //   ftmp.setWeight(atts.value(i).toInt());
-      //   machine->setTFont(ftmp);
-      // } else if (aname == "transfontitalic") {
-      //   QFont ftmp = machine->getTFont();
-      //   ftmp.setItalic(atts.value(i).toInt());
-      //   machine->setTFont(ftmp);
-      // } else if (aname == "arrowtype")
-      machine->setArrowType(atts.value("arrowtype").toInt());
-      // else if (aname == "draw_it")
-      machine->setDrawITrans((bool)atts.value("draw_it").toInt());
-    } else // !create_new_machine
-    {
-      // if (aname == "type") {
-      const int mtype = atts.value("type").toInt();
-      if (mtype != machine->getType()) {
-        // if (!quiet)
-        ::qfsm::gui::msg::warn(tr("The types of the two machines are not compatible."));
-        return false;
-      }
-      // }
+    case MACHINE_TAG: {
+      result = parseMachineTag(a_attributes);
+      break;
     }
+    case STATE_TAG: {
+      result = parseStateTag(a_attributes);
+      break;
+    }
+    case TRANSITION_TAG: {
+      result = parseTransitionTag(a_attributes);
+      break;
+    }
+  }
 
-    // if ((aname == "numbits" && version <= 0.41) || aname == "nummooreout") {
-    nummooreout = atts.value((version <= 0.41) ? "numbits" : "nummooreout").toInt();
-    // } else if (aname == "numin") {
-    numin = atts.value("numin").toInt();
-    // } else if (aname == "numout") {
-    numout = atts.value("numout").toInt();
-    // } else if (aname == "initialstate")
-    saveinitialstate = atts.value("initialstate").toInt();
+  if (!result) {
+    return false;
+  }
 
-    // } // end for
-
-    if (!quiet && nummooreout > machine->getNumMooreOutputs()) {
-      if (::qfsm::gui::msg::warn(tr("The number of moore outputs exceeds the limit "
-                                      "of this machine.\nDo you want to increase the number of "
-                                      "moore outputs of the "
-                                      "machine?"),
-                                   qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
-        machine->setNumMooreOutputs(nummooreout);
-      }
-    } else if (create_new_machine)
-      machine->setNumMooreOutputs(nummooreout);
-
-    if (!quiet && numin > machine->getNumInputs()) {
-      if (::qfsm::gui::msg::warn(tr("The number of mealy inputs exceeds the limit "
-                                      "of this machine.\nDo you want to increase the number of "
-                                      "mealy inputs of the "
-                                      "machine?"),
-                                   qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
-        machine->setNumInputs(numin);
-      }
-    } else if (create_new_machine)
-      machine->setNumInputs(numin);
-
-    if (!quiet && numout > machine->getNumOutputs()) {
-      if (::qfsm::gui::msg::warn(tr("The number of mealy outputs exceeds the limit "
-                                      "of this machine.\nDo you want to increase the number of "
-                                      "mealy outputs of the "
-                                      "machine?"),
-                                   qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
-        machine->setNumOutputs(numout);
-      }
-    } else if (create_new_machine)
-      machine->setNumOutputs(numout);
-
-  } else if (qName == "outputnames_moore") {
+  if (qName == "outputnames_moore") {
     monames = "";
     monamescont = true;
   } else if (qName == "inputnames") {
@@ -292,106 +193,12 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
   } else if (qName == "outputnames") {
     onames = "";
     onamescont = true;
-  } else if (qName == "state") {
-    if (machine) {
-      QString aname;
-      state = new GState(machine);
-
-      hascode = false;
-
-      // for (int i = 0; i < atts.length(); i++) {
-      // aname = atts.qName(i);
-      if (atts.hasAttribute("code")) {
-        int code = atts.value("code").toInt();
-
-        if (machine->getState(code)) {
-          int newcode = machine->getNewCode();
-          codemap.insert(code, newcode);
-          code = newcode;
-          addstate = true;
-        } else
-          addstate = true;
-        state->setEncoding(code);
-        hascode = true;
-        if (version <= 0.41) {
-          IOInfoBin* iotmp = new IOInfoBin(IO_MooreOut, code, machine->getNumMooreOutputs());
-          state->setMooreOutputs(iotmp);
-        }
-      }
-
-      if (atts.hasAttribute("moore_outputs")) {
-        IOInfo* iotmp;
-        if ((machine->getType() == Binary) || version <= 0.41) {
-          iotmp = new IOInfoBin(IO_MooreOut);
-          iotmp->setBin(atts.value("moore_outputs").toString(), machine->getNumMooreOutputs());
-        } else if (machine->getType() == Ascii) {
-          iotmp = new IOInfoASCII(IO_MooreOut, atts.value("moore_outputs").toString());
-        } else {
-          iotmp = new IOInfoText(IO_MooreOut, atts.value("moore_outputs").toString());
-        }
-        state->setMooreOutputs(iotmp);
-      }
-
-      State::VisualData& visualData = state->visualData();
-      state->setDescription(atts.value("description").toString());
-      state->setXPos(atts.value("xpos").toDouble());
-      state->setYPos(atts.value("ypos").toDouble());
-      const QPointF position = state->position();
-      visualData.x = position.x();
-      visualData.y = position.y();
-      state->setRadius(atts.value("radius").toInt());
-      visualData.radius = state->getRadius();
-      const QRgb penColor = QRgb{ atts.value("pencolor").toUInt() };
-      state->setColor(penColor);
-      visualData.outlineColor = penColor;
-      state->setLineWidth(atts.value("linewidth").toInt());
-      visualData.outlineWidth = state->getLineWidth();
-      state->setEntryActions(atts.value("entry_actions").toString());
-      state->setExitActions(atts.value("exit_actions").toString());
-      if (atts.hasAttribute("finalstate")) {
-        state->setFinalState(atts.value("finalstate").toInt());
-      } else if (atts.hasAttribute("endstate")) {
-        state->setFinalState(atts.value("endstate").toInt());
-      }
-
-      sname = "";
-      snamecont = true;
-    }
-  } else if (qName == "transition") {
-    iinfo = "";
-    oinfo = "";
-    tincont = false;
-    toutcont = false;
-    fromcont = false;
-    tocont = false;
-    hasfrom = false;
-    hasto = false;
-    if (machine) {
-      transition = new GTransition{};
-      ttype = atts.hasAttribute("type") ? atts.value("type").toInt() : 1;
-
-      transition->setDescription(atts.value("description").toString());
-      transition->setXPos(atts.value("xpos").toDouble());
-      transition->setYPos(atts.value("ypos").toDouble());
-      transition->setEndPosX(atts.value("endx").toDouble());
-      transition->setEndPosY(atts.value("endy").toDouble());
-      transition->setCPoint1X(atts.value("c1x").toDouble());
-      transition->setCPoint1Y(atts.value("c1y").toDouble());
-      transition->setCPoint2X(atts.value("c2x").toDouble());
-      transition->setCPoint2Y(atts.value("c2y").toDouble());
-      transition->setStraight(atts.value("straight").toInt());
-
-      Transition::VisualData& visualData = transition->visualData();
-      visualData.begin = transition->position();
-      visualData.cp1 = transition->controlPoint1();
-      visualData.cp2 = transition->controlPoint2();
-      visualData.end = transition->endPosition();
-      visualData.straight = transition->isStraight();
-    }
-  } else if (qName == "from") {
-    hasfrom = true;
-    from = "";
-    fromcont = true;
+    // } else if (qName == "state") {
+    // } else if (qName == "transition") {
+    // } else if (qName == "from") {
+    //   hasfrom = true;
+    //   from = "";
+    //   fromcont = true;
   } else if (qName == "to") {
     hasto = true;
     to = "";
@@ -401,206 +208,431 @@ bool XMLHandler::startElement(const QString& qName, const QXmlStreamAttributes& 
     invert = false;
     any = false;
     def = false;
-    // int len = atts.length();
+    // int len = a_attributes.length();
     // for (int i = 0; i < len; i++) {
-    // aname = atts.qName(i);
+    // aname = a_attributes.qName(i);
     // if (aname == "invert")
-    invert = (bool)atts.value("invert").toInt();
+    invert = (bool)a_attributes.value("invert").toInt();
     // else if (aname == "any")
-    any = (bool)atts.value("any").toInt();
+    any = (bool)a_attributes.value("any").toInt();
     // else if (aname == "default")
-    def = (bool)atts.value("default").toInt();
+    def = (bool)a_attributes.value("default").toInt();
     // }
     tincont = true;
   } else if (qName == "outputs") {
     oinfo = "";
     toutcont = true;
   } else if (qName == "itransition") {
-    if (machine) {
+    if (m_machine) {
       itransition = new GITransition{};
-      itransition->setStart(machine->getPhantomState());
-      itransition->setXPos(atts.value("xpos").toDouble());
-      itransition->setYPos(atts.value("ypos").toDouble());
-      itransition->setEndPosX(atts.value("endx").toDouble());
-      itransition->setEndPosY(atts.value("endy").toDouble());
+      itransition->setStart(m_machine->getPhantomState());
+      itransition->setXPos(a_attributes.value("xpos").toDouble());
+      itransition->setYPos(a_attributes.value("ypos").toDouble());
+      itransition->setEndPosX(a_attributes.value("endx").toDouble());
+      itransition->setEndPosY(a_attributes.value("endy").toDouble());
     }
   }
   return true;
 }
 
 /// Called when a closing tag was parsed
-bool XMLHandler::endElement(const QString& qName)
+bool XMLHandler::endElement(qfsm::Hash a_tagName)
 {
+  switch (a_tagName) {
+    case TRANS_FROM_STATE: {
+      parseFromState();
+      break;
+    }
+    case TRANS_TO_STATE: {
+      parseToState();
+      break;
+    }
+    case MACHINE_TAG: {
+      finishMachineTag();
+      break;
+    }
+    case STATE_TAG: {
+      finishStateTag();
+      break;
+    }
+    case TRANSITION_TAG: {
+      finishTransitionTag();
+      break;
+    }
+  }
+
   if (qName == "machine") {
-    QMap<int, int>::Iterator mit;
-    mit = codemap.find(saveinitialstate);
-    if (mit != codemap.end())
-      saveinitialstate = mit.value();
-
-    if (!hasinitialstate && saveinitialstate >= 0) {
-      GState* is;
-      GITransition* it;
-      it = machine->getInitialTransition();
-
-      if (it) {
-        is = machine->getState(saveinitialstate);
-        if (is) {
-          machine->setInitialState(is);
-          it->setEnd(is);
-        }
-        if (itransition) {
-          delete it;
-          itransition->setEnd(is);
-          machine->setInitialTransition(itransition);
-          machine->attachInitialTransition();
-          itransition = nullptr;
-        }
-      }
-    }
-
-    if (itransition) {
-      delete itransition;
-      itransition = nullptr;
-    }
-
-    if (create_new_machine)
-      project->addMachine(machine);
-
-    if (!create_new_machine) {
-      newinitialstate = machine->getInitialState();
-      newinitialtrans = machine->getInitialTransition();
-
-      project->undoBuffer()->paste(&undostatelist, &undotranslist, oldinitialstate, newinitialstate, oldinitialtrans,
-                                   newinitialtrans, oldnummooreout, oldnumin, oldnumout);
-    }
   } else if (qName == "inputnames") {
-    if (machine)
-      machine->setMealyInputNames(machine->getNumInputs(), inames);
+    m_machine->setMealyInputNames(m_machine->getNumInputs(), inames);
     inames = "";
     inamescont = false;
   } else if (qName == "outputnames") {
-    if (machine)
-      machine->setMealyOutputNames(machine->getNumOutputs(), onames);
+    if (m_machine)
+      m_machine->setMealyOutputNames(m_machine->getNumOutputs(), onames);
     onames = "";
     onamescont = false;
   } else if (qName == "outputnames_moore") {
-    if (machine)
-      machine->setMooreOutputNames(machine->getNumMooreOutputs(), monames);
+    if (m_machine)
+      m_machine->setMooreOutputNames(m_machine->getNumMooreOutputs(), monames);
     monames = "";
     monamescont = false;
-  } else if (qName == "state") {
-    state->setStateName(sname);
-    if (machine) {
-      if (addstate) {
-        machine->addState(state, false);
-        undostatelist.append(state);
-        if (selection)
-          selection->select(state, false);
-        if (!hascode)
-          state->setEncoding(machine->getNewCode());
-      }
-    }
-    sname = "";
-    snamecont = false;
-  } else if (qName == "transition") {
-    if (machine) {
-      TransitionInfo* info;
-      GState* sfrom;
-      Convert conv;
-
-      if (ttype == Binary) {
-        IOInfoBin bin(IO_MealyIn), bout(IO_MealyOut);
-
-        bin = conv.binStrToX10(machine->getNumInputs(), iinfo, IO_MealyIn);
-        bout = conv.binStrToX10(machine->getNumOutputs(), oinfo, IO_MealyOut);
-        bin.setInvert(invert);
-        bin.setAnyInput(any);
-        bin.setDefault(def);
-
-        info = new TransitionInfoBin(bin, bout);
-      } else if (ttype == Ascii) {
-        ttype = Ascii;
-        IOInfoASCII ain(IO_MealyIn, iinfo), aout(IO_MealyOut, oinfo);
-        ain.setInvert(invert);
-        ain.setAnyInput(any);
-        ain.setDefault(def);
-
-        info = new TransitionInfoASCII(ain, aout);
-      } else {
-        ttype = Text;
-        IOInfoText tin(IO_MealyIn, iinfo), tout(IO_MealyOut, oinfo);
-        tin.setAnyInput(any);
-        tin.setDefault(def);
-
-        info = new TransitionInfoText(tin, tout);
-      }
-
-      info->setType(ttype);
-      transition->setInfo(info);
-
-      QMap<int, int>::Iterator mit;
-
-      if (hasto && !rstatelist.contains(to.toInt())) {
-        int ito;
-        ito = to.toInt();
-        mit = codemap.find(ito);
-        if (mit != codemap.end())
-          ito = mit.value();
-        transition->setEnd(machine->getState(ito));
-      } else
-        transition->setEnd(nullptr);
-      if (hasfrom && !rstatelist.contains(from.toInt())) {
-        int ifrom = from.toInt();
-        mit = codemap.find(ifrom);
-        if (mit != codemap.end())
-          ifrom = mit.value();
-        sfrom = machine->getState(ifrom);
-        if (!sfrom)
-          sfrom = machine->getPhantomState();
-      } else
-        sfrom = machine->getPhantomState();
-      transition->setStart(sfrom);
-      if (transition->isStraight())
-        transition->straighten();
-      sfrom->addTransition(project, transition, false);
-      undotranslist.append(transition);
-      if (selection)
-        selection->select(transition, false);
-    }
-    iinfo = "";
-    oinfo = "";
-    fromcont = tocont = tincont = toutcont = false;
-  } else if (qName == "from")
-    fromcont = false;
-  else if (qName == "to")
-    tocont = false;
-  else if (qName == "inputs")
+    // } else if (qName == "state") {
+    // } else if (qName == "transition") {
+    // else if (qName == "from")
+    //   fromcont = false;
+    // else if (qName == "to")
+    //   tocont = false;
+  } else if (qName == "inputs")
     tincont = false;
   else if (qName == "outputs")
     toutcont = false;
 
+  m_textData.clear();
+
   return true;
 }
 
-/// Deprecated
-bool XMLHandler::characters(const QString& ch)
+bool XMLHandler::parseMachineTag(const QXmlStreamAttributes& a_attributes)
 {
-  if (inamescont)
-    inames += ch;
-  else if (onamescont)
-    onames += ch;
-  else if (monamescont)
-    monames += ch;
-  else if (snamecont)
-    sname += ch;
-  else if (tincont)
-    iinfo += ch;
-  else if (toutcont)
-    oinfo += ch;
-  else if (fromcont)
-    from += ch;
-  else if (tocont)
-    to += ch;
+  m_hasInitialState = m_machine->hasInitialState();
 
-  return true;
+  if (!m_createMachine) {
+    m_prevMooreOutputsCount = m_machine->mooreOutputsCount();
+    m_prevMealyInputsCount = m_machine->mealyInputsCount();
+    m_prevMealyOutputsCount = m_machine->mealyOutputsCount();
+    m_prevInitialState = m_machine->initialState();
+    m_prevInitialTransition = m_machine->initialTransition();
+
+    undostatelist.clear();
+    undotranslist.clear();
+  }
+  m_initialStateCode = -1;
+  inamescont = false;
+  onamescont = false;
+  monamescont = false;
+  snamecont = false;
+  itransition = nullptr;
+  rstatelist.clear();
+  m_stateCodesMapping.clear();
+
+  if (m_createMachine) {
+    m_machine->setName(a_attributes.value("name").toString());
+    m_machine->setVersion(a_attributes.value("version").toString());
+    m_machine->setAuthor(a_attributes.value("author").toString());
+    m_machine->setDescription(a_attributes.value("description").toString());
+
+    if (a_attributes.hasAttribute("type")) {
+      m_machine->setType(static_cast<qfsm::Machine::Type>(a_attributes.value("type").toInt()));
+    }
+    if (a_attributes.hasAttribute("arrowtype")) {
+      m_machine->setArrowType(static_cast<qfsm::ArrowType>(a_attributes.value("arrowtype").toInt()));
+    }
+    if (a_attributes.hasAttribute("draw_it")) {
+      m_machine->setDrawInitialTransition(a_attributes.value("draw_it").toInt() != 0);
+    }
+
+    QFont& stateFont = m_machine->stateFont();
+    if (a_attributes.hasAttribute("statefont")) {
+      stateFont.setFamily(a_attributes.value("statefont").toString());
+    }
+    if (a_attributes.hasAttribute("statefontsize")) {
+      stateFont.setPointSize(a_attributes.value("statefontsize").toInt());
+    }
+    if (a_attributes.hasAttribute("statefontweight")) {
+      stateFont.setWeight(static_cast<QFont::Weight>(a_attributes.value("statefontweight").toInt()));
+    }
+    if (a_attributes.hasAttribute("statefontitalic")) {
+      stateFont.setItalic(a_attributes.value("statefontitalic").toInt() != 0);
+    }
+
+    QFont& transitionFont = m_machine->transitionFont();
+    if (a_attributes.hasAttribute("transfont")) {
+      transitionFont.setFamily(a_attributes.value("transfont").toString());
+    }
+    if (a_attributes.hasAttribute("transfontsize")) {
+      transitionFont.setPointSize(a_attributes.value("transfontsize").toInt());
+    }
+    if (a_attributes.hasAttribute("transfontweight")) {
+      transitionFont.setWeight(static_cast<QFont::Weight>(a_attributes.value("transfontweight").toInt()));
+    }
+    if (a_attributes.hasAttribute("transfontitalic")) {
+      transitionFont.setItalic(a_attributes.value("transfontitalic").toInt() != 0);
+    }
+  } else {
+    const auto machineType = static_cast<qfsm::Machine::Type>(a_attributes.value("type").toInt());
+    if (!a_attributes.hasAttribute("type") || (machineType != m_machine->type())) {
+      qfsm::gui::msg::warn(tr("The types of the two machines are not compatible."));
+      return false;
+    }
+  }
+
+  m_mooreOutputsCount = a_attributes.value((m_projectVersion <= 0.41) ? "numbits" : "nummooreout").toInt();
+  m_mealyInputsCount = a_attributes.value("numin").toInt();
+  m_mealyOutputsCount = a_attributes.value("numout").toInt();
+  m_initialStateCode = a_attributes.value("initialstate").toInt();
+
+  if (!m_quiet && (m_mooreOutputsCount > m_machine->mooreOutputsCount())) {
+    if (qfsm::gui::msg::warn(tr("The number of moore outputs exceeds the limit of this machine.\nDo you want to "
+                                "increase the number of moore outputs of the machine?"),
+                             qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
+      m_machine->setMooreOutputsCount(m_mooreOutputsCount);
+    }
+  } else if (m_createMachine) {
+    m_machine->setMooreOutputsCount(m_mooreOutputsCount);
+  }
+
+  if (!m_quiet && (m_mealyInputsCount > m_machine->mealyInputsCount())) {
+    if (qfsm::gui::msg::warn(tr("The number of mealy inputs exceeds the limit of this machine.\nDo you want to "
+                                "increase the number of mealy inputs of the machine?"),
+                             qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
+      m_machine->setMealyInputsCount(m_mealyInputsCount);
+    }
+  } else if (m_createMachine) {
+    m_machine->setMealyInputsCount(m_mealyInputsCount);
+  }
+
+  if (!m_quiet && (m_mealyOutputsCount > m_machine->mealyOutputsCount())) {
+    if (qfsm::gui::msg::warn(tr("The number of mealy outputs exceeds the limit of this machine.\nDo you want to "
+                                "increase the number of mealy outputs of the machine?"),
+                             qfsm::gui::msg::Button::Ok | qfsm::gui::msg::Button::Cancel) == QMessageBox::Ok) {
+      m_machine->setMealyOutputsCount(m_mealyOutputsCount);
+    }
+  } else if (m_createMachine) {
+    m_machine->setMealyOutputsCount(m_mealyOutputsCount);
+  }
+}
+
+bool XMLHandler::parseStateTag(const QXmlStreamAttributes& a_attributes)
+{
+  if (m_machine == nullptr) {
+    return false;
+  }
+
+  m_state = std::make_shared<qfsm::State>();
+  m_stateHasCode = false;
+
+  if (a_attributes.hasAttribute("code")) {
+    int code = a_attributes.value("code").toInt();
+    if (m_machine->hasState(code)) {
+      code = m_stateCodesMapping.insert(code, m_machine->getNewCode()).value();
+    }
+
+    m_state->setCode(code);
+    m_stateHasCode = true;
+
+    if (m_projectVersion <= 0.41) {
+      m_state->setMooreOutputs(std::make_unique<IOInfoBin>(IO_MooreOut, code, m_machine->mooreOutputsCount()));
+    }
+  }
+
+  if (a_attributes.hasAttribute("moore_outputs")) {
+    std::unique_ptr<IOInfo> iotmp{};
+    if ((m_machine->type() == qfsm::Machine::Type::Binary) || (m_projectVersion <= 0.41)) {
+      iotmp = std::make_unique<IOInfoBin>(IO_MooreOut);
+      iotmp->setBin(a_attributes.value("moore_outputs").toString(), m_machine->mooreOutputsCount());
+    } else if (m_machine->type() == qfsm::Machine::Type::Ascii) {
+      iotmp = std::make_unique<IOInfoASCII>(IO_MooreOut, a_attributes.value("moore_outputs").toString());
+    } else {
+      iotmp = std::make_unique<IOInfoText>(IO_MooreOut, a_attributes.value("moore_outputs").toString());
+    }
+    m_state->setMooreOutputs(std::move(iotmp));
+  }
+
+  m_state->setDescription(a_attributes.value("description").toString());
+  m_state->setPosition({ a_attributes.value("xpos").toDouble(), a_attributes.value("ypos").toDouble() });
+  m_state->setRadius(a_attributes.value("radius").toInt());
+  m_state->setColor(a_attributes.value("pencolor").toUInt());
+  m_state->setLineWidth(a_attributes.value("linewidth").toInt());
+  m_state->setEntryActions(a_attributes.value("entry_actions").toString());
+  m_state->setExitActions(a_attributes.value("exit_actions").toString());
+  if (a_attributes.hasAttribute("finalstate")) {
+    m_state->setFinal(a_attributes.value("finalstate").toInt() != 0);
+  } else if (a_attributes.hasAttribute("endstate")) {
+    m_state->setFinal(a_attributes.value("endstate").toInt() != 0);
+  }
+
+  sname = "";
+  snamecont = true;
+}
+
+bool XMLHandler::parseTransitionTag(const QXmlStreamAttributes& a_attributes)
+{
+  if (m_machine == nullptr) {
+    return false;
+  }
+  iinfo = "";
+  oinfo = "";
+  tincont = false;
+  toutcont = false;
+  fromcont = false;
+  tocont = false;
+  hasfrom = false;
+  hasto = false;
+
+  m_transitionType = a_attributes.hasAttribute("type") ? a_attributes.value("type").toInt() : 1;
+
+  m_transition = std::make_shared<qfsm::Transition>();
+  m_transition->setDescription(a_attributes.value("description").toString());
+  m_transition->setStartPosition({ a_attributes.value("xpos").toDouble(), a_attributes.value("ypos").toDouble() });
+  m_transition->setEndPosition({ a_attributes.value("endx").toDouble(), a_attributes.value("endy").toDouble() });
+  m_transition->setControlPoint1({ a_attributes.value("c1x").toDouble(), a_attributes.value("c1y").toDouble() });
+  m_transition->setControlPoint2({ a_attributes.value("c2x").toDouble(), a_attributes.value("c2y").toDouble() });
+  m_transition->setStraight(a_attributes.value("straight").toInt() != 0);
+}
+
+bool XMLHandler::parseFromState()
+{
+  bool success = false;
+  const int parsedCode = m_textData.toInt(&success);
+
+  if (success) {
+    const int code = m_stateCodesMapping.value(parsedCode, parsedCode);
+    m_transition->setStartState(m_machine->state(code));
+  }
+
+  return success;
+}
+
+bool XMLHandler::parseToState()
+{
+  bool success = false;
+  const int parsedCode = m_textData.toInt(&success);
+
+  if (success) {
+    const int code = m_stateCodesMapping.value(parsedCode, parsedCode);
+    m_transition->setEndState(m_machine->state(code));
+  }
+
+  return success;
+}
+
+bool XMLHandler::finishMachineTag()
+{
+  m_initialStateCode = m_stateCodesMapping.value(m_initialStateCode, m_initialStateCode);
+
+  if (!m_hasInitialState && (m_initialStateCode >= 0)) {
+    it = m_machine->getInitialTransition();
+
+    if (it) {
+      is = m_machine->getState(m_initialStateCode);
+      if (is) {
+        m_machine->setInitialState(is);
+        it->setEnd(is);
+      }
+      if (itransition) {
+        delete it;
+        itransition->setEnd(is);
+        m_machine->setInitialTransition(itransition);
+        m_machine->attachInitialTransition();
+        itransition = nullptr;
+      }
+    }
+  }
+
+  if (itransition) {
+    delete itransition;
+    itransition = nullptr;
+  }
+
+  if (m_createMachine)
+    m_project->addMachine(m_machine);
+
+  if (!m_createMachine) {
+    newinitialstate = m_machine->getInitialState();
+    newinitialtrans = m_machine->getInitialTransition();
+
+    m_project->undoBuffer()->paste(&undostatelist, &undotranslist, m_prevInitialState, newinitialstate,
+                                   m_prevInitialTransition, newinitialtrans, m_prevMooreOutputsCount,
+                                   m_prevMealyInputsCount, m_prevMealyOutputsCount);
+  }
+}
+
+bool XMLHandler::finishStateTag()
+{
+  m_state->setName(m_textData);
+  m_machine->addState(state, false);
+  undostatelist.append(state);
+  if (selection)
+    selection->select(state, false);
+  if (!m_stateHasCode)
+    m_state->setCode(m_machine->getNewCode());
+  sname = "";
+  snamecont = false;
+}
+
+bool XMLHandler::finishTransitionTag()
+{
+  if (m_machine) {
+    TransitionInfo* info;
+    GState* sfrom;
+    Convert conv;
+
+    if (m_transitionType == Binary) {
+      IOInfoBin bin(IO_MealyIn), bout(IO_MealyOut);
+
+      bin = conv.binStrToX10(m_machine->getNumInputs(), iinfo, IO_MealyIn);
+      bout = conv.binStrToX10(m_machine->getNumOutputs(), oinfo, IO_MealyOut);
+      bin.setInvert(invert);
+      bin.setAnyInput(any);
+      bin.setDefault(def);
+
+      info = new TransitionInfoBin(bin, bout);
+    } else if (m_transitionType == Ascii) {
+      m_transitionType = Ascii;
+      IOInfoASCII ain(IO_MealyIn, iinfo), aout(IO_MealyOut, oinfo);
+      ain.setInvert(invert);
+      ain.setAnyInput(any);
+      ain.setDefault(def);
+
+      info = new TransitionInfoASCII(ain, aout);
+    } else {
+      m_transitionType = Text;
+      IOInfoText tin(IO_MealyIn, iinfo), tout(IO_MealyOut, oinfo);
+      tin.setAnyInput(any);
+      tin.setDefault(def);
+
+      info = new TransitionInfoText(tin, tout);
+    }
+
+    info->setType(m_transitionType);
+    transition->setInfo(info);
+
+    // QMap<int, int>::Iterator mit;
+
+    // if (hasto && !rstatelist.contains(to.toInt())) {
+    //   int ito;
+    //   ito = to.toInt();
+    //   mit = m_stateCodesMapping.find(ito);
+    //   if (mit != m_stateCodesMapping.end())
+    //     ito = mit.value();
+    //   transition->setEnd(m_machine->getState(ito));
+    // } else
+    //   transition->setEnd(nullptr);
+
+    // if (hasfrom && !rstatelist.contains(from.toInt())) {
+    //   int ifrom = from.toInt();
+    //   mit = m_stateCodesMapping.find(ifrom);
+    //   if (mit != m_stateCodesMapping.end())
+    //     ifrom = mit.value();
+    //   sfrom = m_machine->getState(ifrom);
+    //   if (!sfrom)
+    //     sfrom = m_machine->getPhantomState();
+    // } else
+    //   sfrom = m_machine->getPhantomState();
+    // transition->setStart(sfrom);
+
+    if (!m_transition->hasStartState()) {
+      m_transition->setStartState(m_machine->phantomState());
+    }
+
+    if (transition->isStraight())
+      transition->straighten();
+    sfrom->addTransition(m_project, transition, false);
+    undotranslist.append(transition);
+    // if (selection)
+    //   selection->select(transition, false);
+  }
+  iinfo = "";
+  oinfo = "";
+  fromcont = tocont = tincont = toutcont = false;
 }

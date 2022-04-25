@@ -74,7 +74,8 @@ class ActionsManager : public QObject {
     ExportSTLatex,
     ExportSTHTML,
     ExportRagel,
-    ExportSMC
+    ExportSMC,
+    ImportGraphviz
   };
 
   using ActionGroup = QHash<Action, QAction*>;

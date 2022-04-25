@@ -16,19 +16,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "machine.hpp"
+#include "state.hpp"
+
 #include "UndoBuffer.h"
-#include "DrawArea.h"
-#include "GState.h"
-#include "GTransition.h"
-#include "Machine.h"
+// #include "DrawArea.h"
+// #include "GState.h"
+// #include "GTransition.h"
+// #include "Machine.h"
 #include "MainWindow.h"
 #include "Project.h"
 #include "Selection.h"
 
 /// Constructor
-UndoBuffer::UndoBuffer(QObject* parent)
+UndoBuffer::UndoBuffer(qfsm::Project* a_project)
+  : m_project{ a_project }
 {
-  project = (qfsm::Project*)parent;
+  // project = (qfsm::Project*)parent;
   //  undolist.setAutoDelete(true);
 }
 

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define GTRANSITION_H
 
 #include "GObject.h"
-#include "Transition.h"
+#include "TransitionOld.h"
 
 class State;
 class TransitionInfo;

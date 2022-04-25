@@ -19,11 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Project.h"
 
 #include "info.hpp"
+#include "machine.hpp"
 
-#include "DrawArea.h"
-#include "GObject.h"
-#include "GState.h"
-#include "Machine.h"
+// #include "DrawArea.h"
+// #include "GObject.h"
+// #include "GState.h"
 #include "MainWindow.h"
 #include "TransitionInfo.h"
 #include "UndoBuffer.h"
@@ -34,8 +34,8 @@ namespace qfsm {
 
 Project::Project(QObject* a_parent)
   : QObject{ a_parent }
-  , m_mainWindow{ qobject_cast<MainWindow*>(a_parent) }
-  , m_undoBuffer{ new UndoBuffer{ this } }
+  , m_window{ qobject_cast<MainWindow*>(a_parent) }
+  , m_undoBuffer{ std::make_unique<UndoBuffer>(this ) }
   , m_machine{ nullptr }
 {
 }
@@ -53,33 +53,30 @@ Project::Project(QObject* a_parent)
 void Project::addMachine(QString n, QString v, QString a, QString d, int type, int nb, QString onamesm, int ni,
                          QString inames, int no, QString onames, QFont sf, QFont tf, int atype, bool draw_it)
 {
-  removeMachine();
+  // removeMachine();
 
   m_machine = new Machine{ this, n, v, a, d, type, nb, onamesm, ni, inames, no, onames, sf, tf, atype };
   m_machine->setDrawITrans(draw_it);
 
-  connectMachine();
+  // connectMachine();
 
-  m_mainWindow->updateIOView(m_machine);
+  m_window->updateIOView(m_machine.get());
 }
 
 Machine* Project::createMachine()
 {
-  removeMachine();
-  m_machine = new Machine{ this };
-  connectMachine();
-
-  return m_machine;
+  m_machine = std::make_unique<Machine>(this);
+  return m_machine.get();
 }
 
-void Project::removeMachine()
-{
-  if (m_machine == nullptr) {
-    return;
-  }
-  m_machine->deleteLater();
-  m_machine = nullptr;
-}
+// void Project::removeMachine()
+// {
+//   if (m_machine == nullptr) {
+//     return;
+//   }
+//   m_machine->deleteLater();
+//   m_machine = nullptr;
+// }
 
 /// Adds m_machine @a m to the project
 void Project::addMachine(Machine* a_machine)
@@ -89,22 +86,21 @@ void Project::addMachine(Machine* a_machine)
   }
 
   if (m_machine != a_machine) {
-    removeMachine();
+    // removeMachine();
     m_machine = a_machine;
     m_machine->setProject(this);
-    connectMachine();
+    // connectMachine();
+    m_window->updateIOView(m_machine);
   }
-
-  m_mainWindow->updateIOView(m_machine);
 }
 
-void Project::connectMachine()
-{
-  DrawArea* drawArea = m_mainWindow->getScrollView()->getDrawArea();
-  connect(m_machine, &Machine::newCanvasSize, drawArea, &DrawArea::resizeContentsNotSmaller);
-  connect(drawArea, &DrawArea::updateCanvasSize, m_machine, qOverload<int, int, double>(&Machine::updateCanvasSize));
-  connect(m_machine, &Machine::repaint, m_mainWindow, &MainWindow::repaintViewport);
-}
+// void Project::connectMachine()
+// {
+//   DrawArea* drawArea = m_window->getScrollView()->getDrawArea();
+//   connect(m_machine, &Machine::newCanvasSize, drawArea, &DrawArea::resizeContentsNotSmaller);
+//   connect(drawArea, &DrawArea::updateCanvasSize, m_machine, qOverload<int, int, double>(&Machine::updateCanvasSize));
+//   connect(m_machine, &Machine::repaint, m_window, &MainWindow::repaintViewport);
+// }
 
 QString Project::copy() const
 {

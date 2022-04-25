@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Project.h"
 #include "ScrollView.h"
 #include "Selection.h"
-#include "StatusBar.h"
 #include "TransitionInfoBin.h"
 #include "UndoBuffer.h"
 #include "Zoom.h"

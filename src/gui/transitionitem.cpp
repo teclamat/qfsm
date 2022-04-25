@@ -1,7 +1,7 @@
 #include "transitionitem.hpp"
 
 #include "Machine.h"
-#include "State.h"
+#include "StateOld.h"
 #include "Transition.h"
 #include "common.hpp"
 #include "controlhandleitem.hpp"
