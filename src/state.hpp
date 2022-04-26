@@ -3,6 +3,7 @@
 
 #include "stateinterface.hpp"
 
+#include <QList>
 #include <QPointF>
 #include <QRgb>
 #include <QString>
@@ -13,6 +14,10 @@ class IOInfo;
 
 namespace qfsm {
 
+class Transition;
+using TransitionPtr = std::shared_ptr<Transition>;
+using Transitions = QList<TransitionPtr>;
+using StatePtr = std::shared_ptr<State>;
 using IoInfoPtr = std::unique_ptr<IOInfo>;
 
 class State : public IState {
@@ -55,6 +60,9 @@ class State : public IState {
 
   bool isDeleted() const { return m_isDeleted; }
 
+  void appendStartTransition(const TransitionPtr& a_transition);
+  void appendEndTransition(const TransitionPtr& a_transition) { m_endTransitions.push_back(a_transition); }
+
  private:
   QString m_name{};
   QString m_description{};
@@ -62,6 +70,8 @@ class State : public IState {
   QString m_exitActions{};
   QPointF m_position{};
   IoInfoPtr m_mooreOutputs{};
+  Transitions m_startTransitions{};
+  Transitions m_endTransitions{};
   QRgb m_color{};
   int m_lineWidth{};
   int m_code{};

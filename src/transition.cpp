@@ -8,8 +8,8 @@ namespace qfsm {
 
 Transition::Transition()
   : ITransition{}
-  , m_startState{ nullptr }
-  , m_endState{ nullptr }
+  , m_startState{}
+  , m_endState{}
   , m_info{ nullptr }
 {
 }

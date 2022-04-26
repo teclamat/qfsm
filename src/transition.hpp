@@ -14,6 +14,7 @@ namespace qfsm {
 
 class State;
 using StatePtr = std::shared_ptr<State>;
+using StateObserver = std::weak_ptr<State>;
 
 class Transition : public ITransition {
  public:
@@ -23,9 +24,11 @@ class Transition : public ITransition {
   Transition(const StatePtr& a_stateStart, const StatePtr& a_stateEnd, InfoPtr&& a_info);
   ~Transition() = default;
 
-  bool hasStartState() const { return m_startState != nullptr; }
+  bool hasStartState() const { return m_startState.lock() != nullptr; }
+  StatePtr startState() { return m_startState.lock(); }
   void setStartState(const StatePtr& a_state) { m_startState = a_state; }
 
+  StatePtr endState() { return m_endState.lock(); }
   void setEndState(const StatePtr& a_state) { m_endState = a_state; }
 
   const QString& description() const { return m_description; }
@@ -49,8 +52,8 @@ class Transition : public ITransition {
   void setInfo(InfoPtr&& a_info) { m_info = std::move(a_info); }
 
  private:
-  StatePtr m_startState;
-  StatePtr m_endState;
+  StateObserver m_startState;
+  StateObserver m_endState;
   InfoPtr m_info;
 
   QString m_description{};

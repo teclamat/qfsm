@@ -11,6 +11,7 @@ namespace qfsm {
 
 class State;
 using StatePtr = std::shared_ptr<State>;
+using StateObserver = std::weak_ptr<State>;
 
 class InitialTransition : public ITransition {
  public:
@@ -22,8 +23,8 @@ class InitialTransition : public ITransition {
   void setEndPosition(const QPointF& a_position) { m_endPosition = a_position; }
 
  private:
-  StatePtr m_startState{};
-  StatePtr m_endState{};
+  StateObserver m_startState{};
+  StateObserver m_endState{};
   QPointF m_startPosition{};
   QPointF m_endPosition{};
 };

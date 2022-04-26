@@ -460,54 +460,55 @@ bool XMLHandler::finishStateTag()
 
 bool XMLHandler::finishTransitionTag()
 {
-  if (m_machine) {
-    qfsm::Transition::InfoPtr info{};
-    // GState* sfrom; <-- state from
-    Convert conv{};
+  qfsm::Transition::InfoPtr info{};
+  Convert conv{};
 
-    if (m_transitionType == Binary) {
-      IOInfoBin bin{ IO_MealyIn };
-      IOInfoBin bout{ IO_MealyOut };
+  if (m_transitionType == Binary) {
+    IOInfoBin bin{ IO_MealyIn };
+    IOInfoBin bout{ IO_MealyOut };
 
-      bin = conv.binStrToX10(m_machine->mealyInputsCount(), m_transitionInfo.inputs, IO_MealyIn);
-      bout = conv.binStrToX10(m_machine->mealyOutputsCount(), m_transitionInfo.outputs, IO_MealyOut);
-      bin.setInvert(m_transitionInfo.inputInvert);
-      bin.setAnyInput(m_transitionInfo.inputAny);
-      bin.setDefault(m_transitionInfo.inputDefault);
+    bin = conv.binStrToX10(m_machine->mealyInputsCount(), m_transitionInfo.inputs, IO_MealyIn);
+    bout = conv.binStrToX10(m_machine->mealyOutputsCount(), m_transitionInfo.outputs, IO_MealyOut);
+    bin.setInvert(m_transitionInfo.inputInvert);
+    bin.setAnyInput(m_transitionInfo.inputAny);
+    bin.setDefault(m_transitionInfo.inputDefault);
 
-      info = std::make_unique<TransitionInfoBin>(bin, bout);
-    } else if (m_transitionType == Ascii) {
-      IOInfoASCII ain{ IO_MealyIn, m_transitionInfo.inputs };
-      IOInfoASCII aout{ IO_MealyOut, m_transitionInfo.outputs };
-      ain.setInvert(m_transitionInfo.inputInvert);
-      ain.setAnyInput(m_transitionInfo.inputAny);
-      ain.setDefault(m_transitionInfo.inputDefault);
+    info = std::make_unique<TransitionInfoBin>(bin, bout);
+  } else if (m_transitionType == Ascii) {
+    IOInfoASCII ain{ IO_MealyIn, m_transitionInfo.inputs };
+    IOInfoASCII aout{ IO_MealyOut, m_transitionInfo.outputs };
+    ain.setInvert(m_transitionInfo.inputInvert);
+    ain.setAnyInput(m_transitionInfo.inputAny);
+    ain.setDefault(m_transitionInfo.inputDefault);
 
-      info = std::make_unique<TransitionInfoASCII>(ain, aout);
-    } else {
-      IOInfoText tin{ IO_MealyIn, m_transitionInfo.inputs };
-      IOInfoText tout{ IO_MealyOut, m_transitionInfo.outputs };
-      tin.setAnyInput(m_transitionInfo.inputAny);
-      tin.setDefault(m_transitionInfo.inputDefault);
+    info = std::make_unique<TransitionInfoASCII>(ain, aout);
+  } else {
+    IOInfoText tin{ IO_MealyIn, m_transitionInfo.inputs };
+    IOInfoText tout{ IO_MealyOut, m_transitionInfo.outputs };
+    tin.setAnyInput(m_transitionInfo.inputAny);
+    tin.setDefault(m_transitionInfo.inputDefault);
 
-      info = std::make_unique<TransitionInfoText>(tin, tout);
-    }
+    info = std::make_unique<TransitionInfoText>(tin, tout);
+  }
 
-    info->setType(m_transitionType);
+  info->setType(m_transitionType);
 
-    m_transition->setInfo(std::move(info));
+  m_transition->setInfo(std::move(info));
 
-    if (!m_transition->hasStartState()) {
-      m_transition->setStartState(m_machine->phantomState());
-    }
-    sfrom->addTransition(m_project, transition, false);
+  qfsm::StatePtr startState = m_transition->startState();
+  if (!startState) {
+    startState = m_machine->phantomState();
+    m_transition->setStartState(startState);
+  }
 
-    if (transition->isStraight())
-      transition->straighten();
+  startState->appendStartTransition(m_transition);
 
-    if (!m_createMachine) {
-      m_pasteUndoData->undoTransitions.push_back(m_transition);
-    }
+  if (m_transition->isStraight()) {
+    m_transition->straighten();
+  }
+
+  if (!m_createMachine) {
+    m_pasteUndoData->undoTransitions.push_back(m_transition);
   }
 
   m_transitionInfo.clear();

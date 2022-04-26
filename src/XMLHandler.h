@@ -24,27 +24,15 @@ removed setAutoDelete calls from constructor
 #ifndef QXMLHANDLER_H
 #define QXMLHANDLER_H
 
+#include <QHash>
 #include <QList>
-#include <QMap>
 #include <QObject>
 #include <QXmlStreamReader>
-// #include <qxml.h>
-// Added by qt3to4:
-// #include <Q3ValueList>
-
-// #include "GState.h"
-// #include "GTransition.h"
 
 #include "hash.hpp"
 
 #include <cstddef>
 #include <memory>
-
-// class Machine;
-// class GState;
-// class GTransition;
-// class GITransition;
-// class Selection;
 
 namespace qfsm {
 class Machine;
@@ -86,14 +74,15 @@ class XMLHandler : public QObject, public QXmlStreamReader {
   bool finishTransitionTag();
 
  private:
-  struct TransitionInfoData{
+  struct TransitionInfoData {
     bool inputAny;
     bool inputInvert;
     bool inputDefault;
     QString inputs;
     QString outputs;
 
-    void clear() {
+    void clear()
+    {
       inputAny = false;
       inputInvert = false;
       inputDefault = false;
