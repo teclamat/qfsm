@@ -37,22 +37,26 @@ removed setAutoDelete calls from constructor
 
 #include "hash.hpp"
 
-#include <memory>
 #include <cstddef>
+#include <memory>
 
 // class Machine;
 // class GState;
 // class GTransition;
-class GITransition;
-class Selection;
+// class GITransition;
+// class Selection;
 
 namespace qfsm {
 class Machine;
 class Project;
 class State;
 class Transition;
+class InitialTransition;
+struct PasteUndoData;
 using StatePtr = std::shared_ptr<State>;
 using TransitionPtr = std::shared_ptr<Transition>;
+using InitialTransitionPtr = std::shared_ptr<InitialTransition>;
+using PasteUndoDataPtr = std::unique_ptr<PasteUndoData>;
 } // namespace qfsm
 
 /**
@@ -62,7 +66,7 @@ using TransitionPtr = std::shared_ptr<Transition>;
 class XMLHandler : public QObject, public QXmlStreamReader {
   Q_OBJECT
  public:
-  XMLHandler(qfsm::Project* newProject, Selection* sel = nullptr, bool keepquiet = true, bool createnewmachine = true);
+  XMLHandler(qfsm::Project* a_project, bool keepquiet = true, bool createnewmachine = true);
   ~XMLHandler() = default;
   bool parse();
   bool startDocument();
@@ -70,120 +74,62 @@ class XMLHandler : public QObject, public QXmlStreamReader {
   bool endElement(qfsm::Hash a_tagHash);
   bool characters(const QString& ch);
 
-private:
- bool parseMachineTag(const QXmlStreamAttributes& a_attributes);
- bool parseStateTag(const QXmlStreamAttributes& a_attributes);
- bool parseTransitionTag(const QXmlStreamAttributes& a_attributes);
- bool parseInitialTransitionTag(const QXmlStreamAttributes& a_attributes);
- bool parseFromState();
- bool parseToState();
- bool finishMachineTag();
- bool finishStateTag();
- bool finishTransitionTag();
+ private:
+  bool parseMachineTag(const QXmlStreamAttributes& a_attributes);
+  bool parseStateTag(const QXmlStreamAttributes& a_attributes);
+  bool parseTransitionTag(const QXmlStreamAttributes& a_attributes);
+  bool parseInitialTransitionTag(const QXmlStreamAttributes& a_attributes);
+  bool parseFromState();
+  bool parseToState();
+  bool finishMachineTag();
+  bool finishStateTag();
+  bool finishTransitionTag();
 
-private:
- qfsm::Project* m_project;
- qfsm::Machine* m_machine;
- /// If true, no error messages are print (or dialog boxes opened) during
- /// parsing
- bool m_quiet;
- /// If true a new machine is created, otherwise an existing one is used
- bool m_createMachine;
- /// Pointer to the selection object
- Selection* selection;
+ private:
+  struct TransitionInfoData{
+    bool inputAny;
+    bool inputInvert;
+    bool inputDefault;
+    QString inputs;
+    QString outputs;
 
- /// Version of Qfsm that created the document
- double m_projectVersion;
- /// Current state
- //  GState* state;
- qfsm::StatePtr m_state{};
- /// Current transition
- qfsm::TransitionPtr m_transition{};
- /// Current initial transition
- GITransition* itransition;
- /// Code of the initial state (that has to be saved during parsing)
- int m_initialStateCode;
+    void clear() {
+      inputAny = false;
+      inputInvert = false;
+      inputDefault = false;
+      inputs.clear();
+      outputs.clear();
+    }
+  };
 
- QString m_textData{};
+  qfsm::Project* m_project;
+  bool m_createMachine; /// If true a new machine is created, otherwise an existing one is used
+  qfsm::Machine* m_machine;
+  qfsm::PasteUndoDataPtr m_pasteUndoData;
+  bool m_quiet; /// If true, no error messages are print (or dialog boxes opened) during parsing
 
- /// Input names
- QString inames;
- /// Output names
- QString onames;
- /// Moore output names
- QString monames;
- /// State name
- QString sname;
- /// deprecated
- bool inamescont;
- /// deprecated
- bool onamescont;
- /// deprecated
- bool monamescont;
- /// deprecated
- bool snamecont;
- /// true is the current state has a code
- bool m_stateHasCode;
- /// Transition tyoe
- int m_transitionType;
- /// Input info
- QString iinfo;
- /// Output info
- QString oinfo;
- /// Invert input info
- bool invert;
- /// any input info
- bool any;
- /// default transition
- bool def;
- /// deprecated
- bool fromcont;
- /// deprecated
- bool tocont;
- /// deprecated
- bool tincont;
- /// deprecated
- bool toutcont;
- /// true if the transition has a starting state
- bool hasfrom;
- /// true if the transition has an end state
- bool hasto;
- /// Starting state
- QString from;
- /// End state
- QString to;
- /// List of removed states
- QList<int> rstatelist;
- /// Mapping of old state codes to new state codes
- QHash<int, int> m_stateCodesMapping;
- /// true if there is ann initial state
- bool m_hasInitialState;
- /// List of added states (used for undo)
- QList<GState*> undostatelist;
- /// List of added transitions (used for undo)
- QList<GTransition*> undotranslist;
- /// Old initial state (used for undo)
- qfsm::StatePtr m_prevInitialState;
- /// New initial state (used for undo)
- GState* newinitialstate;
- /// Old initial transition (used for undo)
- qfsm::TransitionPtr m_prevInitialTransition;
- /// New initial transition (used for undo)
- GITransition* newinitialtrans;
- // Number of moore output bits
- int m_mooreOutputsCount;
- // Number of mealy input bits
- int m_mealyInputsCount;
- // Number of mealy output bits
- int m_mealyOutputsCount;
- /// Number of bits for state encoding
- int state_code_size;
- /// Old number of moore output bits (used for undo)
- int m_prevMooreOutputsCount;
- /// Old number of input bits (used for undo)
- int m_prevMealyInputsCount;
- /// Old number of output bits (used for undo)
- int m_prevMealyOutputsCount;
+  /// Processed state pointer
+  qfsm::StatePtr m_state{};
+  /// Processed transition pointer
+  qfsm::TransitionPtr m_transition{};
+  /// Processed initial transition
+  qfsm::InitialTransitionPtr m_initialTransition{};
+  /// Version of Qfsm that created the document
+  double m_projectVersion{};
+  /// Code of the initial state (that has to be saved during parsing)
+  int m_initialStateCode{ -1 };
+
+  TransitionInfoData m_transitionInfo{};
+
+  QString m_textData{};
+  /// true is the current state has a code
+  bool m_stateHasCode;
+  /// Transition tyoe
+  int m_transitionType;
+  /// Mapping of old state codes to new state codes
+  QHash<int, int> m_stateCodesMapping;
+  /// true if there is ann initial state
+  bool m_hasInitialState;
 };
 
 #endif

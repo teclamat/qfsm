@@ -52,6 +52,9 @@ class Machine {
   QFont& transitionFont() { return m_transitionFont; }
   const QFont& transitionFont() const { return m_transitionFont; }
 
+  const StatePtr& phantomState() const { return m_phantomState; }
+  StatePtr phantomState() { return m_phantomState; }
+
   bool hasInitialState() const { m_initialState != nullptr; }
   const StatePtr& initialState() const { return m_initialState; }
   StatePtr initialState() { return m_initialState; }

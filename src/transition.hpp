@@ -14,10 +14,11 @@ namespace qfsm {
 
 class State;
 using StatePtr = std::shared_ptr<State>;
-using InfoPtr = std::unique_ptr<TransitionInfo>;
 
 class Transition : public ITransition {
  public:
+  using InfoPtr = std::unique_ptr<TransitionInfo>;
+
   Transition();
   Transition(const StatePtr& a_stateStart, const StatePtr& a_stateEnd, InfoPtr&& a_info);
   ~Transition() = default;
@@ -44,6 +45,8 @@ class Transition : public ITransition {
 
   bool isStraight() const { return m_isStraight; }
   void setStraight(bool a_isStraight = true) { m_isStraight = a_isStraight; }
+
+  void setInfo(InfoPtr&& a_info) { m_info = std::move(a_info); }
 
  private:
   StatePtr m_startState;
